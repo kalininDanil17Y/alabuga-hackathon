@@ -1,0 +1,41 @@
+{
+  "statistics": {
+    "overview": {
+      "totalMissions": 23,
+      "completedMissions": 18,
+      "successRate": 78.3,
+      "totalExperience": 2450,
+      "currentLevel": 2,
+      "nextLevelXP": 3000
+    },
+    "weekly": {
+      "missionsCompleted": 5,
+      "experienceGained": 650,
+      "artifactsFound": 2,
+      "achievementsUnlocked": 1
+    },
+    "categories": {
+      "reconnaissance": {
+        "completed": 8,
+        "total": 10,
+        "successRate": 80
+      },
+      "intelligence": {
+        "completed": 6,
+        "total": 7,
+        "successRate": 85.7
+      },
+      "maintenance": {
+        "completed": 4,
+        "total": 6,
+        "successRate": 66.7
+      }
+    },
+    "performance": {
+      "efficiency": 87,
+      "accuracy": 92,
+      "teamwork": 89,
+      "innovation": 78
+    }
+  }
+}

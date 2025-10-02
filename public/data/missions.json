@@ -1,0 +1,70 @@
+{
+  "missions": [
+    {
+      "id": "mission_001",
+      "title": "Ключевые задания для выполнения",
+      "description": "Основные задачи по разведке территории",
+      "status": "active",
+      "priority": "high",
+      "progress": 30,
+      "deadline": "2024-01-25",
+      "category": "reconnaissance",
+      "xpReward": 150
+    },
+    {
+      "id": "mission_002", 
+      "title": "Ключевые задания для выполнения",
+      "description": "Сбор данных о противнике",
+      "status": "active",
+      "priority": "medium",
+      "progress": 60,
+      "deadline": "2024-01-28",
+      "category": "intelligence",
+      "xpReward": 120
+    },
+    {
+      "id": "mission_003",
+      "title": "Ключевые задания для выполнения", 
+      "description": "Техническое обслуживание оборудования",
+      "status": "active",
+      "priority": "low",
+      "progress": 10,
+      "deadline": "2024-02-01",
+      "category": "maintenance",
+      "xpReward": 80
+    },
+    {
+      "id": "mission_004",
+      "title": "Ключевые задания для выполнения",
+      "description": "Обучение новых рекрутов",
+      "status": "completed",
+      "priority": "medium",
+      "progress": 100,
+      "completedDate": "2024-01-18",
+      "category": "training",
+      "xpReward": 200
+    },
+    {
+      "id": "mission_005",
+      "title": "Ключевые задания для выполнения",
+      "description": "Патрулирование сектора А-7",
+      "status": "completed",
+      "priority": "high", 
+      "progress": 100,
+      "completedDate": "2024-01-16",
+      "category": "patrol",
+      "xpReward": 180
+    },
+    {
+      "id": "mission_006",
+      "title": "Ключевые задания для выполнения",
+      "description": "Ана��из собранных данных",
+      "status": "completed",
+      "priority": "medium",
+      "progress": 100,
+      "completedDate": "2024-01-14",
+      "category": "analysis",
+      "xpReward": 100
+    }
+  ]
+}

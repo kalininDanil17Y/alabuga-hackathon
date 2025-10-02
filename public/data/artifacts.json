@@ -1,0 +1,60 @@
+{
+  "artifacts": [
+    {
+      "id": "artifact_001",
+      "name": "Энергетический кристалл",
+      "description": "Редкий кристалл с высокой энергетической емкостью",
+      "rarity": "legendary",
+      "foundDate": "2024-01-19",
+      "location": "Сектор Г-15",
+      "image": "/artifacts/crystal.jpg",
+      "stats": {
+        "energy": 95,
+        "stability": 88,
+        "efficiency": 92
+      }
+    },
+    {
+      "id": "artifact_002",
+      "name": "Древний процессор",
+      "description": "Вычислительное устройство неизвестной технологии",
+      "rarity": "epic",
+      "foundDate": "2024-01-17",
+      "location": "Станция Альфа",
+      "image": "/artifacts/processor.jpg",
+      "stats": {
+        "processing": 89,
+        "memory": 76,
+        "compatibility": 65
+      }
+    },
+    {
+      "id": "artifact_003",
+      "name": "Защитный модуль",
+      "description": "Устройство для создания защитных полей",
+      "rarity": "rare",
+      "foundDate": "2024-01-15",
+      "location": "Подземные туннели",
+      "image": "/artifacts/shield.jpg",
+      "stats": {
+        "defense": 82,
+        "durability": 90,
+        "range": 58
+      }
+    },
+    {
+      "id": "artifact_004",
+      "name": "Навигационный чип",
+      "description": "Микросхема для точного позиционирования",
+      "rarity": "uncommon",
+      "foundDate": "2024-01-12",
+      "location": "Заброшенный корабль",
+      "image": "/artifacts/chip.jpg",
+      "stats": {
+        "accuracy": 94,
+        "range": 72,
+        "battery": 68
+      }
+    }
+  ]
+}

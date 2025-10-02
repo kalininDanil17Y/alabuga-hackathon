@@ -1,0 +1,19 @@
+.texture-panel {
+    border: 20px solid transparent;
+    border-image-source: url('/src/images/content-block.svg');
+    border-image-slice: 10 fill;
+    border-image-repeat: stretch;
+    background-color: #001b66;
+}
+
+.texture-panel__overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.texture-panel__content {
+    position: relative;
+    z-index: 1;
+}

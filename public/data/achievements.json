@@ -1,0 +1,36 @@
+{
+  "achievements": [
+    {
+      "id": "achievement_001",
+      "title": "Первая миссия",
+      "description": "Завершена первая разведывательная миссия",
+      "unlockedDate": "2024-01-15",
+      "category": "milestone",
+      "rarity": "common"
+    },
+    {
+      "id": "achievement_002",
+      "title": "Разведчик",
+      "description": "Получен ранг разведчика",
+      "unlockedDate": "2024-01-16",
+      "category": "rank",
+      "rarity": "uncommon"
+    },
+    {
+      "id": "achievement_003",
+      "title": "Командная работа",
+      "description": "Участие в 5 групповых миссиях",
+      "unlockedDate": "2024-01-18",
+      "category": "teamwork",
+      "rarity": "rare"
+    },
+    {
+      "id": "achievement_004",
+      "title": "Техический эксперт",
+      "description": "Освоение продвинутого оборудования",
+      "unlockedDate": "2024-01-19",
+      "category": "technical",
+      "rarity": "epic"
+    }
+  ]
+}

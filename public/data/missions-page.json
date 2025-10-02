@@ -1,0 +1,172 @@
+{
+  "statusLabels": {
+    "available": "Доступно",
+    "in_progress": "Выполняется",
+    "moderation": "На модерации",
+    "completed": "Завершено",
+    "locked": "Недоступно"
+  },
+  "filterCompetencyOptions": [
+    { "value": "all", "label": "Все компетенции" },
+    { "value": "competency_001", "label": "Анализ разведданных" },
+    { "value": "competency_002", "label": "Тактическое планирование" },
+    { "value": "competency_003", "label": "Техническое обслуживание" },
+    { "value": "competency_004", "label": "Полевая подготовка" }
+  ],
+  "entries": [
+    {
+      "id": "chain_alpha",
+      "title": "Цепочка миссий: Разведка фронтира",
+      "description":
+      "Последовательность заданий по разведке и установлению коммуникаций на новых территориях.",
+      "status": "in_progress",
+      "type": "chain",
+      "competencyId": "competency_002",
+      "tasks": [
+        {
+          "id": "mission_alpha_1",
+          "title": "Разведать сектор А-7",
+          "status": "completed",
+          "progress": 100,
+          "reward": { "xp": 80 }
+        },
+        {
+          "id": "mission_alpha_2",
+          "title": "Отследить сигналы коммуникаций",
+          "status": "in_progress",
+          "progress": 45,
+          "reward": { "xp": 120 }
+        },
+        {
+          "id": "mission_alpha_3",
+          "title": "Построить мостовой ретранслятор",
+          "status": "available",
+          "progress": 0,
+          "reward": { "xp": 150 }
+        },
+        {
+          "id": "mission_alpha_4",
+          "title": "Закрепить периметр",
+          "status": "locked",
+          "progress": 0,
+          "reward": { "xp": 150 }
+        }
+      ]
+    },
+    {
+      "id": "chain_beta",
+      "title": "Цепочка миссий: Информационный анализ",
+      "description":
+      "Подборка задач по анализу и верификации разведданных для координации действий.",
+      "status": "moderation",
+      "type": "chain",
+      "competencyId": "competency_001",
+      "tasks": [
+        {
+          "id": "mission_beta_1",
+          "title": "Протоколирование данных наблюдений",
+          "status": "completed",
+          "progress": 100,
+          "reward": { "xp": 60 }
+        },
+        {
+          "id": "mission_beta_2",
+          "title": "Кросс-проверка полученных отчетов",
+          "status": "moderation",
+          "progress": 75,
+          "reward": { "xp": 100 }
+        },
+        {
+          "id": "mission_beta_3",
+          "title": "Составление аналитической сводки",
+          "status": "available",
+          "progress": 0,
+          "reward": { "xp": 140 }
+        }
+      ]
+    },
+    {
+      "id": "chain_gamma",
+      "title": "Цепочка миссий: Подготовка рекрутов",
+      "description": "Обучение и сопровождение новых участников разведгруппы.",
+      "status": "available",
+      "type": "chain",
+      "competencyId": "competency_003",
+      "tasks": [
+        {
+          "id": "mission_gamma_1",
+          "title": "Собрать тренировочный лагерь",
+          "status": "available",
+          "progress": 10,
+          "reward": { "xp": 70 }
+        },
+        {
+          "id": "mission_gamma_2",
+          "title": "Организовать полевой брифинг",
+          "status": "available",
+          "progress": 0,
+          "reward": { "xp": 90 }
+        },
+        {
+          "id": "mission_gamma_3",
+          "title": "Оценить результаты обучения",
+          "status": "locked",
+          "progress": 0,
+          "reward": { "xp": 120 }
+        }
+      ]
+    },
+    {
+      "id": "single_delta",
+      "title": "Миссия: Тестирование защитного поля",
+      "description":
+      "Изолированное задание по проверке нового генератора защитного купола.",
+      "status": "available",
+      "type": "single",
+      "competencyId": "competency_004",
+      "tasks": [
+        {
+          "id": "mission_delta",
+          "title": "Активировать и протестировать поле",
+          "status": "available",
+          "progress": 20,
+          "reward": { "xp": 110 }
+        }
+      ]
+    },
+    {
+      "id": "single_epsilon",
+      "title": "Миссия: Доставка редкого образца",
+      "description": "Транспортировка нестабильного артефакта в научный центр.",
+      "status": "completed",
+      "type": "single",
+      "competencyId": "competency_002",
+      "tasks": [
+        {
+          "id": "mission_epsilon",
+          "title": "Организовать охранное сопровождение",
+          "status": "completed",
+          "progress": 100,
+          "reward": { "xp": 95 }
+        }
+      ]
+    },
+    {
+      "id": "chain_hidden",
+      "title": "Цепочка миссий: Заблокированный сектор",
+      "description": "Набор заданий, доступ к которым ограничен.",
+      "status": "locked",
+      "type": "chain",
+      "competencyId": "competency_locked",
+      "tasks": [
+        {
+          "id": "mission_hidden_1",
+          "title": "Проверка систем безопасности",
+          "status": "locked",
+          "progress": 0
+        }
+      ]
+    }
+  ]
+}
+
