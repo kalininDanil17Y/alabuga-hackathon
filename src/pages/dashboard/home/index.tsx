@@ -76,19 +76,7 @@ const DashboardHome = () => {
         return `Компетенции: ${user.competencies.completed}/${user.competencies.total}`;
     }, [user]);
 
-    const topMissions = useMemo(() => {
-        // const activeOrAvailable = missions.filter((mission) =>
-        //     mission.status === "active" || mission.status === "available",
-        // );
-
-        const activeOrAvailable = missions
-
-        if (activeOrAvailable.length > 0) {
-            return activeOrAvailable.slice(0, 6);
-        }
-
-        return missions.slice(0, 6);
-    }, [missions]);
+    const missionItems = useMemo(() => missions, [missions]);
     const topAchievements = useMemo(() => achievements.slice(0, 4), [achievements]);
     const topArtifacts = useMemo(() => artifacts.slice(0, 4), [artifacts]);
     const competencyItems = competencies;
@@ -216,10 +204,10 @@ const DashboardHome = () => {
                 {activeTab === "missions" ? (
                     <TexturePanel contentClassName="p-4">
                         <div className="space-y-2">
-                            {topMissions.map((mission) => (
+                            {missionItems.map((mission) => (
                                 <div key={mission.id} className={styles["mission-item"]}>
                                     <div className="flex-1 pr-4">
-                                        <p className="text-white text-xs font-normal">{mission.title}</p>
+                                        <p className="text-white text-xs font-normal">{mission.title || mission.id}</p>
                                     </div>
                                     <button
                                         className={styles["mission-button"]}
@@ -391,7 +379,7 @@ const DashboardHome = () => {
                             className="p-3 flex items-center justify-between"
                         >
                             <div className="flex items-center justify-between">
-                                <p className="text-white text-xs">{mission.title}</p>
+                                <p className="text-white text-xs">{mission.title || mission.id}</p>
                                 <SpaceButton variant="outline" size="sm">
                                     Подробнее
                                 </SpaceButton>
@@ -430,4 +418,3 @@ const DashboardHome = () => {
 };
 
 export default DashboardHome;
-

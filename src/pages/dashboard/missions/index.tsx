@@ -38,6 +38,7 @@ const MissionsPage = () => {
     const competencyIdParam = searchParams.get("competencyId");
     const missionRefs = useRef<Record<string, HTMLDivElement | null>>({});
     const [focusedMissionId, setFocusedMissionId] = useState<string | null>(null);
+    const syncedFilterKeyRef = useRef<string | null>(null);
 
     const setMissionRef = useCallback(
         (missionId: string) => (node: HTMLDivElement | null) => {
@@ -53,6 +54,7 @@ const MissionsPage = () => {
     useEffect(() => {
         if (!missionIdParam) {
             setFocusedMissionId(null);
+            syncedFilterKeyRef.current = null;
             return;
         }
 
@@ -66,25 +68,40 @@ const MissionsPage = () => {
 
         if (!targetEntry) {
             setFocusedMissionId(null);
+            syncedFilterKeyRef.current = null;
             return;
         }
 
         setFocusedMissionId(targetEntry.id);
 
         const targetCompetency = competencyIdParam ?? targetEntry.competencyId ?? "all";
-        if (targetCompetency && missionsFilters.competencyId !== targetCompetency) {
-            setMissionsFilters({ competencyId: targetCompetency });
+        const canApplyCompetency =
+            targetCompetency === "all" || missionFilterOptions.some((option) => option.value === targetCompetency);
+        const syncKey = `${missionIdParam}-${targetCompetency}`;
+
+        if (!canApplyCompetency) {
+            syncedFilterKeyRef.current = null;
+            return;
         }
 
-        if (missionsFilters.status !== "all" && missionsFilters.status !== targetEntry.status) {
-            setMissionsFilters({ status: "all" });
+        if (
+            missionsFilters.competencyId !== targetCompetency &&
+            syncedFilterKeyRef.current !== syncKey
+        ) {
+            setMissionsFilters({ competencyId: targetCompetency });
+            syncedFilterKeyRef.current = syncKey;
+            return;
+        }
+
+        if (syncedFilterKeyRef.current !== syncKey) {
+            syncedFilterKeyRef.current = syncKey;
         }
     }, [
         missionIdParam,
         competencyIdParam,
         missionsEntries,
+        missionFilterOptions,
         missionsFilters.competencyId,
-        missionsFilters.status,
         setMissionsFilters,
     ]);
 
