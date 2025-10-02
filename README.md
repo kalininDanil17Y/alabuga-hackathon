@@ -42,3 +42,12 @@ docker run -p 8080:80 --rm danilo9/alabuga-tech:latest
 ## Превью проекта
 
 Актуальная версия уже задеплоена и доступна по адресу: [https://alabuga.kdser.site/](https://alabuga.kdser.site/)
+
+## Тех стек
+- React 18
+- TypeScript 5
+- Vite 6 (bundler & dev server)
+- Tailwind CSS 3
+- Zustand (state management)
+- Radix UI + custom components
+- Vitest + Testing Library (testing setup)
