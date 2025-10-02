@@ -146,17 +146,29 @@ const MissionsPage = () => {
 
         const panel = missionRefs.current[focusedMissionId];
         const taskNode = focusedTaskId ? missionTaskRefs.current[focusedTaskId] : null;
+        const target = taskNode ?? panel;
 
-        if (!panel && !taskNode) {
+        if (!target) {
             return;
         }
 
-        const frame = window.requestAnimationFrame(() => {
-            const target = taskNode ?? panel;
-            target?.scrollIntoView({ behavior: "smooth", block: "center" });
+        let frameOne: number | null = null;
+        let frameTwo: number | null = null;
+
+        frameOne = window.requestAnimationFrame(() => {
+            frameTwo = window.requestAnimationFrame(() => {
+                target.scrollIntoView({ behavior: "smooth", block: "center" });
+            });
         });
 
-        return () => window.cancelAnimationFrame(frame);
+        return () => {
+            if (frameOne !== null) {
+                window.cancelAnimationFrame(frameOne);
+            }
+            if (frameTwo !== null) {
+                window.cancelAnimationFrame(frameTwo);
+            }
+        };
     }, [focusedMissionId, focusedTaskId, filteredEntries]);
 
     const handleFilterChange = (key: FilterKey, value: string) => {
