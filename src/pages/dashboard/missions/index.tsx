@@ -37,12 +37,21 @@ const MissionsPage = () => {
     const missionIdParam = searchParams.get("missionId");
     const competencyIdParam = searchParams.get("competencyId");
     const missionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+    const missionTaskRefs = useRef<Record<string, HTMLDivElement | null>>({});
     const [focusedMissionId, setFocusedMissionId] = useState<string | null>(null);
+    const [focusedTaskId, setFocusedTaskId] = useState<string | null>(null);
     const syncedFilterKeyRef = useRef<string | null>(null);
 
     const setMissionRef = useCallback(
         (missionId: string) => (node: HTMLDivElement | null) => {
             missionRefs.current[missionId] = node;
+        },
+        [],
+    );
+
+    const setMissionTaskRef = useCallback(
+        (taskId: string) => (node: HTMLDivElement | null) => {
+            missionTaskRefs.current[taskId] = node;
         },
         [],
     );
@@ -54,6 +63,7 @@ const MissionsPage = () => {
     useEffect(() => {
         if (!missionIdParam) {
             setFocusedMissionId(null);
+            setFocusedTaskId(null);
             syncedFilterKeyRef.current = null;
             return;
         }
@@ -68,11 +78,15 @@ const MissionsPage = () => {
 
         if (!targetEntry) {
             setFocusedMissionId(null);
+            setFocusedTaskId(null);
             syncedFilterKeyRef.current = null;
             return;
         }
 
         setFocusedMissionId(targetEntry.id);
+
+        const matchedTask = targetEntry.tasks.find((task) => task.id === missionIdParam);
+        setFocusedTaskId(matchedTask?.id ?? null);
 
         const targetCompetency = competencyIdParam ?? targetEntry.competencyId ?? "all";
         const canApplyCompetency =
@@ -125,22 +139,25 @@ const MissionsPage = () => {
             return;
         }
 
-        const isRendered = filteredEntries.some((entry) => entry.id === focusedMissionId);
-        if (!isRendered) {
+        const entry = filteredEntries.find((item) => item.id === focusedMissionId);
+        if (!entry) {
             return;
         }
 
         const panel = missionRefs.current[focusedMissionId];
-        if (!panel) {
+        const taskNode = focusedTaskId ? missionTaskRefs.current[focusedTaskId] : null;
+
+        if (!panel && !taskNode) {
             return;
         }
 
         const frame = window.requestAnimationFrame(() => {
-            panel.scrollIntoView({ behavior: "smooth", block: "center" });
+            const target = taskNode ?? panel;
+            target?.scrollIntoView({ behavior: "smooth", block: "center" });
         });
 
         return () => window.cancelAnimationFrame(frame);
-    }, [focusedMissionId, filteredEntries]);
+    }, [focusedMissionId, focusedTaskId, filteredEntries]);
 
     const handleFilterChange = (key: FilterKey, value: string) => {
         if (key === "status") {
@@ -148,6 +165,7 @@ const MissionsPage = () => {
             return;
         }
 
+        syncedFilterKeyRef.current = null;
         setMissionsFilters({ competencyId: value });
     };
 
@@ -240,7 +258,15 @@ const MissionsPage = () => {
                                 {entry.tasks.map((task) => {
                                     const progressWidth = Math.min(task.progress, 100);
                                     return (
-                                        <div key={task.id} className={styles.taskRow}>
+                                        <div
+                                            key={task.id}
+                                            ref={setMissionTaskRef(task.id)}
+                                            className={clsx(
+                                                styles.taskRow,
+                                                focusedTaskId === task.id && styles.missionTaskFocused,
+                                            )}
+                                            style={{ scrollMarginTop: "96px" }}
+                                        >
                                             <div>
                                                 <p className={styles.taskTitle}>{task.title}</p>
                                                 {task.reward?.xp ? (

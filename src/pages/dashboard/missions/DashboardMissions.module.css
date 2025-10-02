@@ -30,10 +30,6 @@
     @apply bg-space-blue-900/60 rounded-xl shadow-[0_0_18px_rgba(6,12,46,0.45)];
 }
 
-.missionPanelFocused {
-    @apply ring-2 ring-space-cyan-400/70 shadow-[0_0_28px_rgba(82,226,230,0.4)];
-}
-
 .missionContent {
     @apply p-4 space-y-4;
 }
