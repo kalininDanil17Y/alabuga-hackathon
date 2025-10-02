@@ -1,5 +1,6 @@
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
+import { useSearchParams } from "react-router-dom";
 import { SpaceButton } from "@/components/ui/custom/space-button";
 import { SpaceCard } from "@/components/ui/custom/space-card";
 import { TexturePanel } from "@/components/ui/custom/texture-panel";
@@ -32,9 +33,91 @@ const MissionsPage = () => {
         setMissionsFilters: state.setMissionsFilters,
     }));
 
+    const [searchParams] = useSearchParams();
+    const missionIdParam = searchParams.get("missionId");
+    const competencyIdParam = searchParams.get("competencyId");
+    const missionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+    const missionTaskRefs = useRef<Record<string, HTMLDivElement | null>>({});
+    const [focusedMissionId, setFocusedMissionId] = useState<string | null>(null);
+    const [focusedTaskId, setFocusedTaskId] = useState<string | null>(null);
+    const syncedFilterKeyRef = useRef<string | null>(null);
+
+    const setMissionRef = useCallback(
+        (missionId: string) => (node: HTMLDivElement | null) => {
+            missionRefs.current[missionId] = node;
+        },
+        [],
+    );
+
+    const setMissionTaskRef = useCallback(
+        (taskId: string) => (node: HTMLDivElement | null) => {
+            missionTaskRefs.current[taskId] = node;
+        },
+        [],
+    );
+
     useEffect(() => {
         void fetchMissionsPage();
     }, [fetchMissionsPage]);
+
+    useEffect(() => {
+        if (!missionIdParam) {
+            setFocusedMissionId(null);
+            setFocusedTaskId(null);
+            syncedFilterKeyRef.current = null;
+            return;
+        }
+
+        if (missionsEntries.length === 0) {
+            return;
+        }
+
+        const targetEntry = missionsEntries.find(
+            (entry) => entry.id === missionIdParam || entry.tasks.some((task) => task.id === missionIdParam),
+        );
+
+        if (!targetEntry) {
+            setFocusedMissionId(null);
+            setFocusedTaskId(null);
+            syncedFilterKeyRef.current = null;
+            return;
+        }
+
+        setFocusedMissionId(targetEntry.id);
+
+        const matchedTask = targetEntry.tasks.find((task) => task.id === missionIdParam);
+        setFocusedTaskId(matchedTask?.id ?? null);
+
+        const targetCompetency = competencyIdParam ?? targetEntry.competencyId ?? "all";
+        const canApplyCompetency =
+            targetCompetency === "all" || missionFilterOptions.some((option) => option.value === targetCompetency);
+        const syncKey = `${missionIdParam}-${targetCompetency}`;
+
+        if (!canApplyCompetency) {
+            syncedFilterKeyRef.current = null;
+            return;
+        }
+
+        if (
+            missionsFilters.competencyId !== targetCompetency &&
+            syncedFilterKeyRef.current !== syncKey
+        ) {
+            setMissionsFilters({ competencyId: targetCompetency });
+            syncedFilterKeyRef.current = syncKey;
+            return;
+        }
+
+        if (syncedFilterKeyRef.current !== syncKey) {
+            syncedFilterKeyRef.current = syncKey;
+        }
+    }, [
+        missionIdParam,
+        competencyIdParam,
+        missionsEntries,
+        missionFilterOptions,
+        missionsFilters.competencyId,
+        setMissionsFilters,
+    ]);
 
     const missionStatusOptions = useMemo(
         () => [{ value: "all", label: "Все статусы" }, ...statusOrder.map((status) => ({ value: status, label: missionStatusLabels[status] }))],
@@ -51,12 +134,50 @@ const MissionsPage = () => {
         });
     }, [missionsEntries, missionsFilters]);
 
+    useEffect(() => {
+        if (!focusedMissionId) {
+            return;
+        }
+
+        const entry = filteredEntries.find((item) => item.id === focusedMissionId);
+        if (!entry) {
+            return;
+        }
+
+        const panel = missionRefs.current[focusedMissionId];
+        const taskNode = focusedTaskId ? missionTaskRefs.current[focusedTaskId] : null;
+        const target = taskNode ?? panel;
+
+        if (!target) {
+            return;
+        }
+
+        let frameOne: number | null = null;
+        let frameTwo: number | null = null;
+
+        frameOne = window.requestAnimationFrame(() => {
+            frameTwo = window.requestAnimationFrame(() => {
+                target.scrollIntoView({ behavior: "smooth", block: "center" });
+            });
+        });
+
+        return () => {
+            if (frameOne !== null) {
+                window.cancelAnimationFrame(frameOne);
+            }
+            if (frameTwo !== null) {
+                window.cancelAnimationFrame(frameTwo);
+            }
+        };
+    }, [focusedMissionId, focusedTaskId, filteredEntries]);
+
     const handleFilterChange = (key: FilterKey, value: string) => {
         if (key === "status") {
             setMissionsFilters({ status: value as MissionStatus | "all" });
             return;
         }
 
+        syncedFilterKeyRef.current = null;
         setMissionsFilters({ competencyId: value });
     };
 
@@ -123,7 +244,17 @@ const MissionsPage = () => {
                     </SpaceCard>
                 ) : (
                     filteredEntries.map((entry) => (
-                        <TexturePanel key={entry.id} className={styles.missionPanel} contentClassName={styles.missionContent} overlay>
+                        <TexturePanel
+                            key={entry.id}
+                            ref={setMissionRef(entry.id)}
+                            className={clsx(
+                                styles.missionPanel,
+                                focusedMissionId === entry.id && styles.missionPanelFocused,
+                            )}
+                            contentClassName={styles.missionContent}
+                            overlay
+                            style={{ scrollMarginTop: "96px" }}
+                        >
                             <div className={styles.missionHeader}>
                                 <div>
                                     <h3 className={styles.missionTitle}>{entry.title}</h3>
@@ -139,7 +270,15 @@ const MissionsPage = () => {
                                 {entry.tasks.map((task) => {
                                     const progressWidth = Math.min(task.progress, 100);
                                     return (
-                                        <div key={task.id} className={styles.taskRow}>
+                                        <div
+                                            key={task.id}
+                                            ref={setMissionTaskRef(task.id)}
+                                            className={clsx(
+                                                styles.taskRow,
+                                                focusedTaskId === task.id && styles.missionTaskFocused,
+                                            )}
+                                            style={{ scrollMarginTop: "96px" }}
+                                        >
                                             <div>
                                                 <p className={styles.taskTitle}>{task.title}</p>
                                                 {task.reward?.xp ? (
