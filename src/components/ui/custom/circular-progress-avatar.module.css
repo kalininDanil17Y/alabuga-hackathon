@@ -1,0 +1,38 @@
+.root {
+    @apply relative flex items-center justify-center;
+}
+
+.gradientOverlay {
+    @apply absolute inset-0 rounded-full;
+}
+
+.radianceOverlay {
+    background: radial-gradient(circle at 50% 45%, rgba(106, 207, 246, 0.35) 0%, rgba(12, 23, 81, 0.6) 65%, rgba(6, 12, 46, 0.85) 100%);
+    @apply absolute inset-0 rounded-full mix-blend-screen opacity-70;
+}
+
+.glowImage {
+    @apply pointer-events-none absolute inset-0 rounded-full object-cover mix-blend-screen opacity-80;
+    z-index: 10;
+}
+
+.track {
+    @apply absolute rounded-full border border-space-blue-700/70 bg-space-blue-900/80 shadow-[0_0_18px_rgba(11,171,249,0.35)];
+}
+
+.avatarWrapper {
+    @apply absolute rounded-full overflow-hidden shadow-[0_0_12px_rgba(11,171,249,0.45)];
+}
+
+.avatarImage {
+    @apply absolute inset-0 h-full w-full object-cover z-[1];
+}
+
+.borderOverlay {
+    @apply pointer-events-none absolute inset-0 rounded-full border border-white/10;
+}
+
+.lightOverlay {
+    background: conic-gradient(from 90deg, rgba(255, 255, 255, 0.32) 0deg, rgba(255, 255, 255, 0) 120deg);
+    @apply pointer-events-none absolute inset-0 rounded-full opacity-60;
+}

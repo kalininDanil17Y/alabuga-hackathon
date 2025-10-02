@@ -1,0 +1,144 @@
+.stateMessage {
+    @apply py-10 text-center text-white/70;
+}
+
+.stateError {
+    @apply py-10 text-center text-red-300;
+}
+
+.stateContent {
+    @apply space-y-3;
+}
+
+.dashboard-tab {
+    @apply relative inline-flex items-center justify-center px-6 py-2 text-sm font-semibold uppercase tracking-wide text-space-cyan-300 transition-all duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-space-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-space-blue-900;
+    background-image: url("../../../images/dashboard-tab-default.webp");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    min-width: 150px;
+    white-space: nowrap;
+}
+
+.dashboard-tab:hover,
+.dashboard-tab-active {
+    background-image: url("@/images/dashboard-tab-active.webp");
+    color: #f8fbff;
+    filter: drop-shadow(0 0 10px rgba(106, 207, 246, 0.55));
+}
+
+.experience-card {
+    border: 20px solid transparent;
+    border-image-source: url('/src/images/experience-card-bg.svg');
+    border-image-slice: 10 fill;
+    border-image-repeat: stretch;
+}
+
+.competency-item {
+    @apply relative flex flex-col gap-4 rounded-md p-3 md:flex-row md:items-center md:gap-6;
+    background: transparent;
+    z-index: 1;
+}
+
+.mission-item {
+    @apply relative flex items-center justify-between p-3 border-b border-space-blue-600;
+    min-height: 32px;
+    z-index: 1;
+}
+
+.mission-item:last-child {
+    @apply border-b-0;
+}
+
+.mission-button {
+    @apply relative inline-flex items-center justify-center text-xs font-medium uppercase text-white transition-all duration-200 ease-out;
+    background-image: url("@/images/mission-button.webp");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: none;
+    border-radius: 4px;
+    min-width: 76px;
+    height: 30px;
+    white-space: nowrap;
+    padding: 4px 12px 8px;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.35));
+}
+
+.mission-button:hover {
+    filter: brightness(1.12) drop-shadow(0 2px 2px rgba(0, 0, 0, 0.35));
+}
+
+.view-all-button {
+    @apply relative inline-flex items-center justify-center px-4 py-2 text-xs font-medium uppercase text-white transition-all duration-200 ease-out;
+    background-image: url("@/images/mission-button.webp");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: none;
+    border-radius: 4px;
+    min-width: 96px;
+    height: 28px;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.35));
+    margin-bottom: 12px;
+}
+
+.view-all-button:hover {
+    filter: brightness(1.12) drop-shadow(0 2px 2px rgba(0, 0, 0, 0.35));
+}
+
+.achievement-card {
+    @apply relative overflow-hidden rounded-lg;
+    border: 1px solid rgba(106, 207, 246, 0.35);
+    background: radial-gradient(
+            115% 135% at 50% 15%,
+            rgba(106, 207, 246, 0.38) 0%,
+            rgba(12, 23, 81, 0.92) 68%,
+            rgba(6, 12, 46, 0.95) 100%
+    );
+    box-shadow: 0 0 22px rgba(41, 179, 216, 0.25);
+    z-index: 0;
+}
+
+.achievement-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.12) 0%,
+            rgba(41, 179, 216, 0.18) 45%,
+            rgba(6, 12, 46, 0.65) 100%
+    );
+    opacity: 0.9;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.stat-card {
+    @apply relative overflow-hidden rounded-lg;
+    border: 1px solid rgba(74, 100, 255, 0.35);
+    background: linear-gradient(
+            140deg,
+            rgba(74, 100, 255, 0.28) 0%,
+            rgba(12, 23, 81, 0.92) 54%,
+            rgba(6, 12, 46, 0.95) 100%
+    );
+    box-shadow: 0 0 24px rgba(74, 100, 255, 0.22);
+    z-index: 0;
+}
+
+.stat-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+            135% 120% at 50% 0%,
+            rgba(106, 207, 246, 0.2) 0%,
+            rgba(12, 23, 81, 0.8) 60%,
+            rgba(6, 12, 46, 0.9) 100%
+    );
+    opacity: 0.85;
+    pointer-events: none;
+    z-index: 0;
+}

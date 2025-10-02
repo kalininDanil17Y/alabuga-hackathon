@@ -1,183 +1,109 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { SpaceButton } from "@/components/ui/custom/space-button.tsx";
-import { SpaceProgress } from "@/components/ui/custom/space-progress.tsx";
-import { SpaceCard } from "@/components/ui/custom/space-card.tsx";
-import { TexturePanel } from "@/components/ui/custom/texture-panel.tsx";
-import { cn } from "@/lib/utils.ts";
-import type {
-    Achievement,
-    Artifact,
-    CompetencyItem,
-    Mission,
-    Statistics,
-    User,
-} from "@/types/dashboard";
-import "./style.css";
+import clsx from "clsx";
+import { SpaceButton } from "@/components/ui/custom/space-button";
+import { SpaceProgress } from "@/components/ui/custom/space-progress";
+import { SpaceCard } from "@/components/ui/custom/space-card";
+import { TexturePanel } from "@/components/ui/custom/texture-panel";
+import { cn } from "@/lib/utils";
+import { useDashboardStore } from "@/store/dashboardStore";
+import styles from "./DashboardHome.module.css";
 
-type DashboardData = {
-    user: User;
-    missions: Mission[];
-    achievements: Achievement[];
-    artifacts: Artifact[];
-    competencies: CompetencyItem[];
-    statistics: Statistics | null;
+const missionFocusMap: Record<string, { missionId: string; competencyId?: string }> = {
+    mission_001: {
+        missionId: "mission_alpha_2",
+        competencyId: "competency_002",
+    },
+    mission_002: {
+        missionId: "mission_gamma_1",
+        competencyId: "competency_003",
+    },
+    mission_003: {
+        missionId: "mission_alpha_3",
+        competencyId: "competency_002",
+    },
+    mission_004: {
+        missionId: "mission_beta_2",
+        competencyId: "competency_001",
+    },
+    mission_005: { missionId: "mission_delta", competencyId: "competency_004" },
+    mission_006: {
+        missionId: "mission_gamma_2",
+        competencyId: "competency_003",
+    },
 };
 
-type OverviewStat = {
-    label: string;
-    value: string;
-};
-
-const index = () => {
-    const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+const DashboardHome = () => {
+    const navigate = useNavigate();
+    const {
+        user,
+        missions,
+        achievements,
+        artifacts,
+        competencies,
+        statistics,
+        fetchDashboard,
+        isDashboardLoading,
+        dashboardError,
+    } = useDashboardStore((state) => ({
+        user: state.user,
+        missions: state.missions,
+        achievements: state.achievements,
+        artifacts: state.artifacts,
+        competencies: state.competencies,
+        statistics: state.statistics,
+        fetchDashboard: state.fetchDashboard,
+        isDashboardLoading: state.isDashboardLoading,
+        dashboardError: state.dashboardError,
+    }));
     const [activeTab, setActiveTab] = useState<"missions" | "competencies">("missions");
 
     useEffect(() => {
-        const controller = new AbortController();
+        void fetchDashboard();
+    }, [fetchDashboard]);
 
-        const fetchJson = async <T,>(url: string): Promise<T> => {
-            const response = await fetch(url, { signal: controller.signal });
-            if (!response.ok) {
-                throw new Error(`Не удалось загрузить ${url}`);
-            }
-            return (await response.json()) as T;
-        };
+    const missionProgressLabel = useMemo(() => {
+        if (!user) {
+            return "Задания";
+        }
+        return `Задания: ${user.tasks.completed}/${user.tasks.total}`;
+    }, [user]);
 
-        const loadData = async () => {
-            try {
-                setIsLoading(true);
-                setError(null);
+    const competencyProgressLabel = useMemo(() => {
+        if (!user) {
+            return "Компетенции";
+        }
+        return `Компетенции: ${user.competencies.completed}/${user.competencies.total}`;
+    }, [user]);
 
-                const [
-                    userInfo,
-                    missionsInfo,
-                    achievementsInfo,
-                    artifactsInfo,
-                    competenciesInfo,
-                    statisticsInfo,
-                ] = await Promise.all([
-                    fetchJson<User>("/data/user.json"),
-                    fetchJson<{ missions: Mission[] }>("/data/missions.json"),
-                    fetchJson<{ achievements: Achievement[] }>("/data/achievements.json"),
-                    fetchJson<{ artifacts: Artifact[] }>("/data/artifacts.json"),
-                    fetchJson<{ competencies: CompetencyItem[] }>("/data/competencies.json"),
-                    fetchJson<{ statistics: Statistics }>("/data/statistics.json"),
-                ]);
-
-                if (controller.signal.aborted) {
-                    return;
-                }
-
-                setDashboardData({
-                    user: userInfo,
-                    missions: missionsInfo?.missions ?? [],
-                    achievements: achievementsInfo?.achievements ?? [],
-                    artifacts: artifactsInfo?.artifacts ?? [],
-                    competencies: competenciesInfo?.competencies ?? [],
-                    statistics: statisticsInfo?.statistics ?? null,
-                });
-            } catch (loadError) {
-                if (controller.signal.aborted) {
-                    return;
-                }
-                setError(
-                    loadError instanceof Error
-                        ? loadError.message
-                        : "Не удалось загрузить данные дашборда",
-                );
-            } finally {
-                if (!controller.signal.aborted) {
-                    setIsLoading(false);
-                }
-            }
-        };
-
-        void loadData();
-
-        return () => controller.abort();
-    }, []);
-
-    const navigate = useNavigate();
-
-    if (isLoading) {
-        return (
-            <div className="py-10 text-center text-white/70">
-                Загружаем данные...
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="py-10 text-center text-red-300">
-                {error}
-            </div>
-        );
-    }
-
-    if (!dashboardData) {
-        return null;
-    }
-
-    const { user, missions, achievements, artifacts, competencies, statistics } =
-        dashboardData;
-
-    const missionFocusMap: Record<
-        string,
-        { missionId: string; competencyId?: string }
-    > = {
-        mission_001: {
-            missionId: "mission_alpha_2",
-            competencyId: "competency_002",
-        },
-        mission_002: {
-            missionId: "mission_gamma_1",
-            competencyId: "competency_003",
-        },
-        mission_003: {
-            missionId: "mission_alpha_3",
-            competencyId: "competency_002",
-        },
-        mission_004: {
-            missionId: "mission_beta_2",
-            competencyId: "competency_001",
-        },
-        mission_005: { missionId: "mission_delta", competencyId: "competency_004" },
-        mission_006: {
-            missionId: "mission_gamma_2",
-            competencyId: "competency_003",
-        },
-    };
-
-    const missionProgressLabel = `Задания: ${user.tasks.completed}/${user.tasks.total}`;
-    const competencyProgressLabel = `Компетенции: ${user.competencies.completed}/${user.competencies.total}`;
-    const topMissions = missions.slice(0, 6);
-    const topAchievements = achievements.slice(0, 4);
-    const topArtifacts = artifacts.slice(0, 4);
+    const topMissions = useMemo(() => missions.slice(0, 6), [missions]);
+    const topAchievements = useMemo(() => achievements.slice(0, 4), [achievements]);
+    const topArtifacts = useMemo(() => artifacts.slice(0, 4), [artifacts]);
     const competencyItems = competencies;
-    const overviewStats: OverviewStat[] = statistics
-        ? [
-              {
-                  label: "Всего миссий",
-                  value: String(statistics.overview.totalMissions),
-              },
-              {
-                  label: "Завершено",
-                  value: String(statistics.overview.completedMissions),
-              },
-              {
-                  label: "Успешность",
-                  value: `${statistics.overview.successRate}%`,
-              },
-              {
-                  label: "Текущий уровень",
-                  value: `LVL ${statistics.overview.currentLevel}`,
-              },
-          ]
-        : [];
+
+    const overviewStats = useMemo(() => {
+        if (!statistics?.overview) {
+            return [] as Array<{ label: string; value: string }>;
+        }
+        return [
+            {
+                label: "Всего миссий",
+                value: String(statistics.overview.totalMissions),
+            },
+            {
+                label: "Завершено",
+                value: String(statistics.overview.completedMissions),
+            },
+            {
+                label: "Успешность",
+                value: `${statistics.overview.successRate}%`,
+            },
+            {
+                label: "Текущий уровень",
+                value: `LVL ${statistics.overview.currentLevel}`,
+            },
+        ];
+    }, [statistics]);
 
     const handleNavigateToMissions = (options?: {
         missionId?: string;
@@ -208,14 +134,36 @@ const index = () => {
         });
     };
 
+    if (isDashboardLoading && !user) {
+        return <div className={styles.stateMessage}>Загружаем данные...</div>;
+    }
+
+    if (dashboardError) {
+        return (
+            <div className={styles.stateError}>
+                <div className={styles.stateContent}>
+                    <p>{dashboardError}</p>
+                    <SpaceButton variant="outline" onClick={() => fetchDashboard(true)}>
+                        Повторить попытку
+                    </SpaceButton>
+                </div>
+            </div>
+        );
+    }
+
+    if (!user) {
+        return null;
+    }
+
     return (
         <div className="space-y-6">
             <div className="px-0 pt-3 pb-0">
                 <p className="text-white/70 text-xs leading-4 text-center mt-3 mb-4">
-                    Повышение ранга требует
+                    Повышайте ранг, выполняя миссии и развивая компетенции экипажа
                 </p>
 
-                <SpaceCard className="experience-card p-4 mx-3 mb-3 border-0 shadow-none">
+                <SpaceCard className={clsx(styles["experience-card"], "p-4 mx-3 mb-3 border-0 shadow-none")}
+                >
                     <SpaceProgress
                         value={user.experience.current}
                         max={user.experience.max}
@@ -243,7 +191,10 @@ const index = () => {
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={cn("dashboard-tab", isActive && "dashboard-tab-active")}
+                                className={cn(
+                                    styles["dashboard-tab"],
+                                    isActive && styles["dashboard-tab-active"],
+                                )}
                             >
                                 {tab.label}
                             </button>
@@ -251,15 +202,15 @@ const index = () => {
                     })}
                 </div>
                 {activeTab === "missions" ? (
-                    <TexturePanel className="mission-panel" contentClassName="p-4">
+                    <TexturePanel contentClassName="p-4">
                         <div className="space-y-2">
                             {topMissions.map((mission) => (
-                                <div key={mission.id} className="mission-item">
+                                <div key={mission.id} className={styles["mission-item"]}>
                                     <div className="flex-1 pr-4">
                                         <p className="text-white text-xs font-normal">{mission.title}</p>
                                     </div>
                                     <button
-                                        className="mission-button"
+                                        className={styles["mission-button"]}
                                         onClick={() =>
                                             handleNavigateToMissions({ missionId: mission.id })
                                         }
@@ -271,7 +222,7 @@ const index = () => {
 
                             <div className="text-center pt-2">
                                 <button
-                                    className="view-all-button"
+                                    className={styles["view-all-button"]}
                                     onClick={() => handleNavigateToMissions()}
                                 >
                                     ВЕСЬ СПИСОК
@@ -280,10 +231,7 @@ const index = () => {
                         </div>
                     </TexturePanel>
                 ) : (
-                    <TexturePanel
-                        className="competency-panel"
-                        contentClassName="p-4 space-y-3"
-                    >
+                    <TexturePanel contentClassName="p-4 space-y-3">
                         {competencyItems.map((competency) => {
                             const [currentRaw = "0", totalRaw = "0"] = competency.progress
                                 .split("/")
@@ -309,7 +257,7 @@ const index = () => {
                             const widthPercentage = Math.min(100, Math.max(0, ratio * 100));
 
                             return (
-                                <div key={competency.id} className="competency-item">
+                                <div key={competency.id} className={styles["competency-item"]}>
                                     <div className="w-full md:min-w-[200px] md:pr-6">
                                         <p className="text-white text-sm font-medium">
                                             {competency.title}
@@ -336,14 +284,14 @@ const index = () => {
                                         </div>
                                         <div className="flex justify-end">
                                             <button
-                                                className="mission-button flex-shrink-0"
+                                                className={cn(styles["mission-button"], "flex-shrink-0")}
                                                 onClick={() =>
                                                     handleNavigateToMissions({
                                                         competencyId: competency.id,
                                                     })
                                                 }
                                             >
-                                                Задания
+                                                ЗАДАНИЯ
                                             </button>
                                         </div>
                                     </div>
@@ -352,7 +300,7 @@ const index = () => {
                         })}
                         <div className="text-center pt-2">
                             <button
-                                className="view-all-button"
+                                className={styles["view-all-button"]}
                                 onClick={() => handleNavigateToMissions()}
                             >
                                 ВЕСЬ СПИСОК
@@ -374,7 +322,10 @@ const index = () => {
                         <SpaceCard
                             key={achievement.id}
                             variant="glass"
-                            className="achievement-card aspect-square flex flex-col items-center justify-center gap-2 text-center p-3"
+                            className={cn(
+                                styles["achievement-card"],
+                                "aspect-square flex flex-col items-center justify-center gap-2 text-center p-3",
+                            )}
                         >
                             <span className="text-xs uppercase tracking-[0.18em] text-space-cyan-300">
                                 {achievement.category}
@@ -399,7 +350,10 @@ const index = () => {
                         <SpaceCard
                             key={stat.label}
                             variant="glass"
-                            className="stat-card aspect-square flex flex-col items-center justify-center gap-1 text-center"
+                            className={cn(
+                                styles["stat-card"],
+                                "aspect-square flex flex-col items-center justify-center gap-1 text-center",
+                            )}
                         >
                             <span className="text-lg font-semibold text-white">{stat.value}</span>
                             <span className="text-xs uppercase tracking-wide text-space-cyan-300">
@@ -437,7 +391,7 @@ const index = () => {
 
             <div className="pb-20">
                 <div className="flex justify-between items-center mb-3">
-                    <h3 className="text-white text-sm font-medium">Последние артефакты</h3>
+                    <h3 className="text-white text-sm font-medium">Новые артефакты</h3>
                     <SpaceButton variant="outline" size="sm">
                         Посмотреть все
                     </SpaceButton>
@@ -463,4 +417,4 @@ const index = () => {
     );
 };
 
-export default index;
+export default DashboardHome;

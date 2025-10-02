@@ -1,133 +1,85 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import {
-    DashboardHeader,
-    DashboardBottomNav,
-} from "@/components/dashboard/layout.tsx";
+import { SpaceButton } from "@/components/ui/custom/space-button";
+import { DashboardHeader, DashboardBottomNav } from "@/components/dashboard/layout";
 import missionsIcon from "@/images/ui/bottom-nav/bottom-nav-missions.svg";
 import logbookIcon from "@/images/ui/bottom-nav/bottom-nav-logbook.svg";
 import shopIcon from "@/images/ui/bottom-nav/bottom-nav-shop.svg";
 import notificationsIcon from "@/images/ui/bottom-nav/bottom-nav-notifications.svg";
-import type { User } from "@/types/dashboard";
+import { useDashboardStore } from "@/store/dashboardStore";
+import styles from "./Dashboard.module.css";
 
-const Index = () => {
-    const [user, setUser] = useState<User | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        const controller = new AbortController();
-
-        const loadUser = async () => {
-            try {
-                setIsLoading(true);
-                setError(null);
-
-                const response = await fetch("/data/user.json", {
-                    signal: controller.signal,
-                });
-
-                if (!response.ok) {
-                    throw new Error("Не удалось загрузить профиль пользователя");
-                }
-
-                const payload = (await response.json()) as User;
-
-                if (!controller.signal.aborted) {
-                    setUser(payload);
-                }
-            } catch (loadError) {
-                if (!controller.signal.aborted) {
-                    setError(
-                        loadError instanceof Error
-                            ? loadError.message
-                            : "Не удалось загрузить профиль пользователя",
-                    );
-                }
-            } finally {
-                if (!controller.signal.aborted) {
-                    setIsLoading(false);
-                }
-            }
-        };
-
-        void loadUser();
-
-        return () => controller.abort();
-    }, []);
-
+const Dashboard = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const activeValue = location.pathname.startsWith("/dashboard/missions")
-        ? "missions"
-        : "logbook";
+    const { user, isDashboardLoading, dashboardError, fetchDashboard } = useDashboardStore((state) => ({
+        user: state.user,
+        isDashboardLoading: state.isDashboardLoading,
+        dashboardError: state.dashboardError,
+        fetchDashboard: state.fetchDashboard,
+    }));
 
-    const handleNavSelect = useCallback(
-        (value: string) => {
-            if (value === "missions") {
-                navigate("/dashboard/missions");
-                return;
-            }
+    useEffect(() => {
+        void fetchDashboard();
+    }, [fetchDashboard]);
 
-            if (value === "logbook") {
-                navigate("/dashboard");
-                return;
-            }
-        },
-        [navigate],
-    );
+    const activeValue = location.pathname.startsWith("/dashboard/missions") ? "missions" : "logbook";
 
     const navItems = useMemo(
         () => [
             {
                 value: "logbook",
-                label: "Летная книга",
+                label: "Журнал",
                 icon: logbookIcon,
-                onSelect: () => handleNavSelect("logbook"),
+                onSelect: () => navigate("/dashboard"),
             },
             {
                 value: "missions",
                 label: "Миссии",
                 icon: missionsIcon,
-                onSelect: () => handleNavSelect("missions"),
+                onSelect: () => navigate("/dashboard/missions"),
             },
             { value: "shop", label: "Магазин", icon: shopIcon },
-            { value: "notifications", label: "Уведомления", icon: notificationsIcon },
+            { value: "notifications", label: "Сигналы", icon: notificationsIcon },
         ],
-        [handleNavSelect],
+        [navigate],
     );
 
-    if (isLoading) {
+    if (isDashboardLoading && !user) {
+        return <div className={`${styles.state} ${styles.stateLoading}`}>Загрузка профиля...</div>;
+    }
+
+    if (dashboardError) {
         return (
-            <div className="min-h-screen bg-space-blue-900 text-white/70 flex items-center justify-center">
-                Загружаем профиль...
+            <div className={`${styles.state} ${styles.stateError}`}>
+                <div className={styles.stateContent}>
+                    <p>{dashboardError}</p>
+                    <SpaceButton onClick={() => fetchDashboard(true)} variant="outline">
+                        Повторить попытку
+                    </SpaceButton>
+                </div>
             </div>
         );
     }
 
-    if (error || !user) {
-        return (
-            <div className="min-h-screen bg-space-blue-900 text-red-300 flex items-center justify-center px-4 text-center">
-                {error ?? "Профиль пользователя недоступен"}
-            </div>
-        );
+    if (!user) {
+        return null;
     }
 
     const numberFormatter = new Intl.NumberFormat("ru-RU");
     const currencyLabel = `${numberFormatter.format(user.currency.amount)} ${user.currency.symbol}`;
-    const experienceProgress =
-        user.experience.max > 0 ? user.experience.current / user.experience.max : 0;
+    const experienceProgress = user.experience.max > 0 ? user.experience.current / user.experience.max : 0;
 
     return (
-        <div className="min-h-screen bg-space-blue-900">
+        <div className={styles.root}>
             <DashboardHeader
                 user={user}
                 currencyLabel={currencyLabel}
                 experienceProgress={experienceProgress}
                 sticky
             />
-            <main className="px-4 py-4 pb-32">
+            <main className={styles.main}>
                 <Outlet />
             </main>
             <DashboardBottomNav activeValue={activeValue} items={navItems} />
@@ -135,4 +87,4 @@ const Index = () => {
     );
 };
 
-export default Index;
+export default Dashboard;

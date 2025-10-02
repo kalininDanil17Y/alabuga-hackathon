@@ -1,10 +1,10 @@
 import { ReactNode } from "react";
 import { Settings } from "lucide-react";
-import { cn } from "@/lib/utils";
+import clsx from "clsx";
 import { CircularProgressAvatar } from "@/components/ui/custom/circular-progress-avatar";
 import { SpaceButton } from "@/components/ui/custom/space-button";
-import "./bottom-nav.css";
-import './header.css';
+import headerStyles from "./dashboard-header.module.css";
+import navStyles from "./dashboard-bottom-nav.module.css";
 import type { User } from "@/types/dashboard";
 
 export interface DashboardHeaderProps {
@@ -15,50 +15,34 @@ export interface DashboardHeaderProps {
     sticky?: boolean;
 }
 
-export function DashboardHeader({
-                                    user,
-                                    currencyLabel,
-                                    experienceProgress,
-                                    action,
-                                    sticky = false,
-                                }: DashboardHeaderProps) {
+export function DashboardHeader({ user, currencyLabel, experienceProgress, action, sticky = false }: DashboardHeaderProps) {
     return (
-        <div
-            className={cn(
-                "header_container relative px-4 py-4 shadow-[0_6px_16px_rgba(6,12,46,0.45)]",
-                sticky && "sticky top-0 z-40 backdrop-blur-md",
-            )}>
-            <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                    <div className="relative flex-shrink-0">
+        <header className={clsx(headerStyles.wrapper, sticky && headerStyles.stickyHeader)}>
+            <div className={headerStyles.body}>
+                <div className={headerStyles.userSection}>
+                    <div className={headerStyles.avatarShadow}>
                         <CircularProgressAvatar
                             src={user.avatar ?? ""}
                             alt={`${user.name} avatar`}
                             progress={experienceProgress}
                             size={96}
-                            className="drop-shadow-[0_0_22px_rgba(11,171,249,0.35)]"
                         />
                     </div>
                     <div>
-                        <h2 className="text-white font-bold text-lg">{user.name}</h2>
-                        <p className="text-space-cyan-400 text-sm">{user.rank}</p>
-                        <p className="text-white text-sm">{currencyLabel}</p>
+                        <h2 className={headerStyles.userName}>{user.name}</h2>
+                        <p className={headerStyles.userRank}>{user.rank}</p>
+                        <p className={headerStyles.userCurrency}>{currencyLabel}</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className={headerStyles.actionArea}>
                     {action ?? (
-                        <SpaceButton
-                            variant="icon"
-                            size="md"
-                            aria-label="Открыть настройки"
-                            title="Настройки"
-                        >
-                            <Settings className="h-5 w-5" />
+                        <SpaceButton variant="icon" size="md" aria-label="Настройки" title="Настройки">
+                            <Settings size={20} />
                         </SpaceButton>
                     )}
                 </div>
             </div>
-        </div>
+        </header>
     );
 }
 
@@ -75,24 +59,18 @@ export interface DashboardBottomNavProps {
     className?: string;
 }
 
-export function DashboardBottomNav({
-                                       items,
-                                       activeValue,
-                                       className,
-                                   }: DashboardBottomNavProps) {
+export function DashboardBottomNav({ items, activeValue, className }: DashboardBottomNavProps) {
     return (
-        <nav className={cn("dashboard-bottom-nav", className)} aria-label="Основная навигация">
-            <div className="dashboard-bottom-nav__shell">
-                <div className="dashboard-bottom-nav__items">
+        <nav className={clsx(navStyles.root, className)} aria-label="Основная навигация">
+            <div className={navStyles.shell}>
+                <div className={navStyles.items}>
                     {items.map((item) => {
                         const isActive = activeValue === item.value;
                         return (
                             <button
                                 key={item.value}
                                 type="button"
-                                className={cn("dashboard-bottom-nav__button", {
-                                    "dashboard-bottom-nav__button--active": isActive,
-                                })}
+                                className={clsx(navStyles.button, isActive && navStyles.active)}
                                 onClick={() => item.onSelect?.(item.value)}
                                 aria-pressed={isActive}
                             >
@@ -100,7 +78,7 @@ export function DashboardBottomNav({
                                     src={item.icon}
                                     alt=""
                                     aria-hidden="true"
-                                    className="dashboard-bottom-nav__icon"
+                                    className={clsx(navStyles.icon, isActive && navStyles.activeIcon)}
                                 />
                                 <span>{item.label}</span>
                             </button>
@@ -111,3 +89,4 @@ export function DashboardBottomNav({
         </nav>
     );
 }
+
