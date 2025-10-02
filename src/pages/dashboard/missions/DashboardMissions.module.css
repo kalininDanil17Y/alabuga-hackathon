@@ -129,3 +129,7 @@
 .stateContent {
     @apply space-y-4;
 }
+
+.missionPanelFocused {
+    @apply ring-2 ring-space-cyan-400/70 shadow-[0_0_28px_rgba(82,226,230,0.4)];
+}

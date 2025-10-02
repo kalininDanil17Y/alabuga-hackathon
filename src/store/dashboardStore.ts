@@ -126,7 +126,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
             set({
                 missionsEntries: payload.entries,
                 missionStatusLabels: { ...DEFAULT_STATUS_LABELS, ...payload.statusLabels },
-                missionFilterOptions: [{ value: "all", label: "Все компетенции" }, ...payload.filterCompetencyOptions],
+                missionFilterOptions: [...payload.filterCompetencyOptions],
                 isMissionsLoading: false,
                 missionsError: null,
             });

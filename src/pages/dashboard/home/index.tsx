@@ -76,7 +76,19 @@ const DashboardHome = () => {
         return `Компетенции: ${user.competencies.completed}/${user.competencies.total}`;
     }, [user]);
 
-    const topMissions = useMemo(() => missions.slice(0, 6), [missions]);
+    const topMissions = useMemo(() => {
+        // const activeOrAvailable = missions.filter((mission) =>
+        //     mission.status === "active" || mission.status === "available",
+        // );
+
+        const activeOrAvailable = missions
+
+        if (activeOrAvailable.length > 0) {
+            return activeOrAvailable.slice(0, 6);
+        }
+
+        return missions.slice(0, 6);
+    }, [missions]);
     const topAchievements = useMemo(() => achievements.slice(0, 4), [achievements]);
     const topArtifacts = useMemo(() => artifacts.slice(0, 4), [artifacts]);
     const competencyItems = competencies;
@@ -418,3 +430,4 @@ const DashboardHome = () => {
 };
 
 export default DashboardHome;
+

@@ -1,5 +1,6 @@
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
+import { useSearchParams } from "react-router-dom";
 import { SpaceButton } from "@/components/ui/custom/space-button";
 import { SpaceCard } from "@/components/ui/custom/space-card";
 import { TexturePanel } from "@/components/ui/custom/texture-panel";
@@ -32,9 +33,60 @@ const MissionsPage = () => {
         setMissionsFilters: state.setMissionsFilters,
     }));
 
+    const [searchParams] = useSearchParams();
+    const missionIdParam = searchParams.get("missionId");
+    const competencyIdParam = searchParams.get("competencyId");
+    const missionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+    const [focusedMissionId, setFocusedMissionId] = useState<string | null>(null);
+
+    const setMissionRef = useCallback(
+        (missionId: string) => (node: HTMLDivElement | null) => {
+            missionRefs.current[missionId] = node;
+        },
+        [],
+    );
+
     useEffect(() => {
         void fetchMissionsPage();
     }, [fetchMissionsPage]);
+
+    useEffect(() => {
+        if (!missionIdParam) {
+            setFocusedMissionId(null);
+            return;
+        }
+
+        if (missionsEntries.length === 0) {
+            return;
+        }
+
+        const targetEntry = missionsEntries.find(
+            (entry) => entry.id === missionIdParam || entry.tasks.some((task) => task.id === missionIdParam),
+        );
+
+        if (!targetEntry) {
+            setFocusedMissionId(null);
+            return;
+        }
+
+        setFocusedMissionId(targetEntry.id);
+
+        const targetCompetency = competencyIdParam ?? targetEntry.competencyId ?? "all";
+        if (targetCompetency && missionsFilters.competencyId !== targetCompetency) {
+            setMissionsFilters({ competencyId: targetCompetency });
+        }
+
+        if (missionsFilters.status !== "all" && missionsFilters.status !== targetEntry.status) {
+            setMissionsFilters({ status: "all" });
+        }
+    }, [
+        missionIdParam,
+        competencyIdParam,
+        missionsEntries,
+        missionsFilters.competencyId,
+        missionsFilters.status,
+        setMissionsFilters,
+    ]);
 
     const missionStatusOptions = useMemo(
         () => [{ value: "all", label: "Все статусы" }, ...statusOrder.map((status) => ({ value: status, label: missionStatusLabels[status] }))],
@@ -50,6 +102,28 @@ const MissionsPage = () => {
             return matchesStatus && matchesCompetency;
         });
     }, [missionsEntries, missionsFilters]);
+
+    useEffect(() => {
+        if (!focusedMissionId) {
+            return;
+        }
+
+        const isRendered = filteredEntries.some((entry) => entry.id === focusedMissionId);
+        if (!isRendered) {
+            return;
+        }
+
+        const panel = missionRefs.current[focusedMissionId];
+        if (!panel) {
+            return;
+        }
+
+        const frame = window.requestAnimationFrame(() => {
+            panel.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+
+        return () => window.cancelAnimationFrame(frame);
+    }, [focusedMissionId, filteredEntries]);
 
     const handleFilterChange = (key: FilterKey, value: string) => {
         if (key === "status") {
@@ -123,7 +197,17 @@ const MissionsPage = () => {
                     </SpaceCard>
                 ) : (
                     filteredEntries.map((entry) => (
-                        <TexturePanel key={entry.id} className={styles.missionPanel} contentClassName={styles.missionContent} overlay>
+                        <TexturePanel
+                            key={entry.id}
+                            ref={setMissionRef(entry.id)}
+                            className={clsx(
+                                styles.missionPanel,
+                                focusedMissionId === entry.id && styles.missionPanelFocused,
+                            )}
+                            contentClassName={styles.missionContent}
+                            overlay
+                            style={{ scrollMarginTop: "96px" }}
+                        >
                             <div className={styles.missionHeader}>
                                 <div>
                                     <h3 className={styles.missionTitle}>{entry.title}</h3>
