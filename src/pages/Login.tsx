@@ -1,29 +1,27 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import clsx from "clsx";
 import { SpaceButton } from "@/components/ui/custom/space-button";
-import "./login.css";
+import styles from "./Login.module.css";
 
 const Login = () => {
     const [login, setLogin] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        // Simple auth simulation - in real app would validate against backend
+    const handleSubmit = (event: React.FormEvent) => {
+        event.preventDefault();
         if (login && password) {
             navigate("/dashboard");
         }
     };
 
     return (
-        <div className="login-background min-h-screen relative overflow-hidden">
-            {/* Content */}
-            <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-8">
-                {/* Logo */}
-                <div className="mb-16 text-center">
+        <div className={clsx(styles.background, "min-h-screen")}> 
+            <div className={clsx(styles.content, "px-8")}> 
+                <div className={styles.logoWrapper}>
                     <svg
-                        className="mx-auto"
+                        className={styles.logo}
                         width="301"
                         height="126"
                         viewBox="0 0 128 51"
@@ -55,27 +53,11 @@ const Login = () => {
                             fill="white"
                         />
                         <path
-                            d="M32.7502 41.0434C33.5188 41.0434 34.205 40.8787 34.9185 40.357V38.5734C34.5066 38.436 33.8757 38.3258 33.244 38.3258C32.1469 38.3258 31.1584 38.7104 31.1584 39.7532C31.1584 40.4392 31.7624 41.0434 32.7502 41.0434ZM40.4896 40.8509L41.0109 43.6502C40.38 43.8975 39.5286 44.0621 38.651 44.0621C37.1965 44.0621 36.126 43.5408 35.522 42.6073C34.26 43.5953 32.8052 44.1991 30.9395 44.1991C28.4142 44.1991 26.3562 42.6894 26.3562 40.1375C26.3562 36.8166 29.5121 35.8016 32.0642 35.8016C33.0526 35.8016 34.0403 35.911 34.9185 36.103V35.6368C34.9185 34.7037 34.0403 33.9899 32.1744 33.9899C30.7839 33.9899 29.4825 34.3094 28.3555 34.7055L27.5637 31.0814C28.6616 30.7243 30.7472 30.2031 32.6951 30.2031C36.8946 30.2031 39.5837 31.6569 39.5837 36.3504V40.0278C39.5837 40.6591 40.0231 40.8509 40.4896 40.8509Z"
+                            d="M32.7502 41.0434C33.5188 41.0434 34.205 40.8787 34.9185 40.357V38.5734C34.5066 38.436 33.8757 38.3258 33.244 38.3258C32.1469 38.3258 31.1584 38.7104 31.1584 39.7532C31.1584 40.4392 31.7624 41.0434 32.7502 41.0434ZM40.4896 40.8509L41.0109 43.6502C40.3798 43.8975 39.5284 44.0621 38.651 44.0621C37.1962 44.0621 36.1259 43.5408 35.5217 42.6073C34.2599 43.5953 32.8052 44.1991 30.9392 44.1991C28.4141 44.1991 26.3559 42.6894 26.3559 40.1375C26.3559 36.8166 29.5121 35.8016 32.064 35.8016C33.0525 35.8016 34.0402 35.911 34.9185 36.103V35.6368C34.9185 34.7037 34.0402 33.9899 32.1743 33.9899C30.7838 33.9899 29.4825 34.3094 28.3549 34.7055L27.5634 31.0814C28.6615 30.7243 30.7472 30.2031 32.695 30.2031C36.8946 30.2031 39.5834 31.6569 39.5834 36.3504V40.0278C39.5834 40.6591 40.023 40.8509 40.4893 40.8509Z"
                             fill="white"
                         />
                         <path
-                            d="M22.5967 4.62555C20.5004 2.79565 18.419 1.2419 16.4216 0C14.4243 1.2419 12.3422 2.79565 10.246 4.62555C12.2399 5.74689 14.3226 7.18867 16.4216 8.90622C18.5201 7.18867 20.603 5.74689 22.5967 4.62555Z"
-                            fill="white"
-                        />
-                        <path
-                            d="M26.9635 19.8835C28.9658 18.2899 30.9462 16.9519 32.8432 15.9085C31.6351 14.2446 30.3187 12.5851 28.8979 10.9563C28.7828 10.8251 28.6668 10.6949 28.5511 10.5649C27.7229 11.0067 26.8702 11.5088 25.9984 12.0728C24.8326 12.826 23.6562 13.6738 22.4792 14.6043C23.0423 15.2063 23.6019 15.8237 24.1558 16.4586C25.135 17.5813 26.0725 18.7259 26.9635 19.8835Z"
-                            fill="white"
-                        />
-                        <path
-                            d="M16.9353 9.33234C18.6389 10.7611 20.3486 12.3661 22.0273 14.1257C24.0975 12.4822 26.1444 11.111 28.0992 10.0587C26.458 8.24003 24.7871 6.57695 23.1204 5.08691C22.4323 5.46844 21.7285 5.89103 21.0113 6.35467C19.6613 7.22706 18.297 8.22522 16.9353 9.33234Z"
-                            fill="white"
-                        />
-                        <path
-                            d="M10.3638 14.6043C9.18737 13.6738 8.01036 12.8264 6.84476 12.0728C5.97297 11.5086 5.121 11.0063 4.29207 10.5649C4.17631 10.6947 4.06036 10.8251 3.94521 10.9571C2.52526 12.5849 1.20745 14.2446 0 15.9085C1.897 16.9517 3.87751 18.2899 5.87965 19.8831C6.77067 18.7259 7.70754 17.5813 8.68729 16.4586C9.24124 15.8241 9.80081 15.2053 10.3638 14.6043Z"
-                            fill="white"
-                        />
-                        <path
-                            d="M19.8647 24.0046C19.811 23.9403 19.758 23.8754 19.7043 23.8119C19.635 23.7276 19.5643 23.6445 19.4944 23.5612C19.4145 23.4657 19.3334 23.3701 19.2529 23.2754C19.199 23.2135 19.1461 23.1506 19.0931 23.0885C18.9547 22.9273 18.8161 22.7663 18.6763 22.6053C18.2036 22.0645 17.7268 21.5338 17.2455 21.0149C17.2385 21.0069 17.2307 20.9993 17.2237 20.9913C17.1105 20.8699 16.9976 20.7485 16.8838 20.6281C16.7304 20.4643 16.5758 20.3031 16.421 20.1421C16.1454 20.4299 15.8706 20.7199 15.5973 21.0149C15.116 21.5338 14.6392 22.0645 14.1673 22.6053C14.0267 22.7663 13.8881 22.9273 13.7497 23.0889C13.6967 23.1506 13.6444 23.2125 13.5915 23.2742C13.5102 23.3701 13.4289 23.4656 13.3476 23.5616C13.2785 23.6445 13.2084 23.7276 13.1393 23.8105C13.0856 23.8754 13.0312 23.9413 12.9775 24.006C12.6016 24.4598 12.2335 24.9154 11.8732 25.3741C12.6496 26.1814 13.4205 27.0215 14.1799 27.8925C14.3205 28.0537 14.4591 28.2148 14.5975 28.3758C14.6534 28.4411 14.7085 28.5061 14.7643 28.5708C14.8412 28.6619 14.9184 28.7533 14.9953 28.8444C15.071 28.9341 15.1465 29.0237 15.2214 29.1134C15.2624 29.1639 15.3033 29.2125 15.3443 29.262C15.7102 29.703 16.0691 30.146 16.421 30.591C16.7737 30.1452 17.134 29.7016 17.4999 29.2606C17.5401 29.2117 17.5804 29.1638 17.6215 29.1144C17.6964 29.0247 17.7718 28.9341 17.8481 28.8436C17.9245 28.7533 18.0016 28.6628 18.0779 28.5722C18.1338 28.5065 18.1894 28.4411 18.2453 28.3758C18.3837 28.2148 18.5229 28.0537 18.6629 27.8925C19.4231 27.0215 20.1932 26.1814 20.9704 25.3741C20.6085 24.9154 20.2404 24.4584 19.8647 24.0046Z"
+                            d="M15.8892 30.6143H20.6921L15.1757 45.1594C13.6665 49.112 11.388 50.182 9.13766 50.182C8.31478 50.182 7.49158 50.0174 6.72283 49.8256L7.6046 46.1445C7.90342 46.1818 8.20522 46.2022 8.50689 46.2022C9.65937 46.2022 10.6203 45.5439 11.2513 44.1165L5.04941 30.6143H9.98943L13.2001 38.4632L15.8892 30.6143Z"
                             fill="white"
                         />
                         <path
@@ -85,34 +67,40 @@ const Login = () => {
                     </svg>
                 </div>
 
-                {/* Login Form */}
-                <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-6">
-                    {/* Login Input */}
-                    <div className="relative">
+                <form onSubmit={handleSubmit} className={styles.form}>
+                    <div className={styles.field}>
+                        <label className={styles.label} htmlFor="login-input">
+                            Логин
+                        </label>
                         <input
+                            id="login-input"
                             type="text"
                             value={login}
-                            onChange={(e) => setLogin(e.target.value)}
-                            placeholder="ЛОГИН"
+                            onChange={(event) => setLogin(event.target.value)}
+                            placeholder="Введите логин"
                             className="w-full px-6 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-space-cyan-300 focus:border-transparent transition-all"
                         />
                     </div>
 
-                    {/* Password Input */}
-                    <div className="relative">
+                    <div className={styles.field}>
+                        <label className={styles.label} htmlFor="password-input">
+                            Пароль
+                        </label>
                         <input
+                            id="password-input"
                             type="password"
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="пароль"
+                            onChange={(event) => setPassword(event.target.value)}
+                            placeholder="Введите пароль"
                             className="w-full px-6 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-space-cyan-300 focus:border-transparent transition-all"
                         />
                     </div>
 
-                    {/* Login Button */}
-                    <div className="pt-8">
+                    <div className={styles.helper}>Забыли пароль? Свяжитесь с администратором.</div>
+
+                    <div className={styles.buttonRow}>
                         <SpaceButton type="submit" size="lg" glowing className="w-full">
-                            ВОЙТИ
+                            Войти
                         </SpaceButton>
                     </div>
                 </form>

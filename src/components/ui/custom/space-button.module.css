@@ -1,0 +1,61 @@
+.base {
+    @apply relative inline-flex items-center justify-center transition-all duration-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-space-cyan-300;
+}
+
+.nonIcon {
+    @apply font-semibold tracking-wider;
+}
+
+.sizeSm {
+    @apply px-4 py-2 text-sm;
+}
+
+.sizeMd {
+    @apply px-6 py-3 text-base;
+}
+
+.sizeLg {
+    @apply px-8 py-4 text-lg;
+}
+
+.primary {
+    @apply bg-gradient-to-r from-space-cyan-400 to-space-blue-600 text-white border border-space-cyan-300 hover:border-space-cyan-400;
+}
+
+.secondary {
+    @apply bg-space-blue-700 text-white border border-space-blue-600 hover:border-space-blue-500;
+}
+
+.outline {
+    @apply bg-transparent text-white border border-white/20 hover:border-white/40;
+}
+
+.iconBase {
+    @apply flex items-center justify-center p-0 text-space-cyan-300 hover:text-white bg-transparent border-none focus:ring-offset-0;
+}
+
+.iconSizeSm {
+    @apply h-8 w-8;
+}
+
+.iconSizeMd {
+    @apply h-10 w-10;
+}
+
+.iconSizeLg {
+    @apply h-12 w-12;
+}
+
+.glowing {
+    @apply relative;
+}
+
+.glowOverlay {
+    @apply absolute inset-0 rounded-lg bg-gradient-to-r from-space-cyan-400 to-space-blue-600 blur-sm transition-all duration-300 -z-10 group-hover:blur-md;
+}
+
+.content {
+    @apply relative z-10;
+}
+
+

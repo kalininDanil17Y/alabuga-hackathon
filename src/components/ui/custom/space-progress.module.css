@@ -1,0 +1,47 @@
+.root {
+    @apply space-y-2;
+}
+
+.header {
+    @apply flex justify-between items-center;
+}
+
+.label {
+    @apply text-white text-sm;
+}
+
+.valueGroup {
+    @apply flex items-center space-x-2;
+}
+
+.value {
+    @apply text-white text-sm;
+}
+
+.percentage {
+    @apply text-space-cyan-400 text-xs;
+}
+
+.barWrapper {
+    @apply relative;
+}
+
+.track {
+    @apply w-full bg-space-blue-800/50 rounded-full h-2 overflow-hidden;
+}
+
+.fill {
+    @apply h-full bg-gradient-to-r from-space-cyan-400 to-space-blue-500 rounded-full;
+}
+
+.fillInner {
+    @apply w-full h-full bg-gradient-to-r from-space-cyan-300/50 to-space-blue-400/50 rounded-full;
+}
+
+.glow {
+    @apply absolute top-0 h-full bg-gradient-to-r from-space-cyan-400 to-space-blue-500 rounded-full blur-sm opacity-30;
+}
+
+.animated {
+    @apply transition-all duration-500 ease-out;
+}

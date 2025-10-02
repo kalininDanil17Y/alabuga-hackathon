@@ -1,0 +1,44 @@
+.base {
+    @apply relative overflow-hidden rounded-lg transition-all duration-300;
+}
+
+.defaultVariant {
+    @apply border border-white/10 bg-transparent backdrop-blur-sm shadow-[0_0_18px_rgba(10,14,42,0.45)];
+}
+
+.gradientVariant {
+    @apply border border-space-cyan-400/50 bg-gradient-to-br from-[#0b1a57]/80 via-[#123070]/65 to-[#0a174b]/85 shadow-[0_0_26px_rgba(74,100,255,0.32)];
+}
+
+.glassVariant {
+    @apply border border-white/20 bg-white/10 backdrop-blur-xl shadow-[0_0_26px_rgba(106,207,246,0.22)];
+}
+
+.hoverable {
+    @apply cursor-pointer hover:scale-[1.02];
+}
+
+.hoverDefault {
+    @apply hover:border-space-cyan-400 hover:shadow-[0_0_24px_rgba(106,207,246,0.25)];
+}
+
+.hoverGradient {
+    @apply hover:shadow-[0_0_32px_rgba(74,100,255,0.35)];
+}
+
+.hoverGlass {
+    @apply hover:bg-white/20 hover:border-white/40 hover:shadow-[0_0_28px_rgba(106,207,246,0.25)];
+}
+
+.glowing {
+    @apply relative;
+}
+
+.glowOverlay {
+    @apply absolute inset-0 rounded-lg bg-gradient-to-r from-space-cyan-400/20 to-space-blue-600/15 blur-lg -z-10;
+}
+
+.content {
+    @apply relative z-10 w-full;
+}
+

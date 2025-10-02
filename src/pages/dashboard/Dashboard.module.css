@@ -1,0 +1,24 @@
+.root {
+    @apply min-h-screen bg-space-blue-900;
+}
+
+.state {
+    @apply min-h-screen bg-space-blue-900 flex items-center justify-center px-4 text-center;
+}
+
+.stateLoading {
+    @apply text-white/70;
+}
+
+.stateError {
+    @apply text-red-300;
+}
+
+.main {
+    @apply px-4 py-4 pb-32;
+}
+
+.stateContent {
+    @apply space-y-4;
+}
+

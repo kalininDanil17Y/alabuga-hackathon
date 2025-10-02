@@ -1,4 +1,4 @@
-.dashboard-bottom-nav {
+.root {
     position: fixed;
     left: 0;
     right: 0;
@@ -9,7 +9,7 @@
     z-index: 40;
 }
 
-.dashboard-bottom-nav__shell {
+.shell {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -22,14 +22,14 @@
     min-height: 53px;
 }
 
-.dashboard-bottom-nav__items {
+.items {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 12px;
     width: 100%;
 }
 
-.dashboard-bottom-nav__button {
+.button {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -47,22 +47,22 @@
     cursor: pointer;
 }
 
-.dashboard-bottom-nav__button:hover {
+.button:hover {
     color: #d4f3ff;
 }
 
-.dashboard-bottom-nav__button:focus-visible {
+.button:focus-visible {
     outline: none;
     filter: drop-shadow(0 0 8px rgba(106, 207, 246, 0.65));
 }
 
-.dashboard-bottom-nav__button--active {
+.active {
     color: #f8fbff;
     transform: translateY(-2px);
     filter: drop-shadow(0 0 10px rgba(106, 207, 246, 0.85));
 }
 
-.dashboard-bottom-nav__icon {
+.icon {
     width: 22px;
     height: 22px;
     object-fit: contain;
@@ -70,10 +70,10 @@
     transition: filter 0.2s ease;
 }
 
-.dashboard-bottom-nav__button:hover .dashboard-bottom-nav__icon {
+.button:hover .icon {
     filter: drop-shadow(0 0 4px rgba(106, 207, 246, 0.55));
 }
 
-.dashboard-bottom-nav__button--active .dashboard-bottom-nav__icon {
+.activeIcon {
     filter: drop-shadow(0 0 8px rgba(106, 207, 246, 0.85));
 }

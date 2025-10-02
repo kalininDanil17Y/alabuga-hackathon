@@ -1,0 +1,131 @@
+.root {
+    @apply space-y-6;
+}
+
+.filterCard {
+    @apply p-4 space-y-4;
+}
+
+.filters {
+    @apply grid gap-4 md:grid-cols-2;
+}
+
+.filterField {
+    @apply flex flex-col gap-2;
+}
+
+.filterLabel {
+    @apply text-xs uppercase tracking-[0.2em] text-white/60;
+}
+
+.select {
+    @apply bg-space-blue-900/70 border border-white/10 text-white text-sm rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-space-cyan-400 focus:border-space-cyan-400 transition;
+}
+
+.missionsGrid {
+    @apply space-y-4;
+}
+
+.missionPanel {
+    @apply bg-space-blue-900/60 rounded-xl shadow-[0_0_18px_rgba(6,12,46,0.45)];
+}
+
+.missionContent {
+    @apply p-4 space-y-4;
+}
+
+.missionHeader {
+    @apply flex flex-col gap-3 md:flex-row md:items-start md:justify-between;
+}
+
+.missionTitle {
+    @apply text-white text-lg font-semibold;
+}
+
+.missionDescription {
+    @apply text-white/70 text-sm mt-1 max-w-2xl;
+}
+
+.statusBadge {
+    @apply inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs uppercase tracking-[0.18em];
+}
+
+.statusavailable {
+    @apply text-space-cyan-300 border-space-cyan-400/40 bg-space-blue-900/40;
+}
+
+.statusin_progress {
+    @apply text-sky-200 border-sky-400/40 bg-space-blue-900/40;
+}
+
+.statusmoderation {
+    @apply text-amber-200 border-amber-400/40 bg-space-blue-900/40;
+}
+
+.statuscompleted {
+    @apply text-emerald-300 border-emerald-400/40 bg-space-blue-900/40;
+}
+
+.statuslocked {
+    @apply text-red-300 border-red-400/40 bg-red-500/10;
+}
+
+.tasks {
+    @apply space-y-3;
+}
+
+.taskRow {
+    @apply flex flex-col gap-3 md:flex-row md:items-center md:justify-between;
+}
+
+.taskTitle {
+    @apply text-white text-sm font-medium;
+}
+
+.taskReward {
+    @apply text-space-cyan-300 text-xs;
+}
+
+.taskProgress {
+    @apply flex items-center gap-3 md:min-w-[220px];
+}
+
+.progressTrack {
+    @apply w-40 h-2 bg-space-blue-800/50 rounded-full overflow-hidden;
+}
+
+.progressFill {
+    @apply h-full rounded-full transition-all duration-500 ease-out;
+}
+
+.progressavailable {
+    @apply bg-gradient-to-r from-space-cyan-300 via-space-cyan-400 to-space-blue-700;
+}
+
+.progressin_progress {
+    @apply bg-gradient-to-r from-sky-300 via-sky-400 to-sky-600;
+}
+
+.progressmoderation {
+    @apply bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500;
+}
+
+.progresscompleted {
+    @apply bg-gradient-to-r from-emerald-300 via-emerald-400 to-emerald-500;
+}
+
+.progresslocked {
+    @apply bg-gradient-to-r from-white/30 via-white/20 to-white/10;
+}
+
+.taskStatus {
+    @apply text-white/60 text-xs uppercase tracking-[0.2em];
+}
+
+.stateCard {
+    @apply p-6 text-center space-y-4;
+}
+
+.stateContent {
+    @apply space-y-4;
+}
