@@ -222,8 +222,8 @@ const DashboardHome = () => {
 
                         {competencyItems.map((competency) => {
                             return (
-                                <>
-                                    <div key={competency.id} className="grid grid-cols-[5fr_2fr_1fr] items-center gap-x-1 mb-2 mt-[6px]">
+                                <div key={competency.id}>
+                                    <div className="grid grid-cols-[5fr_2fr_1fr] items-center gap-x-1 mb-2 mt-[6px]">
                                         <div className="text-[9px]">
                                             {competency.title}
                                         </div>
@@ -248,7 +248,7 @@ const DashboardHome = () => {
                                     </div>
 
                                     <HorizontalRule variant="v2"/>
-                                </>
+                                </div>
                             );
                         })}
 
