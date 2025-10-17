@@ -45,6 +45,7 @@
     letter-spacing: 0.18em;
     text-transform: uppercase;
     transition: transform 0.2s ease, color 0.2s ease, filter 0.2s ease;
+    width: 60px;
     cursor: pointer;
 }
 
@@ -59,8 +60,6 @@
 
 .active {
     color: #f8fbff;
-    background-size: cover;
-    background: transparent url(@/images/ui/bottom-nav/active_nav.svg) no-repeat -2px 6px;
 }
 
 .icon {
@@ -73,6 +72,15 @@
 
 .button:hover .icon {
     filter: drop-shadow(0 0 4px rgba(106, 207, 246, 0.55));
+}
+
+.active:before {
+    content: '';
+    background-size: cover;
+    background: transparent url(@/images/ui/bottom-nav/active_nav.svg) no-repeat -2px 6px;
+    width: 60px;
+    height: 60px;
+    position: absolute;
 }
 
 .activeIcon {
