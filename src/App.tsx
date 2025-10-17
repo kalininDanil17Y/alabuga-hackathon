@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/dashboard";
 import DashboardHome from "./pages/dashboard/home";
 import DashboardMissions from "./pages/dashboard/missions";
+import DashboardShop from "./pages/dashboard/shop";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
                     <Route path="/dashboard" element={<Dashboard />}>
                         <Route index element={<DashboardHome />} />
                         <Route path="missions" element={<DashboardMissions />} />
+                        <Route path="shop" element={<DashboardShop />} />
                     </Route>
 
                     <Route path="*" element={<NotFound />} />

@@ -21,7 +21,22 @@ const Dashboard = () => {
         void fetchDashboard();
     }, [fetchDashboard]);
 
-    const activeValue = location.pathname.startsWith("/dashboard/missions") ? "missions" : null;
+    const pathname = location.pathname;
+    const activeValue = useMemo(() => {
+        if (pathname.startsWith("/dashboard/missions")) {
+            return "missions";
+        }
+        if (pathname.startsWith("/dashboard/shop")) {
+            return "shop";
+        }
+        if (pathname.startsWith("/dashboard/logbook")) {
+            return "logbook";
+        }
+        if (pathname.startsWith("/dashboard/notifications")) {
+            return "notifications";
+        }
+        return null;
+    }, [pathname]);
 
     const navItems = useMemo(
         () => [
@@ -32,7 +47,12 @@ const Dashboard = () => {
                 onSelect: () => navigate("/dashboard/missions"),
             },
             { value: "logbook", label: "Журнал", icon: "hugeicons:book-edit" },
-            { value: "shop", label: "Магазин", icon: "mage:basket" },
+            {
+                value: "shop",
+                label: "Магазин",
+                icon: "mage:basket",
+                onSelect: () => navigate("/dashboard/shop"),
+            },
             { value: "notifications", label: "Сигналы", icon: "hugeicons:message-01" },
         ],
         [navigate],
