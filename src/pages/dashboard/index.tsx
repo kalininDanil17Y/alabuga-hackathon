@@ -21,7 +21,7 @@ const Dashboard = () => {
         void fetchDashboard();
     }, [fetchDashboard]);
 
-    const activeValue = location.pathname.startsWith("/dashboard/missions") ? "missions" : "logbook";
+    const activeValue = location.pathname.startsWith("/dashboard/missions") ? "missions" : null;
 
     const navItems = useMemo(
         () => [
@@ -31,12 +31,7 @@ const Dashboard = () => {
                 icon: "solar:running-round-outline",
                 onSelect: () => navigate("/dashboard/missions"),
             },
-            {
-                value: "logbook",
-                label: "Журнал",
-                icon: "hugeicons:book-edit",
-                onSelect: () => navigate("/dashboard"),
-            },
+            { value: "logbook", label: "Журнал", icon: "hugeicons:book-edit" },
             { value: "shop", label: "Магазин", icon: "mage:basket" },
             { value: "notifications", label: "Сигналы", icon: "hugeicons:message-01" },
         ],
@@ -74,6 +69,7 @@ const Dashboard = () => {
                 currencyLabel={currencyLabel}
                 experienceProgress={experienceProgress}
                 sticky
+                userAction={() => navigate('/dashboard')}
             />
             <main className={styles.main}>
                 <Outlet />

@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { MouseEventHandler } from "react";
 import { Settings } from "lucide-react";
 import clsx from "clsx";
 import { CircularProgressAvatar } from "@/components/ui/custom/circular-progress-avatar";
@@ -14,11 +14,12 @@ export interface DashboardHeaderProps {
     user: User;
     currencyLabel: string;
     experienceProgress: number;
-    action?: ReactNode;
+    userAction?: MouseEventHandler<HTMLDivElement>;
+    settingsAction?: MouseEventHandler<HTMLButtonElement>;
     sticky?: boolean;
 }
 
-export function DashboardHeader({ user, currencyLabel, experienceProgress, action, sticky = false }: DashboardHeaderProps) {
+export function DashboardHeader({ user, currencyLabel, experienceProgress, userAction, settingsAction, sticky = false }: DashboardHeaderProps) {
     return (
         <header className={clsx(headerStyles.wrapper, sticky && headerStyles.stickyHeader)}>
             <div className={headerStyles.body}>
@@ -29,6 +30,7 @@ export function DashboardHeader({ user, currencyLabel, experienceProgress, actio
                             alt={`${user.name} avatar`}
                             progress={experienceProgress}
                             size={96}
+                            onClick={userAction}
                         />
                     </div>
                     <div>
@@ -38,11 +40,9 @@ export function DashboardHeader({ user, currencyLabel, experienceProgress, actio
                     </div>
                 </div>
                 <div className={headerStyles.actionArea}>
-                    {action ?? (
-                        <SpaceButton variant="icon" size="md" aria-label="Настройки" title="Настройки">
-                            <Settings size={20} />
-                        </SpaceButton>
-                    )}
+                    <SpaceButton variant="icon" size="md" aria-label="Настройки" title="Настройки" onClick={settingsAction}>
+                        <Settings size={20} />
+                    </SpaceButton>
                 </div>
             </div>
         </header>
