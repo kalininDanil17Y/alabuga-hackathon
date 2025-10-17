@@ -205,12 +205,10 @@ const MissionsPage = () => {
 
     return (
         <div className={styles.root}>
-            <SpaceCard variant="glass" className={styles.filterCard}>
-                <div className={styles.filters}>
-                    <Select items={missionStatusOptions} allElem={{ value: "all", label: "Статус" }} onChange={(event) => handleFilterChange("status", event.target.value)} />
-                    <Select items={missionFilterOptions} allElem={{ value: "all", label: "Компетенция" }} onChange={(event) => handleFilterChange("competencyId", event.target.value)} />
-                </div>
-            </SpaceCard>
+            <div className={styles.filters}>
+                <Select items={missionStatusOptions} allElem={{ value: "all", label: "Статус" }} onChange={(event) => handleFilterChange("status", event.target.value)} />
+                <Select items={missionFilterOptions} allElem={{ value: "all", label: "Компетенция" }} onChange={(event) => handleFilterChange("competencyId", event.target.value)} />
+            </div>
 
             <section className={styles.missionsGrid}>
                 {filteredEntries.length === 0 ? (
