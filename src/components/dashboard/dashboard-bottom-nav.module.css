@@ -38,7 +38,7 @@
     gap: 6px;
     background: transparent;
     border: none;
-    padding: 6px 4px 4px;
+    padding: 16px 4px 4px;
     color: rgba(255, 255, 255, 0.56);
     font-size: 8px;
     font-weight: 600;
@@ -59,10 +59,10 @@
 
 .active {
     color: #f8fbff;
-    /*transform: translateY(-2px);
-    filter: drop-shadow(0 0 10px rgba(106, 207, 246, 0.85));*/
     background: transparent url(@/images/ui/bottom-nav/active_nav.svg);
     background-size: cover;
+    background-position: -2px 6px;
+    background-repeat: no-repeat;
 }
 
 .icon {
