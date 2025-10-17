@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { useDashboardStore } from "@/store/dashboardStore";
 import styles from "./DashboardHome.module.css";
 import {HorizontalRule} from "@/components/ui/custom/horizontal-rule.tsx";
+import {Button1} from "@/components/ui/custom/button1.tsx";
 
 const missionFocusMap: Record<string, { missionId: string; competencyId?: string }> = {
     mission_001: {
@@ -39,6 +40,7 @@ const DashboardHome = () => {
         user,
         missions,
         achievements,
+        activity,
         artifacts,
         competencies,
         statistics,
@@ -48,6 +50,7 @@ const DashboardHome = () => {
     } = useDashboardStore((state) => ({
         user: state.user,
         missions: state.missions,
+        activity: state.activity,
         achievements: state.achievements,
         artifacts: state.artifacts,
         competencies: state.competencies,
@@ -200,24 +203,20 @@ const DashboardHome = () => {
                                     <div className="flex-1 pr-4">
                                         <p className="text-white text-xs font-normal">{mission.title || mission.id}</p>
                                     </div>
-                                    <button
-                                        className={styles["mission-button"]}
-                                        onClick={() =>
-                                            handleNavigateToMissions({ missionId: mission.id })
-                                        }
-                                    >
+                                    <Button1 onClick={() =>
+                                        handleNavigateToMissions({ missionId: mission.id })
+                                    }>
                                         К ЗАДАНИЮ
-                                    </button>
+                                    </Button1>
                                 </div>
                             ))}
 
                             <div className="text-center pt-2">
-                                <button
-                                    className={styles["view-all-button"]}
-                                    onClick={() => handleNavigateToMissions()}
-                                >
+                                <Button1 onClick={() =>
+                                    handleNavigateToMissions()
+                                }>
                                     ВЕСЬ СПИСОК
-                                </button>
+                                </Button1>
                             </div>
                         </div>
                     </TexturePanel>
@@ -274,28 +273,22 @@ const DashboardHome = () => {
                                             </div>
                                         </div>
                                         <div className="flex justify-end">
-                                            <button
-                                                className={cn(styles["mission-button"], "flex-shrink-0")}
-                                                onClick={() =>
-                                                    handleNavigateToMissions({
-                                                        competencyId: competency.id,
-                                                    })
-                                                }
-                                            >
+                                            <Button1 onClick={() =>
+                                                handleNavigateToMissions({
+                                                    competencyId: competency.id,
+                                                })
+                                            }>
                                                 ЗАДАНИЯ
-                                            </button>
+                                            </Button1>
                                         </div>
                                     </div>
                                 </div>
                             );
                         })}
                         <div className="text-center pt-2">
-                            <button
-                                className={styles["view-all-button"]}
-                                onClick={() => handleNavigateToMissions()}
-                            >
+                            <Button1 onClick={() => handleNavigateToMissions()}>
                                 ВЕСЬ СПИСОК
-                            </button>
+                            </Button1>
                         </div>
                     </TexturePanel>
                 )}
@@ -305,30 +298,22 @@ const DashboardHome = () => {
 
             <div>
                 <div className="flex justify-between items-center mb-3">
-                    <h3 className="text-white text-sm font-medium">Последние достижения</h3>
-                    <SpaceButton variant="outline" size="sm">
+                    <h3 className="text-white text-lg uppercase font-medium">Последние активности</h3>
+                    <Button1>
                         Посмотреть все
-                    </SpaceButton>
+                    </Button1>
                 </div>
-                <div className="grid grid-cols-4 gap-3">
-                    {topAchievements.map((achievement) => (
+                <div className="space-y-2">
+                    {activity.map((activity) => (
                         <SpaceCard
-                            key={achievement.id}
+                            key={activity.id}
                             variant="glass"
-                            className={cn(
-                                styles["achievement-card"],
-                                "aspect-square flex flex-col items-center justify-center gap-2 text-center p-3",
-                            )}
+                            className="p-3 flex items-center justify-between"
                         >
-                            <span className="text-xs uppercase tracking-[0.18em] text-space-cyan-300">
-                                {achievement.category}
-                            </span>
-                            <p className="text-white text-sm font-semibold">
-                                {achievement.title}
-                            </p>
-                            <p className="text-white/70 text-[10px] leading-tight">
-                                {achievement.description}
-                            </p>
+                            <div className="flex items-center justify-between">
+                                <p className="text-white text-xs">{activity.title}</p>
+                                <Button1>Подробнее</Button1>
+                            </div>
                         </SpaceCard>
                     ))}
                 </div>
@@ -338,7 +323,7 @@ const DashboardHome = () => {
 
             <div>
                 <div className="flex justify-between items-center mb-3">
-                    <h3 className="text-white text-sm font-medium">Статистика</h3>
+                    <h3 className="text-white text-lg uppercase font-medium">Статистика</h3>
                 </div>
                 <div className="grid grid-cols-4 gap-3">
                     {overviewStats.map((stat) => (
@@ -361,10 +346,10 @@ const DashboardHome = () => {
 
             <div>
                 <div className="flex justify-between items-center mb-3">
-                    <h3 className="text-white text-sm font-medium">Последние миссии</h3>
-                    <SpaceButton variant="outline" size="sm">
+                    <h3 className="text-white text-lg uppercase font-medium">Последние миссии</h3>
+                    <Button1>
                         Посмотреть все
-                    </SpaceButton>
+                    </Button1>
                 </div>
                 <div className="space-y-2">
                     {missions.slice(0, 3).map((mission) => (
@@ -375,9 +360,7 @@ const DashboardHome = () => {
                         >
                             <div className="flex items-center justify-between">
                                 <p className="text-white text-xs">{mission.title || mission.id}</p>
-                                <SpaceButton variant="outline" size="sm">
-                                    Подробнее
-                                </SpaceButton>
+                                <Button1>Подробнее</Button1>
                             </div>
                         </SpaceCard>
                     ))}
@@ -386,10 +369,10 @@ const DashboardHome = () => {
 
             <div className="pb-20">
                 <div className="flex justify-between items-center mb-3">
-                    <h3 className="text-white text-sm font-medium">Новые артефакты</h3>
-                    <SpaceButton variant="outline" size="sm">
+                    <h3 className="text-white text-lg uppercase font-medium">Последние артефакты</h3>
+                    <Button1>
                         Посмотреть все
-                    </SpaceButton>
+                    </Button1>
                 </div>
                 <div className="grid grid-cols-4 gap-3">
                     {topArtifacts.map((artifact) => (

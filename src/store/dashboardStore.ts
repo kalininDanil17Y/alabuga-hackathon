@@ -1,11 +1,11 @@
 import { create } from "zustand";
-import type {
+import {
     Achievement,
     Artifact,
     CompetencyItem,
     Mission,
     Statistics,
-    User,
+    User, UserActivity,
 } from "@/types/dashboard";
 import type { MissionEntry, MissionStatus } from "@/types/missions";
 
@@ -24,6 +24,7 @@ type DashboardState = {
     user: User | null;
     missions: Mission[];
     achievements: Achievement[];
+    activity: UserActivity[];
     artifacts: Artifact[];
     competencies: CompetencyItem[];
     statistics: Statistics | null;
@@ -66,6 +67,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     user: null,
     missions: [],
     achievements: [],
+    activity: [],
     artifacts: [],
     competencies: [],
     statistics: null,
@@ -80,11 +82,12 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
         set({ isDashboardLoading: true, dashboardError: null });
 
         try {
-            const [userData, missionsData, achievementsData, artifactsData, competenciesData, statisticsData] =
+            const [userData, missionsData, achievementsData, activityData, artifactsData, competenciesData, statisticsData] =
                 await Promise.all([
                     fetchJson<User>("/data/user.json"),
                     fetchJson<{ missions: Mission[] }>("/data/missions.json"),
                     fetchJson<{ achievements: Achievement[] }>("/data/achievements.json"),
+                    fetchJson<{ activity: UserActivity[] }>("/data/activity.json"),
                     fetchJson<{ artifacts: Artifact[] }>("/data/artifacts.json"),
                     fetchJson<{ competencies: CompetencyItem[] }>("/data/competencies.json"),
                     fetchJson<{ statistics: Statistics }>("/data/statistics.json"),
@@ -94,6 +97,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
                 user: userData,
                 missions: missionsData?.missions ?? [],
                 achievements: achievementsData?.achievements ?? [],
+                activity: activityData?.activity ?? [],
                 artifacts: artifactsData?.artifacts ?? [],
                 competencies: competenciesData?.competencies ?? [],
                 statistics: statisticsData?.statistics ?? null,
