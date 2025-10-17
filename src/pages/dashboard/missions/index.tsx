@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import clsx from "clsx";
 import { useSearchParams } from "react-router-dom";
 import { SpaceButton } from "@/components/ui/custom/space-button";
 import { SpaceCard } from "@/components/ui/custom/space-card";
-import { TexturePanel } from "@/components/ui/custom/texture-panel";
 import { useDashboardStore } from "@/store/dashboardStore";
 import type { MissionStatus } from "@/types/missions";
 import styles from "./DashboardMissions.module.css";
 import {Select} from "@/components/ui/custom/select.tsx";
+import { MissionCollapse } from "@/components/dashboard/missions/dashboard-misssion-collapse.tsx";
+import {MissionProps} from "@/components/dashboard/missions/dashboard-mission-card.tsx";
 
 type FilterKey = "status" | "competencyId";
 
@@ -203,6 +203,33 @@ const MissionsPage = () => {
         );
     }
 
+    const items: MissionProps[] = [
+        {
+            id: 1,
+            title: "Миссий (1)",
+            status: "complete",
+            mana: 1960,
+            exp: 1960,
+            competencies: [1, 2],
+        },
+        {
+            id: 2,
+            title: "Миссий (1)",
+            status: "moderation",
+            mana: 1960,
+            exp: 1960,
+            competencies: [1, 2],
+        },
+        {
+            id: 2,
+            title: "Миссий (1)",
+            status: "progress",
+            mana: 1960,
+            exp: 1960,
+            competencies: [1, 2],
+        }
+    ];
+
     return (
         <div className={styles.root}>
             <div className={styles.filters}>
@@ -210,7 +237,9 @@ const MissionsPage = () => {
                 <Select items={missionFilterOptions} onChange={(event) => handleFilterChange("competencyId", event.target.value)} />
             </div>
 
-            <section className={styles.missionsGrid}>
+            <MissionCollapse items={items} title="Test"/>
+
+            {/*<section className={styles.missionsGrid}>
                 {filteredEntries.length === 0 ? (
                     <SpaceCard variant="glass" className={styles.stateCard}>
                         Миссии по выбранным фильтрам не найдены.
@@ -274,7 +303,7 @@ const MissionsPage = () => {
                         </TexturePanel>
                     ))
                 )}
-            </section>
+            </section>*/}
         </div>
     );
 };
