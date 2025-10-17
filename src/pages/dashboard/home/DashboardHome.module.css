@@ -11,13 +11,14 @@
 }
 
 .dashboard-tab {
-    @apply relative inline-flex items-center justify-center px-6 py-2 text-sm font-semibold uppercase tracking-wide text-space-cyan-300 transition-all duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-space-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-space-blue-900;
+    @apply relative inline-flex items-center justify-center px-6 py-2 text-[13px] font-semibold uppercase tracking-wide text-space-cyan-300 transition-all duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-space-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-space-blue-900;
     background-image: url("../../../images/dashboard-tab-default.webp");
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-position: center;
     min-width: 150px;
     white-space: nowrap;
+    font-size: 10px;
 }
 
 .dashboard-tab:hover,
@@ -28,7 +29,8 @@
 }
 
 .experience-card {
-    border: 20px solid transparent;
+    @apply text-[10px];
+    border: 7px solid transparent;
     border-image-source: url('/src/images/experience-card-bg.svg');
     border-image-slice: 10 fill;
     border-image-repeat: stretch;

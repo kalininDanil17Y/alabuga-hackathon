@@ -152,17 +152,14 @@ const DashboardHome = () => {
 
     return (
         <div className="space-y-6">
-            <div className="px-0 pb-0">
-                <p className="text-white/100 text-base leading-4 text-center mb-4">
+            <div className="px-0 pb-0 text-[10px]">
+                <p className="text-white/100 leading-4 text-center mb-4">
                     Повышение ранга требует
                 </p>
 
-                <SpaceCard className={clsx(styles["experience-card"], "p-4 mx-3 mb-3 border-0 shadow-none")}
-                >
-
+                <SpaceCard className={clsx(styles["experience-card"], "mb-3 border-0 shadow-none")}>
                     <span>Опыт: </span>
                     <span>{user.experience.current}/{user.experience.max}</span>
-
                 </SpaceCard>
             </div>
 
@@ -198,8 +195,8 @@ const DashboardHome = () => {
                         <div className="space-y-2">
                             {missionItems.map((mission) => (
                                 <div key={mission.id} className={styles["mission-item"]}>
-                                    <div className="flex-1 pr-4">
-                                        <p className="text-white text-xs font-normal">{mission.description || mission.id}</p>
+                                    <div className="flex-1">
+                                        <p className="text-white text-[9px] font-normal">{mission.description || mission.id}</p>
                                     </div>
                                     <Button1 onClick={() =>
                                         handleNavigateToMissions({ missionId: mission.id })
@@ -268,11 +265,11 @@ const DashboardHome = () => {
                 )}
             </div>
 
-            <HorizontalRule paddingX="1rem"/>
+            <HorizontalRule paddingX="6px" mirrored={true}/>
 
             <div>
                 <div className="flex justify-between items-center mb-3">
-                    <h3 className="text-white text-lg uppercase font-medium">Последние активности</h3>
+                    <h3 className="text-white text-[12px] uppercase font-medium">Последние активности</h3>
                     <Button1>
                         Посмотреть все
                     </Button1>
@@ -285,7 +282,7 @@ const DashboardHome = () => {
                             className="p-3 flex items-center justify-between"
                         >
                             <div className="flex items-center justify-between">
-                                <p className="text-white text-xs">{activity.title}</p>
+                                <p className="text-white text-[9px]">{activity.title}</p>
                                 <Button1>Подробнее</Button1>
                             </div>
                         </SpaceCard>
@@ -293,11 +290,11 @@ const DashboardHome = () => {
                 </div>
             </div>
 
-            <HorizontalRule paddingX="1rem" mirrored={true}/>
+            <HorizontalRule paddingX="6px"/>
 
             <div>
                 <div className="flex justify-between items-center mb-3">
-                    <h3 className="text-white text-lg uppercase font-medium">Статистика</h3>
+                    <h3 className="text-white text-[12px] uppercase font-medium">Статистика</h3>
                     <Button1>
                         Посмотреть все
                     </Button1>
@@ -308,8 +305,8 @@ const DashboardHome = () => {
                         <div key={index}>
 
                             <div className="grid grid-cols-5 gap-4 pt-1 pb-2 items-center">
-                                <p className="col-span-3 text-white text-base">{stat.label}</p>
-                                <p className="col-span-2 text-white text-base font-bold">{stat.value}</p>
+                                <p className="col-span-3 text-white text-[9px]">{stat.label}</p>
+                                <p className="col-span-2 text-white text-[19px] font-bold">{stat.value}</p>
                             </div>
 
                             <HorizontalRule paddingX="4px" variant="v2"/>
@@ -318,25 +315,25 @@ const DashboardHome = () => {
                 </div>
             </div>
 
-            <HorizontalRule paddingX="1rem"/>
+            <HorizontalRule paddingX="6px" mirrored={true}/>
 
             <div>
                 <div className="flex justify-between items-center mb-3">
-                    <h3 className="text-white text-lg uppercase font-medium">Последние артефакты</h3>
+                    <h3 className="text-white text-[12px] uppercase font-medium">Последние артефакты</h3>
                     <Button1>
                         Посмотреть все
                     </Button1>
                 </div>
 
-                <div className="grid grid-cols-4 gap-3">
-                    {Array.from({ length: 4 }).map((_, index) => {
+                <div className="grid grid-cols-[repeat(6,_minmax(0,_40px))] justify-around">
+                    {Array.from({ length: 6 }).map((_, index) => {
                         const artifact = topArtifacts[index];
 
                         return (
                             <SpaceCard
                                 key={artifact?.id ?? `empty-${index}`}
                                 variant="artefacts"
-                                className={"aspect-square flex items-center justify-center text-center p-3"}
+                                className={"aspect-square flex items-center justify-center text-center p-1"}
                             >
                                 {artifact ? (
                                     <img src={artifact.image} alt={artifact.name} className="w-full h-full" />

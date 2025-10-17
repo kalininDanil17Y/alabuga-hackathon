@@ -19,15 +19,15 @@
 }
 
 .userName {
-    @apply text-white font-bold text-lg;
+    @apply text-white font-bold text-[14px];
 }
 
 .userRank {
-    @apply text-space-cyan-400 text-sm;
+    @apply text-space-cyan-400 text-[12px];
 }
 
 .userCurrency {
-    @apply text-white text-sm;
+    @apply text-white text-[14px];
 }
 
 .actionArea {
