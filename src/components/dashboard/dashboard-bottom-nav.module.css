@@ -59,10 +59,8 @@
 
 .active {
     color: #f8fbff;
-    background: transparent url(@/images/ui/bottom-nav/active_nav.svg);
     background-size: cover;
-    background-position: -2px 6px;
-    background-repeat: no-repeat;
+    background: transparent url(@/images/ui/bottom-nav/active_nav.svg) no-repeat -2px 6px;
 }
 
 .icon {
