@@ -9,27 +9,27 @@
     z-index: 40;
 }
 
+.background {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+}
+
 .shell {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: min(410px, 100%);
-    padding: 6px 18px 10px;
-    background-image: url("@/images/ui/bottom-nav/dashboard-bottom-nav.svg");
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-    background-position: center;
-    min-height: 53px;
+    z-index: 41;
 }
 
 .items {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 12px;
+    gap: 20px;
     width: 100%;
 }
 
 .button {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -58,8 +58,10 @@
 
 .active {
     color: #f8fbff;
-    transform: translateY(-2px);
-    filter: drop-shadow(0 0 10px rgba(106, 207, 246, 0.85));
+    /*transform: translateY(-2px);
+    filter: drop-shadow(0 0 10px rgba(106, 207, 246, 0.85));*/
+    background: transparent url(@/images/ui/bottom-nav/active_nav.svg);
+    background-size: cover;
 }
 
 .icon {

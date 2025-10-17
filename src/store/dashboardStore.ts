@@ -93,6 +93,11 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
                     fetchJson<{ statistics: Statistics }>("/data/statistics.json"),
                 ]);
 
+            // ---- a random exp
+            let min = Math.ceil(0);
+            userData.experience.current = Math.floor(Math.random() * (Math.floor(userData.experience.max) - min)) + min;
+            // ----
+
             set({
                 user: userData,
                 missions: missionsData?.missions ?? [],

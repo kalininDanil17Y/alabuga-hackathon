@@ -8,6 +8,8 @@ import navStyles from "./dashboard-bottom-nav.module.css";
 import type { User } from "@/types/dashboard";
 import { Icon } from "@iconify/react";
 
+import BottomNavBackground from "@/images/ui/bottom-nav/dashboard-bottom-nav.svg?react"
+
 export interface DashboardHeaderProps {
     user: User;
     currencyLabel: string;
@@ -63,6 +65,7 @@ export interface DashboardBottomNavProps {
 export function DashboardBottomNav({ items, activeValue, className }: DashboardBottomNavProps) {
     return (
         <nav className={clsx(navStyles.root, className)} aria-label="Основная навигация">
+            <BottomNavBackground className={navStyles.background}/>
             <div className={navStyles.shell}>
                 <div className={navStyles.items}>
                     {items.map((item) => {
