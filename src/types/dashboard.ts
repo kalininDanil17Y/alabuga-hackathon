@@ -82,7 +82,7 @@ export interface Statistics {
 }
 
 export interface CompetencyItem {
-    id: string;
+    id: number;
     title: string;
     description: string;
     progress: string;

@@ -10,27 +10,27 @@ import styles from "./DashboardHome.module.css";
 import {HorizontalRule} from "@/components/ui/custom/horizontal-rule.tsx";
 import {Button1} from "@/components/ui/custom/button1.tsx";
 
-const missionFocusMap: Record<string, { missionId: string; competencyId?: string }> = {
+const missionFocusMap: Record<string, { missionId: string; competencyId?: number }> = {
     mission_001: {
         missionId: "mission_alpha_2",
-        competencyId: "competency_002",
+        competencyId: 2,
     },
     mission_002: {
         missionId: "mission_gamma_1",
-        competencyId: "competency_003",
+        competencyId: 3,
     },
     mission_003: {
         missionId: "mission_alpha_3",
-        competencyId: "competency_002",
+        competencyId: 2,
     },
     mission_004: {
         missionId: "mission_beta_2",
-        competencyId: "competency_001",
+        competencyId: 1,
     },
-    mission_005: { missionId: "mission_delta", competencyId: "competency_004" },
+    mission_005: { missionId: "mission_delta", competencyId: 4 },
     mission_006: {
         missionId: "mission_gamma_2",
-        competencyId: "competency_003",
+        competencyId: 3,
     },
 };
 
@@ -102,7 +102,7 @@ const DashboardHome = () => {
 
     const handleNavigateToMissions = (options?: {
         missionId?: string;
-        competencyId?: string;
+        competencyId?: number;
     }) => {
         const params = new URLSearchParams();
 
@@ -120,7 +120,7 @@ const DashboardHome = () => {
         }
 
         if (competencyParam) {
-            params.set("competencyId", competencyParam);
+            params.set("competencyId", competencyParam.toString());
         }
 
         navigate({
@@ -233,10 +233,10 @@ const DashboardHome = () => {
                                     </div>
 
                                     <div className="w-full">
-                                        <div className="w-full bg-gray-200 rounded-full h-3 sm:h-2 mb-6 dark:bg-gray-700">
+                                        <div className="w-full bg-gray-200 rounded-full h-3 sm:h-6 mt-1 dark:bg-gray-700">
                                             <div
                                                 className="bg-blue-600 h-3 sm:h-6 rounded-full dark:bg-blue-500 transition-all"
-                                                style={{ width: "45%"}}
+                                                style={{ width: competency.progress }}
                                                 aria-valuenow={parseInt((45).toString())}
                                                 aria-valuemin={0}
                                                 aria-valuemax={100}
@@ -304,8 +304,8 @@ const DashboardHome = () => {
                 </div>
                 <div className="space-y-2">
                     <HorizontalRule paddingX="4px" variant="v2"/>
-                    {overviewStats.map((stat) => (
-                        <div>
+                    {overviewStats.map((stat, index) => (
+                        <div key={index}>
 
                             <div className="grid grid-cols-5 gap-4 pt-1 pb-2 items-center">
                                 <p className="col-span-3 text-white text-base">{stat.label}</p>
