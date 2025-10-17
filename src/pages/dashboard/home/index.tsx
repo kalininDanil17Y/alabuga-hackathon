@@ -352,21 +352,18 @@ const DashboardHome = () => {
                     </Button1>
                 </div>
 
-                <div className="grid grid-cols-6 gap-3">
-                    {/* создаём массив из 6 элементов и заполняем его либо артефактами, либо null */}
-                    {Array.from({ length: 6 }).map((_, index) => {
+                <div className="grid grid-cols-4 gap-3">
+                    {Array.from({ length: 4 }).map((_, index) => {
                         const artifact = topArtifacts[index];
 
                         return (
                             <SpaceCard
                                 key={artifact?.id ?? `empty-${index}`}
                                 variant="artefacts"
-                                className={clsx(
-                                    "aspect-square flex items-center justify-center text-center p-3",
-                                )}
+                                className={"aspect-square flex items-center justify-center text-center p-3"}
                             >
                                 {artifact ? (
-                                    <></>
+                                    <img src={artifact.image} alt={artifact.name} className="w-full h-full" />
                                 ) : null}
                             </SpaceCard>
                         );
