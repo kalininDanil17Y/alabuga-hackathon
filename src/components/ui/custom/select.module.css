@@ -12,7 +12,6 @@
     display: none;
 }
 
-/* При фокусе */
 .root:focus {
     @apply bg-[#0C1751] border-[#ccc];
 }
