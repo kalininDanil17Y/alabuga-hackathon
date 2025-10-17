@@ -6,6 +6,7 @@ import { SpaceButton } from "@/components/ui/custom/space-button";
 import headerStyles from "./dashboard-header.module.css";
 import navStyles from "./dashboard-bottom-nav.module.css";
 import type { User } from "@/types/dashboard";
+import { Icon } from "@iconify/react";
 
 export interface DashboardHeaderProps {
     user: User;
@@ -74,12 +75,7 @@ export function DashboardBottomNav({ items, activeValue, className }: DashboardB
                                 onClick={() => item.onSelect?.(item.value)}
                                 aria-pressed={isActive}
                             >
-                                <img
-                                    src={item.icon}
-                                    alt=""
-                                    aria-hidden="true"
-                                    className={clsx(navStyles.icon, isActive && navStyles.activeIcon)}
-                                />
+                                <Icon className={clsx(navStyles.icon, isActive && navStyles.activeIcon)} icon={item.icon} color="#6ACFF6" />
                                 <span>{item.label}</span>
                             </button>
                         );

@@ -2,10 +2,6 @@ import { useEffect, useMemo } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { SpaceButton } from "@/components/ui/custom/space-button";
 import { DashboardHeader, DashboardBottomNav } from "@/components/dashboard/layout";
-import missionsIcon from "@/images/ui/bottom-nav/bottom-nav-missions.svg";
-import logbookIcon from "@/images/ui/bottom-nav/bottom-nav-logbook.svg";
-import shopIcon from "@/images/ui/bottom-nav/bottom-nav-shop.svg";
-import notificationsIcon from "@/images/ui/bottom-nav/bottom-nav-notifications.svg";
 import { useDashboardStore } from "@/store/dashboardStore";
 import styles from "./Dashboard.module.css";
 import {number_format} from "@/lib/utils.ts";
@@ -32,17 +28,17 @@ const Dashboard = () => {
             {
                 value: "logbook",
                 label: "Журнал",
-                icon: logbookIcon,
+                icon: "hugeicons:book-edit",
                 onSelect: () => navigate("/dashboard"),
             },
             {
                 value: "missions",
                 label: "Миссии",
-                icon: missionsIcon,
+                icon: "solar:running-round-outline",
                 onSelect: () => navigate("/dashboard/missions"),
             },
-            { value: "shop", label: "Магазин", icon: shopIcon },
-            { value: "notifications", label: "Сигналы", icon: notificationsIcon },
+            { value: "shop", label: "Магазин", icon: "mage:basket" },
+            { value: "notifications", label: "Сигналы", icon: "hugeicons:message-01" },
         ],
         [navigate],
     );
