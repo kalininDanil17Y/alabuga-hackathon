@@ -7,6 +7,7 @@ import { TexturePanel } from "@/components/ui/custom/texture-panel";
 import { useDashboardStore } from "@/store/dashboardStore";
 import type { MissionStatus } from "@/types/missions";
 import styles from "./DashboardMissions.module.css";
+import {Select} from "@/components/ui/custom/select.tsx";
 
 type FilterKey = "status" | "competencyId";
 
@@ -206,34 +207,8 @@ const MissionsPage = () => {
         <div className={styles.root}>
             <SpaceCard variant="glass" className={styles.filterCard}>
                 <div className={styles.filters}>
-                    <label className={styles.filterField}>
-                        <span className={styles.filterLabel}>Статус</span>
-                        <select
-                            className={styles.select}
-                            value={missionsFilters.status}
-                            onChange={(event) => handleFilterChange("status", event.target.value)}
-                        >
-                            {missionStatusOptions.map((option) => (
-                                <option key={option.value} value={option.value}>
-                                    {option.label}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-                    <label className={styles.filterField}>
-                        <span className={styles.filterLabel}>Компетенция</span>
-                        <select
-                            className={styles.select}
-                            value={missionsFilters.competencyId}
-                            onChange={(event) => handleFilterChange("competencyId", event.target.value)}
-                        >
-                            {missionFilterOptions.map((option) => (
-                                <option key={option.value} value={option.value}>
-                                    {option.label}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
+                    <Select items={missionStatusOptions} allElem={{ value: "all", label: "Статус" }} onChange={(event) => handleFilterChange("status", event.target.value)} />
+                    <Select items={missionFilterOptions} allElem={{ value: "all", label: "Компетенция" }} onChange={(event) => handleFilterChange("competencyId", event.target.value)} />
                 </div>
             </SpaceCard>
 

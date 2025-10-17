@@ -1,0 +1,18 @@
+.root {
+    @apply bg-[#0C1751] border-[1px] border-solid border-[#0C1751] text-[10px] min-w-[90px] min-h-[17px] p-1 text-[#fff] rounded-[4px];
+
+    appearance: none;
+    -webkit-appearance: none;
+    text-align: center;
+    cursor: pointer;
+    outline: none;
+}
+
+.root::-ms-expand {
+    display: none;
+}
+
+/* При фокусе */
+.root:focus {
+    @apply bg-[#0C1751] border-[#ccc];
+}
