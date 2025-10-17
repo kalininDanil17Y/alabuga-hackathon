@@ -85,5 +85,6 @@ export interface CompetencyItem {
     id: number;
     title: string;
     description: string;
-    progress: string;
+    value: number;
+    max: number;
 }

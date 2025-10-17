@@ -216,46 +216,41 @@ const DashboardHome = () => {
                         </div>
                     </TexturePanel>
                 ) : (
-                    <TexturePanel contentClassName="p-4 flex flex-col">
-                        <HorizontalRule paddingX="4px" variant="v2"/>
+                    <TexturePanel contentClassName="flex flex-col p-[3px]">
 
                         {competencyItems.map((competency) => {
                             return (
-                                <div
-                                    key={competency.id}
-                                    className="grid grid-cols-1 sm:grid-cols-[3fr_2fr_1fr] items-center gap-x-4 gap-y-2 mb-2"
-                                >
-                                    <div className="text-sm sm:text-base">
-                                        {competency.title}
-                                    </div>
-
-                                    <div className="w-full">
-                                        <div className="w-full bg-gray-200 rounded-full h-3 sm:h-6 mt-1 dark:bg-gray-700">
-                                            <div
-                                                className="bg-blue-600 h-3 sm:h-6 rounded-full dark:bg-blue-500 transition-all"
-                                                style={{ width: competency.progress }}
-                                                aria-valuenow={parseInt((45).toString())}
-                                                aria-valuemin={0}
-                                                aria-valuemax={100}
-                                            />
+                                <>
+                                    <div key={competency.id} className="grid grid-cols-[5fr_2fr_1fr] items-center gap-x-1 mb-2 mt-[6px]">
+                                        <div className="text-sm text-[9px] sm:text-[12px]">
+                                            {competency.title}
                                         </div>
-                                    </div>
 
-                                    <div className="text-center sm:pt-0">
+                                        <div className="flex flex-row items-center w-full gap-[5px]">
+                                            <span className="text-[9px]">{competency.value}/{competency.max}</span>
+
+                                            <div className="w-[50px] rounded-full h-[8px] bg-gradient-to-t from-[#0C1751] to-[#1B34B7] border-[#005DAC] border-solid border-[1px]">
+                                                <div
+                                                    className="h-[6px] rounded-full bg-[#00AEEF] transition-all"
+                                                    style={{ width: `${competency.value / competency.max * 100}%` }}
+                                                    aria-valuenow={parseInt((competency.value / competency.max * 100).toString())}
+                                                    aria-valuemin={0}
+                                                    aria-valuemax={100}
+                                                />
+                                            </div>
+                                        </div>
+
                                         <Button1 onClick={() => handleNavigateToMissions({competencyId: competency.id})}>
                                             Задания
                                         </Button1>
                                     </div>
 
-                                    {/* разделитель между строками/элементами */}
-                                    <div className="col-span-full">
-                                        <HorizontalRule paddingX="4px" variant="v2"/>
-                                    </div>
-                                </div>
+                                    <HorizontalRule variant="v2"/>
+                                </>
                             );
                         })}
 
-                        <div className="text-center pt-2">
+                        <div className="text-center pt-2 pb-2">
                             <Button1 onClick={() => handleNavigateToMissions()}>
                                 ВЕСЬ СПИСОК
                             </Button1>
@@ -278,8 +273,7 @@ const DashboardHome = () => {
                     {activity.map((activity) => (
                         <SpaceCard
                             key={activity.id}
-                            variant="glass"
-                            className="p-3 flex items-center justify-between"
+                            className="p-2 flex items-center justify-between"
                         >
                             <div className="flex items-center justify-between">
                                 <p className="text-white text-[9px]">{activity.title}</p>

@@ -29,7 +29,7 @@ export function DashboardHeader({ user, currencyLabel, experienceProgress, userA
                             src={user.avatar ?? ""}
                             alt={`${user.name} avatar`}
                             progress={experienceProgress}
-                            size={96}
+                            size={60}
                             onClick={userAction}
                         />
                     </div>
