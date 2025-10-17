@@ -199,7 +199,7 @@ const DashboardHome = () => {
                             {missionItems.map((mission) => (
                                 <div key={mission.id} className={styles["mission-item"]}>
                                     <div className="flex-1 pr-4">
-                                        <p className="text-white text-xs font-normal">{mission.title || mission.id}</p>
+                                        <p className="text-white text-xs font-normal">{mission.description || mission.id}</p>
                                     </div>
                                     <Button1 onClick={() =>
                                         handleNavigateToMissions({ missionId: mission.id })
@@ -219,76 +219,52 @@ const DashboardHome = () => {
                         </div>
                     </TexturePanel>
                 ) : (
-                    <TexturePanel contentClassName="p-4 space-y-3">
-                        {competencyItems.map((competency) => {
-                            const [currentRaw = "0", totalRaw = "0"] = competency.progress
-                                .split("/")
-                                .map((value) => value.trim());
-                            const currentValue = Number(currentRaw);
-                            const totalValue = Number(totalRaw);
-                            const safeTotal =
-                                Number.isFinite(totalValue) && totalValue > 0 ? totalValue : 0;
-                            const safeCurrent = Number.isFinite(currentValue)
-                                ? Math.max(currentValue, 0)
-                                : 0;
-                            const clampedCurrent =
-                                safeTotal > 0 ? Math.min(safeCurrent, safeTotal) : safeCurrent;
-                            const ratio = safeTotal > 0 ? clampedCurrent / safeTotal : 0;
-                            const percentLabel = safeTotal > 0 ? Math.round(ratio * 100) : 0;
-                            const progressDisplayTotal =
-                                safeTotal > 0
-                                    ? safeTotal
-                                    : Number.isFinite(totalValue)
-                                        ? Math.max(totalValue, 0)
-                                        : 0;
-                            const progressLabel = `${clampedCurrent} / ${progressDisplayTotal}`;
-                            const widthPercentage = Math.min(100, Math.max(0, ratio * 100));
+                    <TexturePanel contentClassName="p-4 flex flex-col">
+                        <HorizontalRule paddingX="4px" variant="v2"/>
 
+                        {competencyItems.map((competency) => {
                             return (
-                                <div key={competency.id} className={styles["competency-item"]}>
-                                    <div className="w-full md:min-w-[200px] md:pr-6">
-                                        <p className="text-white text-sm font-medium">
-                                            {competency.title}
-                                        </p>
-                                        <p className="text-space-cyan-300/80 text-xs mt-1">
-                                            {competency.description}
-                                        </p>
+                                <div
+                                    key={competency.id}
+                                    className="grid grid-cols-1 sm:grid-cols-[3fr_2fr_1fr] items-center gap-x-4 gap-y-2 mb-2"
+                                >
+                                    <div className="text-sm sm:text-base">
+                                        {competency.title}
                                     </div>
-                                    <div className="flex w-full flex-1 flex-col gap-4 md:flex-row md:items-center md:gap-5">
-                                        <div className="flex w-full flex-col gap-1">
-                                            <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.18em] text-white/60">
-                                                <span>Прогресс</span>
-                                                <span>{progressLabel}</span>
-                                            </div>
-                                            <div className="relative h-2 w-full overflow-hidden rounded-full bg-white/15">
-                                                <div
-                                                    className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-space-cyan-300 via-space-cyan-400 to-space-blue-700 shadow-[0_0_12px_rgba(106,207,246,0.45)] transition-all duration-500 ease-out"
-                                                    style={{ width: `${widthPercentage}%` }}
-                                                />
-                                                <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-[10px] font-semibold text-white/80">
-                                                    {percentLabel}%
-                                                </span>
-                                            </div>
+
+                                    <div className="w-full">
+                                        <div className="w-full bg-gray-200 rounded-full h-3 sm:h-2 mb-6 dark:bg-gray-700">
+                                            <div
+                                                className="bg-blue-600 h-3 sm:h-6 rounded-full dark:bg-blue-500 transition-all"
+                                                style={{ width: "45%"}}
+                                                aria-valuenow={parseInt((45).toString())}
+                                                aria-valuemin={0}
+                                                aria-valuemax={100}
+                                            />
                                         </div>
-                                        <div className="flex justify-end">
-                                            <Button1 onClick={() =>
-                                                handleNavigateToMissions({
-                                                    competencyId: competency.id,
-                                                })
-                                            }>
-                                                ЗАДАНИЯ
-                                            </Button1>
-                                        </div>
+                                    </div>
+
+                                    <div className="text-center sm:pt-0">
+                                        <Button1 onClick={() => handleNavigateToMissions({competencyId: competency.id})}>
+                                            Задания
+                                        </Button1>
+                                    </div>
+
+                                    {/* разделитель между строками/элементами */}
+                                    <div className="col-span-full">
+                                        <HorizontalRule paddingX="4px" variant="v2"/>
                                     </div>
                                 </div>
                             );
                         })}
+
                         <div className="text-center pt-2">
                             <Button1 onClick={() => handleNavigateToMissions()}>
                                 ВЕСЬ СПИСОК
                             </Button1>
                         </div>
                     </TexturePanel>
+
                 )}
             </div>
 
