@@ -26,16 +26,16 @@ const Dashboard = () => {
     const navItems = useMemo(
         () => [
             {
-                value: "logbook",
-                label: "Журнал",
-                icon: "hugeicons:book-edit",
-                onSelect: () => navigate("/dashboard"),
-            },
-            {
                 value: "missions",
                 label: "Миссии",
                 icon: "solar:running-round-outline",
                 onSelect: () => navigate("/dashboard/missions"),
+            },
+            {
+                value: "logbook",
+                label: "Журнал",
+                icon: "hugeicons:book-edit",
+                onSelect: () => navigate("/dashboard"),
             },
             { value: "shop", label: "Магазин", icon: "mage:basket" },
             { value: "notifications", label: "Сигналы", icon: "hugeicons:message-01" },
