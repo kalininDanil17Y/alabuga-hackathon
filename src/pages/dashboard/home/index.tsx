@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import { SpaceButton } from "@/components/ui/custom/space-button";
 import { SpaceCard } from "@/components/ui/custom/space-card";
 import { TexturePanel } from "@/components/ui/custom/texture-panel";
-import { cn } from "@/lib/utils";
+import {cn, number_format} from "@/lib/utils";
 import { useDashboardStore } from "@/store/dashboardStore";
 import styles from "./DashboardHome.module.css";
 import {HorizontalRule} from "@/components/ui/custom/horizontal-rule.tsx";
@@ -39,7 +39,6 @@ const DashboardHome = () => {
     const {
         user,
         missions,
-        achievements,
         activity,
         artifacts,
         competencies,
@@ -74,7 +73,6 @@ const DashboardHome = () => {
     }, [user]);
 
     const missionItems = useMemo(() => missions, [missions]);
-    const topAchievements = useMemo(() => achievements.slice(0, 4), [achievements]);
     const topArtifacts = useMemo(() => artifacts.slice(0, 4), [artifacts]);
     const competencyItems = competencies;
 
@@ -84,20 +82,20 @@ const DashboardHome = () => {
         }
         return [
             {
-                label: "Всего миссий",
-                value: String(statistics.overview.totalMissions),
+                label: "Общее количество выполненных миссий",
+                value: number_format(statistics.overview.totalMissions),
             },
             {
-                label: "Завершено",
-                value: String(statistics.overview.completedMissions),
+                label: "Заработанный опыт",
+                value: number_format(statistics.overview.totalExperience),
             },
             {
-                label: "Успешность",
-                value: `${statistics.overview.successRate}%`,
+                label: "Заработанная мана",
+                value: number_format(12345),
             },
             {
-                label: "Текущий уровень",
-                value: `LVL ${statistics.overview.currentLevel}`,
+                label: "Всего времени в системе",
+                value: number_format(60 * 60 * 1.4),
             },
         ];
     }, [statistics]);
@@ -324,73 +322,58 @@ const DashboardHome = () => {
             <div>
                 <div className="flex justify-between items-center mb-3">
                     <h3 className="text-white text-lg uppercase font-medium">Статистика</h3>
-                </div>
-                <div className="grid grid-cols-4 gap-3">
-                    {overviewStats.map((stat) => (
-                        <SpaceCard
-                            key={stat.label}
-                            variant="glass"
-                            className={cn(
-                                styles["stat-card"],
-                                "aspect-square flex flex-col items-center justify-center gap-1 text-center",
-                            )}
-                        >
-                            <span className="text-lg font-semibold text-white">{stat.value}</span>
-                            <span className="text-xs uppercase tracking-wide text-space-cyan-300">
-                                {stat.label}
-                            </span>
-                        </SpaceCard>
-                    ))}
-                </div>
-            </div>
-
-            <div>
-                <div className="flex justify-between items-center mb-3">
-                    <h3 className="text-white text-lg uppercase font-medium">Последние миссии</h3>
                     <Button1>
                         Посмотреть все
                     </Button1>
                 </div>
                 <div className="space-y-2">
-                    {missions.slice(0, 3).map((mission) => (
-                        <SpaceCard
-                            key={mission.id}
-                            variant="glass"
-                            className="p-3 flex items-center justify-between"
-                        >
-                            <div className="flex items-center justify-between">
-                                <p className="text-white text-xs">{mission.title || mission.id}</p>
-                                <Button1>Подробнее</Button1>
+                    <HorizontalRule paddingX="4px" variant="v2"/>
+                    {overviewStats.map((stat) => (
+                        <div>
+
+                            <div className="grid grid-cols-5 gap-4 pt-1 pb-2 items-center">
+                                <p className="col-span-3 text-white text-base">{stat.label}</p>
+                                <p className="col-span-2 text-white text-base font-bold">{stat.value}</p>
                             </div>
-                        </SpaceCard>
+
+                            <HorizontalRule paddingX="4px" variant="v2"/>
+                        </div>
                     ))}
                 </div>
             </div>
 
-            <div className="pb-20">
+            <HorizontalRule paddingX="1rem"/>
+
+            <div>
                 <div className="flex justify-between items-center mb-3">
                     <h3 className="text-white text-lg uppercase font-medium">Последние артефакты</h3>
                     <Button1>
                         Посмотреть все
                     </Button1>
                 </div>
-                <div className="grid grid-cols-4 gap-3">
-                    {topArtifacts.map((artifact) => (
-                        <SpaceCard
-                            key={artifact.id}
-                            variant="glass"
-                            className="aspect-square flex items-center justify-center text-center p-3"
-                        >
-                            <div className="space-y-1">
-                                <p className="text-white text-xs font-semibold">{artifact.name}</p>
-                                <p className="text-white/70 text-[10px] leading-tight">
-                                    {artifact.description}
-                                </p>
-                            </div>
-                        </SpaceCard>
-                    ))}
+
+                <div className="grid grid-cols-6 gap-3">
+                    {/* создаём массив из 6 элементов и заполняем его либо артефактами, либо null */}
+                    {Array.from({ length: 6 }).map((_, index) => {
+                        const artifact = topArtifacts[index];
+
+                        return (
+                            <SpaceCard
+                                key={artifact?.id ?? `empty-${index}`}
+                                variant="artefacts"
+                                className={clsx(
+                                    "aspect-square flex items-center justify-center text-center p-3",
+                                )}
+                            >
+                                {artifact ? (
+                                    <></>
+                                ) : null}
+                            </SpaceCard>
+                        );
+                    })}
                 </div>
             </div>
+
         </div>
     );
 };

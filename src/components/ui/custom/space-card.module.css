@@ -42,3 +42,8 @@
     @apply relative z-10 w-full;
 }
 
+
+.artefactsVariant {
+    @apply border border-white/10 bg-[#061759] backdrop-blur-sm shadow-[0_0_18px_rgba(10,14,42,0.45)];
+}
+

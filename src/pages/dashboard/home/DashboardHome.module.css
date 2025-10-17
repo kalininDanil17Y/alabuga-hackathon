@@ -79,31 +79,3 @@
     pointer-events: none;
     z-index: 0;
 }
-
-.stat-card {
-    @apply relative overflow-hidden rounded-lg;
-    border: 1px solid rgba(74, 100, 255, 0.35);
-    background: linear-gradient(
-            140deg,
-            rgba(74, 100, 255, 0.28) 0%,
-            rgba(12, 23, 81, 0.92) 54%,
-            rgba(6, 12, 46, 0.95) 100%
-    );
-    box-shadow: 0 0 24px rgba(74, 100, 255, 0.22);
-    z-index: 0;
-}
-
-.stat-card::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-            135% 120% at 50% 0%,
-            rgba(106, 207, 246, 0.2) 0%,
-            rgba(12, 23, 81, 0.8) 60%,
-            rgba(6, 12, 46, 0.9) 100%
-    );
-    opacity: 0.85;
-    pointer-events: none;
-    z-index: 0;
-}

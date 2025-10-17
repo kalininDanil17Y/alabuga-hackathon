@@ -8,6 +8,7 @@ import shopIcon from "@/images/ui/bottom-nav/bottom-nav-shop.svg";
 import notificationsIcon from "@/images/ui/bottom-nav/bottom-nav-notifications.svg";
 import { useDashboardStore } from "@/store/dashboardStore";
 import styles from "./Dashboard.module.css";
+import {number_format} from "@/lib/utils.ts";
 
 const Dashboard = () => {
     const location = useLocation();
@@ -67,8 +68,7 @@ const Dashboard = () => {
         return null;
     }
 
-    const numberFormatter = new Intl.NumberFormat("ru-RU");
-    const currencyLabel = `${numberFormatter.format(user.currency.amount)} ${user.currency.symbol}`;
+    const currencyLabel = `${number_format(user.currency.amount)} ${user.currency.symbol}`;
     const experienceProgress = user.experience.max > 0 ? user.experience.current / user.experience.max : 0;
 
     return (

@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import styles from "./space-card.module.css";
 
-type SpaceCardVariant = "default" | "gradient" | "glass";
+type SpaceCardVariant = "default" | "gradient" | "glass" | "artefacts";
 
 interface SpaceCardProps {
     children: React.ReactNode;
@@ -16,12 +16,14 @@ const variantClasses: Record<SpaceCardVariant, string> = {
     default: styles.defaultVariant,
     gradient: styles.gradientVariant,
     glass: styles.glassVariant,
+    artefacts: styles.artefactsVariant
 };
 
 const variantHoverClasses: Record<SpaceCardVariant, string> = {
     default: styles.hoverDefault,
     gradient: styles.hoverGradient,
     glass: styles.hoverGlass,
+    artefacts: styles.hoverGlass
 };
 
 const SpaceCard: React.FC<SpaceCardProps> = ({
