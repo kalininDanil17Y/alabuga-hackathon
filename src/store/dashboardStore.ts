@@ -11,7 +11,7 @@ import type { MissionEntry, MissionStatus } from "@/types/missions";
 
 type MissionFilterState = {
     status: MissionStatus | "all";
-    competencyId: string | "all";
+    competencyId: number | "all";
 };
 
 type MissionsPagePayload = {

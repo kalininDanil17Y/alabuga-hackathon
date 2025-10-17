@@ -102,7 +102,7 @@ const MissionsPage = () => {
             missionsFilters.competencyId !== targetCompetency &&
             syncedFilterKeyRef.current !== syncKey
         ) {
-            setMissionsFilters({ competencyId: targetCompetency });
+            setMissionsFilters({ competencyId: typeof targetCompetency === "string" ? parseInt(targetCompetency, 10) : targetCompetency });
             syncedFilterKeyRef.current = syncKey;
             return;
         }
@@ -178,7 +178,7 @@ const MissionsPage = () => {
         }
 
         syncedFilterKeyRef.current = null;
-        setMissionsFilters({ competencyId: value });
+        setMissionsFilters({ competencyId: parseInt(value, 10) });
     };
 
     if (isMissionsLoading && missionsEntries.length === 0) {

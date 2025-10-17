@@ -23,7 +23,7 @@ export interface MissionEntry {
   description?: string;
   status: MissionStatus;
   type: "chain" | "single";
-  competencyId?: string;
+  competencyId?: number;
   difficulty?: "low" | "medium" | "high";
   tasks: MissionTask[];
   rewards?: {
