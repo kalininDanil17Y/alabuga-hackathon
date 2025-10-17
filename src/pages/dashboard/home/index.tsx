@@ -151,7 +151,7 @@ const DashboardHome = () => {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-3">
             <div className="px-0 pb-0 text-[10px]">
                 <p className="text-white/100 leading-4 text-center mb-4">
                     Повышение ранга требует
