@@ -2,12 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import { SpaceButton } from "@/components/ui/custom/space-button";
-import { SpaceProgress } from "@/components/ui/custom/space-progress";
 import { SpaceCard } from "@/components/ui/custom/space-card";
 import { TexturePanel } from "@/components/ui/custom/texture-panel";
 import { cn } from "@/lib/utils";
 import { useDashboardStore } from "@/store/dashboardStore";
 import styles from "./DashboardHome.module.css";
+import {HorizontalRule} from "@/components/ui/custom/horizontal-rule.tsx";
 
 const missionFocusMap: Record<string, { missionId: string; competencyId?: string }> = {
     mission_001: {
@@ -63,17 +63,11 @@ const DashboardHome = () => {
     }, [fetchDashboard]);
 
     const missionProgressLabel = useMemo(() => {
-        if (!user) {
-            return "Задания";
-        }
-        return `Задания: ${user.tasks.completed}/${user.tasks.total}`;
+        return `Задания`;
     }, [user]);
 
     const competencyProgressLabel = useMemo(() => {
-        if (!user) {
-            return "Компетенции";
-        }
-        return `Компетенции: ${user.competencies.completed}/${user.competencies.total}`;
+        return `Компетенции`;
     }, [user]);
 
     const missionItems = useMemo(() => missions, [missions]);
@@ -157,20 +151,17 @@ const DashboardHome = () => {
 
     return (
         <div className="space-y-6">
-            <div className="px-0 pt-3 pb-0">
-                <p className="text-white/70 text-xs leading-4 text-center mt-3 mb-4">
-                    Повышайте ранг, выполняя миссии и развивая компетенции экипажа
+            <div className="px-0 pb-0">
+                <p className="text-white/100 text-base leading-4 text-center mb-4">
+                    Повышение ранга требует
                 </p>
 
                 <SpaceCard className={clsx(styles["experience-card"], "p-4 mx-3 mb-3 border-0 shadow-none")}
                 >
-                    <SpaceProgress
-                        value={user.experience.current}
-                        max={user.experience.max}
-                        label="Опыт"
-                        showValues
-                        showPercentage
-                    />
+
+                    <span>Опыт: </span>
+                    <span>{user.experience.current}/{user.experience.max}</span>
+
                 </SpaceCard>
             </div>
 
@@ -202,7 +193,7 @@ const DashboardHome = () => {
                     })}
                 </div>
                 {activeTab === "missions" ? (
-                    <TexturePanel contentClassName="p-4">
+                    <TexturePanel contentClassName="p-0 pb-3">
                         <div className="space-y-2">
                             {missionItems.map((mission) => (
                                 <div key={mission.id} className={styles["mission-item"]}>
@@ -310,6 +301,8 @@ const DashboardHome = () => {
                 )}
             </div>
 
+            <HorizontalRule paddingX="1rem"/>
+
             <div>
                 <div className="flex justify-between items-center mb-3">
                     <h3 className="text-white text-sm font-medium">Последние достижения</h3>
@@ -340,6 +333,8 @@ const DashboardHome = () => {
                     ))}
                 </div>
             </div>
+
+            <HorizontalRule paddingX="1rem" mirrored={true}/>
 
             <div>
                 <div className="flex justify-between items-center mb-3">
