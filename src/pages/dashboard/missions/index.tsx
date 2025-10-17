@@ -206,7 +206,7 @@ const MissionsPage = () => {
     const items: MissionProps[] = [
         {
             id: 1,
-            title: "Миссий (1)",
+            title: "Миссия 1",
             status: "complete",
             mana: 1960,
             exp: 1960,
@@ -214,7 +214,7 @@ const MissionsPage = () => {
         },
         {
             id: 2,
-            title: "Миссий (1)",
+            title: "Миссия 2",
             status: "moderation",
             mana: 1960,
             exp: 1960,
@@ -222,7 +222,7 @@ const MissionsPage = () => {
         },
         {
             id: 2,
-            title: "Миссий (1)",
+            title: "Миссия 3",
             status: "progress",
             mana: 1960,
             exp: 1960,

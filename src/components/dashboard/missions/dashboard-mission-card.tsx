@@ -57,19 +57,19 @@ export const MissionCard = ({
     const statusConfig = STATUS_CONFIG[status] || STATUS_CONFIG.available;
 
     return (
-        <article className="relative w-[90%] h-14 bg-[#0d237899] border border-solid border-[#203daf] overflow-hidden">
+        <article className={styles.root}>
 
-            <Button1 onClick={() => onDetailsClick?.(id)} className="top-6 right-[8%] w-[76px] h-[21px]" style={{position: 'absolute'}}>
+            <Button1 onClick={() => onDetailsClick?.(id)} className={styles.button} style={{position: 'absolute'}}>
                 Подробнее
             </Button1>
 
-            <h2 className="absolute top-1.5 left-[3%] w-52 text-[9px] text-white">
+            <h2 className={styles.title}>
                 {title}
             </h2>
 
-            <div className="inline-flex items-center gap-2 absolute bottom-[7px] left-[5px]">
-                <div className="flex flex-col w-8 items-start gap-0.5 relative">
-                    <span className="relative self-stretch mt-[-1.00px] text-[7px]">
+            <div className={styles.rewards}>
+                <div className={styles.rewardItem}>
+                    <span className={styles.rewardItemLabel}>
                         Мана
                     </span>
 
@@ -85,8 +85,8 @@ export const MissionCard = ({
                     </div>
                 </div>
 
-                <div className="flex flex-col w-8 items-start gap-0.5 relative">
-                    <span className="relative self-stretch mt-[-1.00px] text-[7px]">
+                <div className={styles.rewardItem}>
+                    <span className={styles.rewardItemLabel}>
                         Опыт
                     </span>
                     <div className="flex items-end gap-px relative self-stretch w-full flex-[0_0_auto]">

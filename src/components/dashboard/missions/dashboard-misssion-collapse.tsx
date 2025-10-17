@@ -3,6 +3,7 @@ import clsx from "clsx";
 import styles from "./dashboard-mission-collapse.module.css";
 import {Button1} from "@/components/ui/custom/button1.tsx";
 import { MissionCard, MissionProps } from "@/components/dashboard/missions/dashboard-mission-card.tsx";
+import Background from "@/images/ui/mission-card/collapse-bg.svg?react"
 
 interface MissionCollapseProps extends React.HTMLAttributes<HTMLDivElement> {
     items: MissionProps[],
@@ -23,21 +24,25 @@ export function MissionCollapse ({ title, items, onCollapsed = () => {}, handleD
     return (
         <div>
             <div className={styles.root}>
-                <h3 className={styles.title}>
-                    Цепочка миссий "{title}" ({items.length})
-                </h3>
+                <Background className={styles.background}/>
 
-                <Button1
-                    className="mb-1"
-                    onClick={() => { toggleExpanded(); onCollapsed(isExpanded) }}
-                    aria-label={isExpanded ? "Свернуть цепочку миссий" : "Развернуть цепочку миссий"}
-                >
-                    {isExpanded ? "свернуть" : "развернуть"}
-                </Button1>
+                <div className={styles.content}>
+                    <h3 className={styles.title}>
+                        Цепочка миссий "{title}" ({items.length})
+                    </h3>
+
+                    <Button1
+                        className="mb-1"
+                        onClick={() => { toggleExpanded(); onCollapsed(isExpanded) }}
+                        aria-label={isExpanded ? "Свернуть цепочку миссий" : "Развернуть цепочку миссий"}
+                    >
+                        {isExpanded ? "свернуть" : "развернуть"}
+                    </Button1>
+                </div>
             </div>
 
             <div
-                className={clsx(styles.content, isExpanded ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0")}>
+                className={clsx(styles.items, isExpanded ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0")}>
                 {items.map((mission, index) => (
                     <MissionCard
                         key={index}

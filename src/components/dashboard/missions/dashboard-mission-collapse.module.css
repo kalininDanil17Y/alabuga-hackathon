@@ -1,14 +1,19 @@
 .root {
-    @apply flex flex-row justify-between px-1 items-center w-full h-[31px];
+    @apply w-full h-[30px] relative;
+}
 
-    background: url("@/images/ui/mission-card/collapse-bg.svg") no-repeat;
-    background-size: cover;
+.background {
+    @apply absolute w-full z-10 h-[30px];
+}
+
+.content {
+    @apply z-20 relative flex flex-row justify-between px-1 items-center h-[30px];
 }
 
 .title {
     @apply text-[9px] text-white;
 }
 
-.content {
+.items {
     @apply flex flex-col w-full items-center gap-px overflow-hidden transition-all duration-300 ease-in-out;
 }

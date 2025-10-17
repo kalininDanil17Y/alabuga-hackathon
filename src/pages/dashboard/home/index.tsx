@@ -9,6 +9,7 @@ import { useDashboardStore } from "@/store/dashboardStore";
 import styles from "./DashboardHome.module.css";
 import {HorizontalRule} from "@/components/ui/custom/horizontal-rule.tsx";
 import {Button1} from "@/components/ui/custom/button1.tsx";
+import Mana from "@/images/ui/mana.svg?react";
 
 const missionFocusMap: Record<string, { missionId: string; competencyId?: number }> = {
     mission_001: {
@@ -92,6 +93,7 @@ const DashboardHome = () => {
             {
                 label: "Заработанная мана",
                 value: number_format(12345),
+                icon: <Mana width="16px" height="16px" />
             },
             {
                 label: "Всего времени в системе",
@@ -222,7 +224,7 @@ const DashboardHome = () => {
                             return (
                                 <>
                                     <div key={competency.id} className="grid grid-cols-[5fr_2fr_1fr] items-center gap-x-1 mb-2 mt-[6px]">
-                                        <div className="text-sm text-[9px] sm:text-[12px]">
+                                        <div className="text-[9px]">
                                             {competency.title}
                                         </div>
 
@@ -300,7 +302,7 @@ const DashboardHome = () => {
 
                             <div className="grid grid-cols-5 gap-4 pt-1 pb-2 items-center">
                                 <p className="col-span-3 text-white text-[9px]">{stat.label}</p>
-                                <p className="col-span-2 text-white text-[19px] font-bold">{stat.value}</p>
+                                <p className="col-span-2 text-white text-[19px] font-bold flex flex-row items-center gap-2">{stat.value} {stat.icon ?? stat.icon}</p>
                             </div>
 
                             <HorizontalRule paddingX="4px" variant="v2"/>
