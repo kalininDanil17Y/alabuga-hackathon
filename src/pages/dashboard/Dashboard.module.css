@@ -15,7 +15,9 @@
 }
 
 .main {
-    @apply px-4 py-4 pb-32;
+    @apply py-4 pb-20;
+    padding-left: 6px;
+    padding-right: 6px;
 }
 
 .stateContent {

@@ -47,6 +47,12 @@ export interface Achievement {
     rarity: string;
 }
 
+export interface UserActivity {
+    id: string;
+    title: string;
+    description: string;
+}
+
 export interface ArtifactStats {
     [key: string]: number;
 }
@@ -76,8 +82,9 @@ export interface Statistics {
 }
 
 export interface CompetencyItem {
-    id: string;
+    id: number;
     title: string;
     description: string;
-    progress: string;
+    value: number;
+    max: number;
 }

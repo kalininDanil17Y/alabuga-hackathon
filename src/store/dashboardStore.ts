@@ -1,17 +1,18 @@
 import { create } from "zustand";
-import type {
+import {
     Achievement,
     Artifact,
     CompetencyItem,
     Mission,
     Statistics,
     User,
+    UserActivity,
 } from "@/types/dashboard";
 import type { MissionEntry, MissionStatus } from "@/types/missions";
 
 type MissionFilterState = {
     status: MissionStatus | "all";
-    competencyId: string | "all";
+    competencyId: "all" | string;
 };
 
 type MissionsPagePayload = {
@@ -24,6 +25,7 @@ type DashboardState = {
     user: User | null;
     missions: Mission[];
     achievements: Achievement[];
+    activity: UserActivity[];
     artifacts: Artifact[];
     competencies: CompetencyItem[];
     statistics: Statistics | null;
@@ -66,6 +68,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     user: null,
     missions: [],
     achievements: [],
+    activity: [],
     artifacts: [],
     competencies: [],
     statistics: null,
@@ -80,20 +83,34 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
         set({ isDashboardLoading: true, dashboardError: null });
 
         try {
-            const [userData, missionsData, achievementsData, artifactsData, competenciesData, statisticsData] =
-                await Promise.all([
-                    fetchJson<User>("/data/user.json"),
-                    fetchJson<{ missions: Mission[] }>("/data/missions.json"),
-                    fetchJson<{ achievements: Achievement[] }>("/data/achievements.json"),
-                    fetchJson<{ artifacts: Artifact[] }>("/data/artifacts.json"),
-                    fetchJson<{ competencies: CompetencyItem[] }>("/data/competencies.json"),
-                    fetchJson<{ statistics: Statistics }>("/data/statistics.json"),
-                ]);
+            const [
+                userData,
+                missionsData,
+                achievementsData,
+                activityData,
+                artifactsData,
+                competenciesData,
+                statisticsData,
+            ] = await Promise.all([
+                fetchJson<User>("/api/user"),
+                fetchJson<{ missions: Mission[] }>("/api/missions"),
+                fetchJson<{ achievements: Achievement[] }>("/data/achievements.json"),
+                fetchJson<{ activity: UserActivity[] }>("/data/activity.json"),
+                fetchJson<{ artifacts: Artifact[] }>("/data/artifacts.json"),
+                fetchJson<{ competencies: CompetencyItem[] }>("/api/competencies"),
+                fetchJson<{ statistics: Statistics }>("/data/statistics.json"),
+            ]);
+
+            // ---- a random exp
+            let min = Math.ceil(0);
+            userData.experience.current = Math.floor(Math.random() * (Math.floor(userData.experience.max) - min)) + min;
+            // ----
 
             set({
                 user: userData,
                 missions: missionsData?.missions ?? [],
                 achievements: achievementsData?.achievements ?? [],
+                activity: activityData?.activity ?? [],
                 artifacts: artifactsData?.artifacts ?? [],
                 competencies: competenciesData?.competencies ?? [],
                 statistics: statisticsData?.statistics ?? null,
@@ -113,20 +130,34 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     isMissionsLoading: false,
     missionsError: null,
     fetchMissionsPage: async (force = false) => {
-        const { isMissionsLoading, missionsEntries } = get();
-        if (!force && (isMissionsLoading || missionsEntries.length > 0)) {
+        const { isMissionsLoading, missionsFilters } = get();
+        if (!force && isMissionsLoading) {
             return;
         }
 
         set({ isMissionsLoading: true, missionsError: null });
 
         try {
-            const payload = await fetchJson<MissionsPagePayload>("/data/missions-page.json");
+            const params = new URLSearchParams();
+            if (missionsFilters.status !== "all") {
+                params.set("status", missionsFilters.status);
+            }
+            if (missionsFilters.competencyId !== "all") {
+                params.set("competencyId", missionsFilters.competencyId);
+            }
+
+            const query = params.toString();
+            const payload = await fetchJson<MissionsPagePayload>(
+                `/api/missions/page${query ? `?${query}` : ""}`,
+            );
 
             set({
                 missionsEntries: payload.entries,
                 missionStatusLabels: { ...DEFAULT_STATUS_LABELS, ...payload.statusLabels },
-                missionFilterOptions: [...payload.filterCompetencyOptions],
+                missionFilterOptions: payload.filterCompetencyOptions.map((option) => ({
+                    value: option.value,
+                    label: option.label,
+                })),
                 isMissionsLoading: false,
                 missionsError: null,
             });
@@ -135,7 +166,21 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
             set({ missionsError: message, isMissionsLoading: false });
         }
     },
-    setMissionsFilters: (filters) => set((state) => ({
-        missionsFilters: { ...state.missionsFilters, ...filters },
-    })),
+    setMissionsFilters: (filters) => {
+        const currentFilters = get().missionsFilters;
+        const nextFilters: MissionFilterState = {
+            ...currentFilters,
+            ...filters,
+        };
+
+        const hasChanged =
+            currentFilters.status !== nextFilters.status || currentFilters.competencyId !== nextFilters.competencyId;
+
+        if (!hasChanged) {
+            return;
+        }
+
+        set({ missionsFilters: nextFilters });
+        void get().fetchMissionsPage(true);
+    },
 }));

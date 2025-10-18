@@ -1,0 +1,206 @@
+name: Build & Deploy (Traefik routed)
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch/Tag/Commit to deploy"
+        required: true
+        default: master
+      domain:
+        description: "Dev Domain"
+        required: true
+        default: dev.nvote.ru
+      stack:
+        description: "Stack name (project) e.g. prod, dev-feature"
+        required: true
+        default: dev
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: deploy-${{ github.event_name }}-${{ github.ref || inputs.ref }}
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ${{ secrets.REGISTRY }}
+  REGISTRY_NAMESPACE: ${{ secrets.REGISTRY_NAMESPACE }}
+
+jobs:
+  # ---------- BUILD (общий для auto и manual) ----------
+  build-and-push:
+    name: Build & Push ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - service: api
+            context: .
+            file: docker/api.Dockerfile
+            image_name: alabuga-api
+          - service: web
+            context: .
+            file: Dockerfile
+            image_name: alabuga-web
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.ref }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_TOKEN }}
+
+      - name: Compute tags
+        id: t
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            BRANCH="${{ inputs.ref }}"
+          else
+            BRANCH="${GITHUB_REF_NAME}"
+          fi
+          # prod тег для master, иначе веточный
+          if [ "$BRANCH" = "master" ]; then
+            echo "TAG=latest" >> $GITHUB_OUTPUT
+          else
+            # допустимый тег: dev-<branch-with-dashes>
+            SAFE=$(echo "$BRANCH" | tr '/_' '--')
+            echo "TAG=dev-${SAFE}" >> $GITHUB_OUTPUT
+          fi
+          echo "SHA=${GITHUB_SHA}" >> $GITHUB_OUTPUT
+
+      - name: Build & Push ${{ matrix.service }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.file }}
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.REGISTRY_NAMESPACE }}/${{ matrix.image_name }}:${{ steps.t.outputs.TAG }}
+            ${{ env.REGISTRY }}/${{ env.REGISTRY_NAMESPACE }}/${{ matrix.image_name }}:${{ steps.t.outputs.SHA }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ---------- AUTO PROD DEPLOY (master push) ----------
+  deploy-prod-auto:
+    if: github.event_name == 'push' && github.ref_name == 'master'
+    needs: [build-and-push]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (compose)
+        uses: actions/checkout@v4
+
+      - name: Copy docker-compose.yml
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "docker-compose.yml"
+          target: "${{ secrets.DEPLOY_PATH }}/prod"
+
+      - name: Deploy prod
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          REGISTRY: ${{ env.REGISTRY }}
+          REGISTRY_NAMESPACE: ${{ env.REGISTRY_NAMESPACE }}
+          TAG: latest
+          STACK: prod
+          DOMAIN: ${{ vars.PROD_DOMAIN }}
+          DEPLOY_DIR: ${{ secrets.DEPLOY_PATH }}/prod
+          REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
+          REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: REGISTRY,REGISTRY_NAMESPACE,TAG,STACK,DOMAIN,DEPLOY_DIR,REGISTRY_USER,REGISTRY_TOKEN
+          script: |
+            set -euo pipefail
+            mkdir -p "$DEPLOY_DIR"
+            cd "$DEPLOY_DIR"
+            # .env для compose
+            cat > .env <<EOF
+            REGISTRY=${REGISTRY}
+            REGISTRY_NAMESPACE=${REGISTRY_NAMESPACE}
+            TAG=${TAG}
+            DOMAIN=${DOMAIN}
+            STACK=${STACK}
+            EOF
+            echo "${REGISTRY_TOKEN}" | docker login "${REGISTRY}" -u "${REGISTRY_USER}" --password-stdin
+            docker compose -p "${STACK}" pull
+            docker compose -p "${STACK}" up -d --remove-orphans
+            docker image prune -f || true
+
+  # ---------- MANUAL DEPLOY (любой домен/ветка/стек) ----------
+  deploy-manual:
+    if: github.event_name == 'workflow_dispatch'
+    needs: [build-and-push]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (compose)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Copy docker-compose.yml
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "docker-compose.yml"
+          target: "${{ secrets.DEPLOY_PATH }}/${{ inputs.stack }}"
+
+      - name: Deploy manual stack
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          REGISTRY: ${{ env.REGISTRY }}
+          REGISTRY_NAMESPACE: ${{ env.REGISTRY_NAMESPACE }}
+          # Тег совпадает с шагом build: dev-<branch> или latest для master
+          BRANCH: ${{ inputs.ref }}
+          STACK: ${{ inputs.stack }}
+          DOMAIN: ${{ inputs.domain }}
+          DEPLOY_DIR: ${{ secrets.DEPLOY_PATH }}/${{ inputs.stack }}
+          REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
+          REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: REGISTRY,REGISTRY_NAMESPACE,BRANCH,STACK,DOMAIN,DEPLOY_DIR,REGISTRY_USER,REGISTRY_TOKEN
+          script: |
+            set -euo pipefail
+            # вычислим TAG
+            if [ "$BRANCH" = "master" ]; then TAG=latest; else TAG="dev-$(echo "$BRANCH" | tr '/_' '--')"; fi
+
+            mkdir -p "$DEPLOY_DIR"
+            cd "$DEPLOY_DIR"
+            cat > .env <<EOF
+            REGISTRY=${REGISTRY}
+            REGISTRY_NAMESPACE=${REGISTRY_NAMESPACE}
+            TAG=${TAG}
+            DOMAIN=${DOMAIN}
+            STACK=${STACK}
+            EOF
+
+            echo "${REGISTRY_TOKEN}" | docker login "${REGISTRY}" -u "${REGISTRY_USER}" --password-stdin
+            docker compose -p "${STACK}" pull
+            docker compose -p "${STACK}" up -d --remove-orphans
+            docker image prune -f || true

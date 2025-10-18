@@ -1,13 +1,13 @@
 {
   "artifacts": [
     {
-      "id": "artifact_001",
-      "name": "Энергетический кристалл",
-      "description": "Редкий кристалл с высокой энергетической емкостью",
+      "id": 1,
+      "name": "Кубок",
+      "description": "todo",
       "rarity": "legendary",
       "foundDate": "2024-01-19",
       "location": "Сектор Г-15",
-      "image": "/artifacts/crystal.jpg",
+      "image": "/images/artefacts/art1.svg",
       "stats": {
         "energy": 95,
         "stability": 88,
@@ -15,13 +15,13 @@
       }
     },
     {
-      "id": "artifact_002",
-      "name": "Древний процессор",
-      "description": "Вычислительное устройство неизвестной технологии",
+      "id": 2,
+      "name": "Маска",
+      "description": "todo",
       "rarity": "epic",
       "foundDate": "2024-01-17",
       "location": "Станция Альфа",
-      "image": "/artifacts/processor.jpg",
+      "image": "/images/artefacts/art2.svg",
       "stats": {
         "processing": 89,
         "memory": 76,
@@ -29,13 +29,13 @@
       }
     },
     {
-      "id": "artifact_003",
+      "id": 3,
       "name": "Защитный модуль",
-      "description": "Устройство для создания защитных полей",
+      "description": "todo",
       "rarity": "rare",
       "foundDate": "2024-01-15",
       "location": "Подземные туннели",
-      "image": "/artifacts/shield.jpg",
+      "image": "/images/artefacts/art3.svg",
       "stats": {
         "defense": 82,
         "durability": 90,
@@ -43,13 +43,13 @@
       }
     },
     {
-      "id": "artifact_004",
-      "name": "Навигационный чип",
-      "description": "Микросхема для точного позиционирования",
+      "id": 4,
+      "name": "Блокнот",
+      "description": "todo",
       "rarity": "uncommon",
       "foundDate": "2024-01-12",
       "location": "Заброшенный корабль",
-      "image": "/artifacts/chip.jpg",
+      "image": "/images/artefacts/art4.svg",
       "stats": {
         "accuracy": 94,
         "range": 72,

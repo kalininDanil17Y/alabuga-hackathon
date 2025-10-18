@@ -1,0 +1,9 @@
+.root {}
+
+.divider {
+    width: 100%;
+}
+
+.verticalMirror  {
+    transform: rotate(180deg);
+}

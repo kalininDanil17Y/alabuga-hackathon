@@ -1,35 +1,37 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import { SpaceButton } from "@/components/ui/custom/space-button";
-import { SpaceProgress } from "@/components/ui/custom/space-progress";
 import { SpaceCard } from "@/components/ui/custom/space-card";
 import { TexturePanel } from "@/components/ui/custom/texture-panel";
-import { cn } from "@/lib/utils";
+import {cn, number_format} from "@/lib/utils";
 import { useDashboardStore } from "@/store/dashboardStore";
 import styles from "./DashboardHome.module.css";
+import {HorizontalRule} from "@/components/ui/custom/horizontal-rule.tsx";
+import {Button1} from "@/components/ui/custom/button1.tsx";
+import Mana from "@/images/ui/mana.svg?react";
 
-const missionFocusMap: Record<string, { missionId: string; competencyId?: string }> = {
+const missionFocusMap: Record<string, { missionId: string; competencyId?: number }> = {
     mission_001: {
         missionId: "mission_alpha_2",
-        competencyId: "competency_002",
+        competencyId: 2,
     },
     mission_002: {
         missionId: "mission_gamma_1",
-        competencyId: "competency_003",
+        competencyId: 3,
     },
     mission_003: {
         missionId: "mission_alpha_3",
-        competencyId: "competency_002",
+        competencyId: 2,
     },
     mission_004: {
         missionId: "mission_beta_2",
-        competencyId: "competency_001",
+        competencyId: 1,
     },
-    mission_005: { missionId: "mission_delta", competencyId: "competency_004" },
+    mission_005: { missionId: "mission_delta", competencyId: 4 },
     mission_006: {
         missionId: "mission_gamma_2",
-        competencyId: "competency_003",
+        competencyId: 3,
     },
 };
 
@@ -38,7 +40,7 @@ const DashboardHome = () => {
     const {
         user,
         missions,
-        achievements,
+        activity,
         artifacts,
         competencies,
         statistics,
@@ -48,6 +50,7 @@ const DashboardHome = () => {
     } = useDashboardStore((state) => ({
         user: state.user,
         missions: state.missions,
+        activity: state.activity,
         achievements: state.achievements,
         artifacts: state.artifacts,
         competencies: state.competencies,
@@ -63,21 +66,14 @@ const DashboardHome = () => {
     }, [fetchDashboard]);
 
     const missionProgressLabel = useMemo(() => {
-        if (!user) {
-            return "Задания";
-        }
-        return `Задания: ${user.tasks.completed}/${user.tasks.total}`;
+        return `Задания`;
     }, [user]);
 
     const competencyProgressLabel = useMemo(() => {
-        if (!user) {
-            return "Компетенции";
-        }
-        return `Компетенции: ${user.competencies.completed}/${user.competencies.total}`;
+        return `Компетенции`;
     }, [user]);
 
     const missionItems = useMemo(() => missions, [missions]);
-    const topAchievements = useMemo(() => achievements.slice(0, 4), [achievements]);
     const topArtifacts = useMemo(() => artifacts.slice(0, 4), [artifacts]);
     const competencyItems = competencies;
 
@@ -87,27 +83,28 @@ const DashboardHome = () => {
         }
         return [
             {
-                label: "Всего миссий",
-                value: String(statistics.overview.totalMissions),
+                label: "Общее количество выполненных миссий",
+                value: number_format(statistics.overview.totalMissions),
             },
             {
-                label: "Завершено",
-                value: String(statistics.overview.completedMissions),
+                label: "Заработанный опыт",
+                value: number_format(statistics.overview.totalExperience),
             },
             {
-                label: "Успешность",
-                value: `${statistics.overview.successRate}%`,
+                label: "Заработанная мана",
+                value: number_format(12345),
+                icon: <Mana width="16px" height="16px" />
             },
             {
-                label: "Текущий уровень",
-                value: `LVL ${statistics.overview.currentLevel}`,
+                label: "Всего времени в системе",
+                value: number_format(60 * 60 * 1.4),
             },
         ];
     }, [statistics]);
 
     const handleNavigateToMissions = (options?: {
         missionId?: string;
-        competencyId?: string;
+        competencyId?: number;
     }) => {
         const params = new URLSearchParams();
 
@@ -125,7 +122,7 @@ const DashboardHome = () => {
         }
 
         if (competencyParam) {
-            params.set("competencyId", competencyParam);
+            params.set("competencyId", competencyParam.toString());
         }
 
         navigate({
@@ -156,21 +153,15 @@ const DashboardHome = () => {
     }
 
     return (
-        <div className="space-y-6">
-            <div className="px-0 pt-3 pb-0">
-                <p className="text-white/70 text-xs leading-4 text-center mt-3 mb-4">
-                    Повышайте ранг, выполняя миссии и развивая компетенции экипажа
+        <div className="space-y-3">
+            <div className="px-0 pb-0 text-[10px]">
+                <p className="text-white/100 leading-4 text-center mb-4">
+                    Повышение ранга требует
                 </p>
 
-                <SpaceCard className={clsx(styles["experience-card"], "p-4 mx-3 mb-3 border-0 shadow-none")}
-                >
-                    <SpaceProgress
-                        value={user.experience.current}
-                        max={user.experience.max}
-                        label="Опыт"
-                        showValues
-                        showPercentage
-                    />
+                <SpaceCard className={clsx(styles["experience-card"], "mb-3 border-0 shadow-none")}>
+                    <span>Опыт: </span>
+                    <span>{user.experience.current}/{user.experience.max}</span>
                 </SpaceCard>
             </div>
 
@@ -202,217 +193,153 @@ const DashboardHome = () => {
                     })}
                 </div>
                 {activeTab === "missions" ? (
-                    <TexturePanel contentClassName="p-4">
+                    <TexturePanel contentClassName="p-0 pb-3">
                         <div className="space-y-2">
                             {missionItems.map((mission) => (
                                 <div key={mission.id} className={styles["mission-item"]}>
-                                    <div className="flex-1 pr-4">
-                                        <p className="text-white text-xs font-normal">{mission.title || mission.id}</p>
+                                    <div className="flex-1">
+                                        <p className="text-white text-[9px] font-normal">{mission.description || mission.id}</p>
                                     </div>
-                                    <button
-                                        className={styles["mission-button"]}
-                                        onClick={() =>
-                                            handleNavigateToMissions({ missionId: mission.id })
-                                        }
-                                    >
+                                    <Button1 onClick={() =>
+                                        handleNavigateToMissions({ missionId: mission.id })
+                                    }>
                                         К ЗАДАНИЮ
-                                    </button>
+                                    </Button1>
                                 </div>
                             ))}
 
                             <div className="text-center pt-2">
-                                <button
-                                    className={styles["view-all-button"]}
-                                    onClick={() => handleNavigateToMissions()}
-                                >
+                                <Button1 onClick={() =>
+                                    handleNavigateToMissions()
+                                }>
                                     ВЕСЬ СПИСОК
-                                </button>
+                                </Button1>
                             </div>
                         </div>
                     </TexturePanel>
                 ) : (
-                    <TexturePanel contentClassName="p-4 space-y-3">
-                        {competencyItems.map((competency) => {
-                            const [currentRaw = "0", totalRaw = "0"] = competency.progress
-                                .split("/")
-                                .map((value) => value.trim());
-                            const currentValue = Number(currentRaw);
-                            const totalValue = Number(totalRaw);
-                            const safeTotal =
-                                Number.isFinite(totalValue) && totalValue > 0 ? totalValue : 0;
-                            const safeCurrent = Number.isFinite(currentValue)
-                                ? Math.max(currentValue, 0)
-                                : 0;
-                            const clampedCurrent =
-                                safeTotal > 0 ? Math.min(safeCurrent, safeTotal) : safeCurrent;
-                            const ratio = safeTotal > 0 ? clampedCurrent / safeTotal : 0;
-                            const percentLabel = safeTotal > 0 ? Math.round(ratio * 100) : 0;
-                            const progressDisplayTotal =
-                                safeTotal > 0
-                                    ? safeTotal
-                                    : Number.isFinite(totalValue)
-                                        ? Math.max(totalValue, 0)
-                                        : 0;
-                            const progressLabel = `${clampedCurrent} / ${progressDisplayTotal}`;
-                            const widthPercentage = Math.min(100, Math.max(0, ratio * 100));
+                    <TexturePanel contentClassName="flex flex-col p-[3px]">
 
-                            return (
-                                <div key={competency.id} className={styles["competency-item"]}>
-                                    <div className="w-full md:min-w-[200px] md:pr-6">
-                                        <p className="text-white text-sm font-medium">
-                                            {competency.title}
-                                        </p>
-                                        <p className="text-space-cyan-300/80 text-xs mt-1">
-                                            {competency.description}
-                                        </p>
+                        {competencyItems.map((competency) => (
+                            <div key={competency.id}>
+                                <div className="grid grid-cols-[5fr_2fr_1fr] items-center gap-x-1 mb-2 mt-[6px]">
+                                    <div className="flex items-center gap-1 text-[9px]">
+                                        <img
+                                            src={`/images/competencies/c${competency.id}.svg`}
+                                            alt={`${competency.id} - ${competency.title}`}
+                                            className="w-4 h-4"
+                                        />
+                                        {competency.title}
                                     </div>
-                                    <div className="flex w-full flex-1 flex-col gap-4 md:flex-row md:items-center md:gap-5">
-                                        <div className="flex w-full flex-col gap-1">
-                                            <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.18em] text-white/60">
-                                                <span>Прогресс</span>
-                                                <span>{progressLabel}</span>
-                                            </div>
-                                            <div className="relative h-2 w-full overflow-hidden rounded-full bg-white/15">
-                                                <div
-                                                    className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-space-cyan-300 via-space-cyan-400 to-space-blue-700 shadow-[0_0_12px_rgba(106,207,246,0.45)] transition-all duration-500 ease-out"
-                                                    style={{ width: `${widthPercentage}%` }}
-                                                />
-                                                <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-[10px] font-semibold text-white/80">
-                                                    {percentLabel}%
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div className="flex justify-end">
-                                            <button
-                                                className={cn(styles["mission-button"], "flex-shrink-0")}
-                                                onClick={() =>
-                                                    handleNavigateToMissions({
-                                                        competencyId: competency.id,
-                                                    })
-                                                }
-                                            >
-                                                ЗАДАНИЯ
-                                            </button>
+
+                                    <div className="flex flex-row items-center w-full gap-[5px]">
+                                        <span className="text-[9px]">{competency.value}/{competency.max}</span>
+                                        <div className="w-[50px] rounded-full h-[8px] bg-gradient-to-t from-[#0C1751] to-[#1B34B7] border-[#005DAC] border-solid border-[1px]">
+                                            <div
+                                                className="h-[6px] rounded-full bg-[#00AEEF] transition-all"
+                                                style={{ width: `${(competency.value / competency.max) * 100}%` }}
+                                            />
                                         </div>
                                     </div>
+
+                                    <Button1 onClick={() => handleNavigateToMissions({ competencyId: competency.id })}>
+                                        Задания
+                                    </Button1>
                                 </div>
-                            );
-                        })}
-                        <div className="text-center pt-2">
-                            <button
-                                className={styles["view-all-button"]}
-                                onClick={() => handleNavigateToMissions()}
-                            >
+
+                                <HorizontalRule variant="v2" />
+                            </div>
+                        ))}
+
+
+                        <div className="text-center pt-2 pb-2">
+                            <Button1 onClick={() => handleNavigateToMissions()}>
                                 ВЕСЬ СПИСОК
-                            </button>
+                            </Button1>
                         </div>
                     </TexturePanel>
+
                 )}
             </div>
 
-            <div>
-                <div className="flex justify-between items-center mb-3">
-                    <h3 className="text-white text-sm font-medium">Последние достижения</h3>
-                    <SpaceButton variant="outline" size="sm">
-                        Посмотреть все
-                    </SpaceButton>
-                </div>
-                <div className="grid grid-cols-4 gap-3">
-                    {topAchievements.map((achievement) => (
-                        <SpaceCard
-                            key={achievement.id}
-                            variant="glass"
-                            className={cn(
-                                styles["achievement-card"],
-                                "aspect-square flex flex-col items-center justify-center gap-2 text-center p-3",
-                            )}
-                        >
-                            <span className="text-xs uppercase tracking-[0.18em] text-space-cyan-300">
-                                {achievement.category}
-                            </span>
-                            <p className="text-white text-sm font-semibold">
-                                {achievement.title}
-                            </p>
-                            <p className="text-white/70 text-[10px] leading-tight">
-                                {achievement.description}
-                            </p>
-                        </SpaceCard>
-                    ))}
-                </div>
-            </div>
+            <HorizontalRule paddingX="6px" mirrored={true}/>
 
             <div>
                 <div className="flex justify-between items-center mb-3">
-                    <h3 className="text-white text-sm font-medium">Статистика</h3>
-                </div>
-                <div className="grid grid-cols-4 gap-3">
-                    {overviewStats.map((stat) => (
-                        <SpaceCard
-                            key={stat.label}
-                            variant="glass"
-                            className={cn(
-                                styles["stat-card"],
-                                "aspect-square flex flex-col items-center justify-center gap-1 text-center",
-                            )}
-                        >
-                            <span className="text-lg font-semibold text-white">{stat.value}</span>
-                            <span className="text-xs uppercase tracking-wide text-space-cyan-300">
-                                {stat.label}
-                            </span>
-                        </SpaceCard>
-                    ))}
-                </div>
-            </div>
-
-            <div>
-                <div className="flex justify-between items-center mb-3">
-                    <h3 className="text-white text-sm font-medium">Последние миссии</h3>
-                    <SpaceButton variant="outline" size="sm">
+                    <h3 className="text-white text-[12px] uppercase font-medium">Последние активности</h3>
+                    <Button1>
                         Посмотреть все
-                    </SpaceButton>
+                    </Button1>
                 </div>
                 <div className="space-y-2">
-                    {missions.slice(0, 3).map((mission) => (
+                    {activity.map((activity) => (
                         <SpaceCard
-                            key={mission.id}
-                            variant="glass"
-                            className="p-3 flex items-center justify-between"
+                            key={activity.id}
+                            className="p-2 flex items-center justify-between"
                         >
                             <div className="flex items-center justify-between">
-                                <p className="text-white text-xs">{mission.title || mission.id}</p>
-                                <SpaceButton variant="outline" size="sm">
-                                    Подробнее
-                                </SpaceButton>
+                                <p className="text-white text-[9px]">{activity.title}</p>
+                                <Button1>Подробнее</Button1>
                             </div>
                         </SpaceCard>
                     ))}
                 </div>
             </div>
 
-            <div className="pb-20">
+            <HorizontalRule paddingX="6px"/>
+
+            <div>
                 <div className="flex justify-between items-center mb-3">
-                    <h3 className="text-white text-sm font-medium">Новые артефакты</h3>
-                    <SpaceButton variant="outline" size="sm">
+                    <h3 className="text-white text-[12px] uppercase font-medium">Статистика</h3>
+                    <Button1>
                         Посмотреть все
-                    </SpaceButton>
+                    </Button1>
                 </div>
-                <div className="grid grid-cols-4 gap-3">
-                    {topArtifacts.map((artifact) => (
-                        <SpaceCard
-                            key={artifact.id}
-                            variant="glass"
-                            className="aspect-square flex items-center justify-center text-center p-3"
-                        >
-                            <div className="space-y-1">
-                                <p className="text-white text-xs font-semibold">{artifact.name}</p>
-                                <p className="text-white/70 text-[10px] leading-tight">
-                                    {artifact.description}
-                                </p>
+                <div className="space-y-2">
+                    <HorizontalRule paddingX="4px" variant="v2"/>
+                    {overviewStats.map((stat, index) => (
+                        <div key={index}>
+
+                            <div className="grid grid-cols-5 gap-4 pt-1 pb-2 items-center">
+                                <p className="col-span-3 text-white text-[9px]">{stat.label}</p>
+                                <p className="col-span-2 text-white text-[19px] font-bold flex flex-row items-center gap-2">{stat.value} {stat.icon ?? stat.icon}</p>
                             </div>
-                        </SpaceCard>
+
+                            <HorizontalRule paddingX="4px" variant="v2"/>
+                        </div>
                     ))}
                 </div>
             </div>
+
+            <HorizontalRule paddingX="6px" mirrored={true}/>
+
+            <div>
+                <div className="flex justify-between items-center mb-3">
+                    <h3 className="text-white text-[12px] uppercase font-medium">Последние артефакты</h3>
+                    <Button1>
+                        Посмотреть все
+                    </Button1>
+                </div>
+
+                <div className="grid grid-cols-[repeat(6,_minmax(0,_40px))] justify-around">
+                    {Array.from({ length: 6 }).map((_, index) => {
+                        const artifact = topArtifacts[index];
+
+                        return (
+                            <SpaceCard
+                                key={artifact?.id ?? `empty-${index}`}
+                                variant="artefacts"
+                                className={"aspect-square flex items-center justify-center text-center p-1"}
+                            >
+                                {artifact ? (
+                                    <img src={artifact.image} alt={artifact.name} className="w-full h-full" />
+                                ) : null}
+                            </SpaceCard>
+                        );
+                    })}
+                </div>
+            </div>
+
         </div>
     );
 };
