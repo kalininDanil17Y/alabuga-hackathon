@@ -1,6 +1,6 @@
 import styles from "../notifications/DashboardNotifications.module.css";
 
-const DashboardJournalRatings = () => (
+const DashboardJournalRating = () => (
     <div className={styles.root}>
         <section className={styles.panel}>
             <h1 className={styles.title}>Рейтинг</h1>
@@ -11,4 +11,4 @@ const DashboardJournalRatings = () => (
     </div>
 );
 
-export default DashboardJournalRatings;
+export default DashboardJournalRating;

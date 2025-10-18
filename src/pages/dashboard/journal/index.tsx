@@ -12,7 +12,7 @@ interface JournalTabConfig {
 const tabs: JournalTabConfig[] = [
     { value: "history", label: "История активности", to: "history" },
     { value: "artifacts", label: "Артефакты", to: "artifacts" },
-    { value: "ratings", label: "Рейтинги", to: "ratings" },
+    { value: "rating", label: "Рейтинг", to: "rating" },
     { value: "statistics", label: "Статистика", to: "statistics" },
 ];
 
@@ -20,8 +20,8 @@ const getActiveTab = (pathname: string): string => {
     if (pathname.includes("/journal/artifacts")) {
         return "artifacts";
     }
-    if (pathname.includes("/journal/ratings")) {
-        return "ratings";
+    if (pathname.includes("/journal/rating")) {
+        return "rating";
     }
     if (pathname.includes("/journal/statistics")) {
         return "statistics";

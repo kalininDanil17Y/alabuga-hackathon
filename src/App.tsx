@@ -13,7 +13,7 @@ import DashboardMissions from "./pages/dashboard/missions";
 import DashboardJournal from "./pages/dashboard/journal";
 import DashboardJournalHistory from "./pages/dashboard/journal/history";
 import DashboardJournalArtifacts from "./pages/dashboard/journal/artifacts";
-import DashboardJournalRatings from "./pages/dashboard/journal/ratings";
+import DashboardJournalRating from "./pages/dashboard/journal/rating";
 import DashboardJournalStatistics from "./pages/dashboard/journal/statistics";
 import DashboardShop from "./pages/dashboard/shop";
 import DashboardNotifications from "./pages/dashboard/notifications";
@@ -36,7 +36,7 @@ const App = () => (
                             <Route index element={<Navigate to="history" replace />} />
                             <Route path="history" element={<DashboardJournalHistory />} />
                             <Route path="artifacts" element={<DashboardJournalArtifacts />} />
-                            <Route path="ratings" element={<DashboardJournalRatings />} />
+                            <Route path="rating" element={<DashboardJournalRating />} />
                             <Route path="statistics" element={<DashboardJournalStatistics />} />
                         </Route>
                         <Route path="shop" element={<DashboardShop />} />
