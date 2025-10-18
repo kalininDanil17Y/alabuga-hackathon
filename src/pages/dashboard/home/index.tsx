@@ -267,7 +267,7 @@ const DashboardHome = () => {
             <div>
                 <div className="flex justify-between items-center mb-3">
                     <h3 className="text-white text-[12px] uppercase font-medium">Последние активности</h3>
-                    <Button1>
+                    <Button1 onClick={() => navigate('/dashboard/journal')}>
                         Посмотреть все
                     </Button1>
                 </div>
@@ -291,7 +291,7 @@ const DashboardHome = () => {
             <div>
                 <div className="flex justify-between items-center mb-3">
                     <h3 className="text-white text-[12px] uppercase font-medium">Статистика</h3>
-                    <Button1>
+                    <Button1 onClick={() => navigate('/dashboard/journal/statistics')}>
                         Посмотреть все
                     </Button1>
                 </div>
@@ -316,7 +316,7 @@ const DashboardHome = () => {
             <div>
                 <div className="flex justify-between items-center mb-3">
                     <h3 className="text-white text-[12px] uppercase font-medium">Последние артефакты</h3>
-                    <Button1>
+                    <Button1 onClick={() => navigate('/dashboard/journal/artifacts')}>
                         Посмотреть все
                     </Button1>
                 </div>
