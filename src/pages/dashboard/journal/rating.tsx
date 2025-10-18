@@ -3,9 +3,9 @@ import clsx from "clsx";
 import { ArrowDown, ArrowUp, ArrowUpRight, Minus } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { HorizontalRule } from "@/components/ui/custom/horizontal-rule.tsx";
-import { TimeRangeSwitch } from "@/components/ui/custom/time-range-switch.tsx";
 import type { TimeRangeOption } from "@/components/ui/custom/time-range-switch.tsx";
 import styles from "./Rating.module.css";
+import {Select} from "@/components/ui/custom/select.tsx";
 
 type LeaderboardPeriod = "week" | "month" | "year";
 
@@ -35,9 +35,9 @@ const leaderboardData: Record<LeaderboardPeriod, LeaderboardEntry[]> = {
         { id: "3", rank: 3, name: "Обезьянка 2000", role: "Искатель ур3", score: 2000, unit: "чего-то", trend: "up", isHighlighted: true },
         { id: "4", rank: 4, name: "Обезьянка 2000", role: "Искатель ур3", score: 1980, unit: "чего-то", trend: "down" },
         { id: "5", rank: 5, name: "Обезьянка 2000", role: "Искатель ур3", score: 1950, unit: "чего-то", trend: "down" },
-        { id: "6", rank: 6, name: "Обезьянка 2000", role: "Искатель ур3", score: 1930, unit: "чего-то" },
+        { id: "6", rank: 6, name: "Обезьянка 2000", role: "Искатель ур3", score: 1930, unit: "чего-то", trend: "same" },
         { id: "7", rank: 7, name: "Обезьянка 2000", role: "Искатель ур3", score: 1900, unit: "чего-то", trend: "up" },
-        { id: "8", rank: 8, name: "Обезьянка 2000", role: "Искатель ур3", score: 1890, unit: "чего-то" },
+        { id: "8", rank: 8, name: "Обезьянка 2000", role: "Искатель ур3", score: 1890, unit: "чего-то", trend: "new" },
     ],
     month: [
         { id: "1", rank: 1, name: "Маруся", role: "Разведчик ур3", score: 8650, unit: "чего-то", trend: "up" },
@@ -89,7 +89,7 @@ const DashboardJournalRating: React.FC = () => {
         <div className={styles.root}>
             <HorizontalRule paddingX="6px" />
 
-            <TimeRangeSwitch
+            {/*<TimeRangeSwitch
                 label="Сортировка по времени"
                 options={periodOptions}
                 value={period}
@@ -98,7 +98,19 @@ const DashboardJournalRating: React.FC = () => {
                         setPeriod(nextValue);
                     }
                 }}
-            />
+            />*/}
+
+            <div className={"w-full flex items-center justify-center"}>
+                <Select
+                    items={periodOptions}
+                    onChange={(event) => {
+                        if (isPeriod(event.target.value)) {
+                            setPeriod(event.target.value);
+                        }
+                    }}
+                    className={"w-[200px]"}
+                />
+            </div>
 
             {entries.length === 0 ? (
                 <div className={styles.placeholderCard}>
@@ -112,12 +124,12 @@ const DashboardJournalRating: React.FC = () => {
                         const Icon = trend ? trendIconMap[trend] : null;
 
                         return (
-                            <div
-                                key={entry.id}
-                                className={styles.entry}
-                                data-highlighted={entry.isHighlighted ? "true" : "false"}
-                            >
-                                <div className={styles.entryLeft}>
+                            <div key={entry.id}>
+                                <div
+                                    className={styles.entry}
+                                    data-highlighted={entry.isHighlighted ? "true" : "false"}
+                                >
+                                    <div className={styles.entryLeft}>
                                     <span
                                         className={clsx(
                                             styles.trendIcon,
@@ -127,18 +139,21 @@ const DashboardJournalRating: React.FC = () => {
                                     >
                                         {Icon ? <Icon size={16} strokeWidth={3} /> : null}
                                     </span>
-                                    <span className={styles.rankNumber}>{entry.rank}</span>
+                                        <span className={styles.rankNumber}>{entry.rank}</span>
+                                    </div>
+
+                                    <div className={styles.player}>
+                                        <span className={styles.playerName}>{entry.name}</span>
+                                        <span className={styles.playerSubtitle}>{entry.role}</span>
+                                    </div>
+
+                                    <div className={styles.score}>
+                                        <span className={styles.scoreValue}>{formatScore(entry.score)}</span>
+                                        <span className={styles.scoreUnit}>{entry.unit}</span>
+                                    </div>
                                 </div>
 
-                                <div className={styles.player}>
-                                    <span className={styles.playerName}>{entry.name}</span>
-                                    <span className={styles.playerSubtitle}>{entry.role}</span>
-                                </div>
-
-                                <div className={styles.score}>
-                                    <span className={styles.scoreValue}>{formatScore(entry.score)}</span>
-                                    <span className={styles.scoreUnit}>{entry.unit}</span>
-                                </div>
+                                <HorizontalRule variant={"v2"} />
                             </div>
                         );
                     })}
