@@ -10,11 +10,12 @@ const Dashboard = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const { user, isDashboardLoading, dashboardError, fetchDashboard } = useDashboardStore((state) => ({
+    const { user, isDashboardLoading, dashboardError, fetchDashboard, setMissionsFilters } = useDashboardStore((state) => ({
         user: state.user,
         isDashboardLoading: state.isDashboardLoading,
         dashboardError: state.dashboardError,
         fetchDashboard: state.fetchDashboard,
+        setMissionsFilters: state.setMissionsFilters,
     }));
 
     useEffect(() => {
@@ -44,7 +45,10 @@ const Dashboard = () => {
                 value: "missions",
                 label: "Миссии",
                 icon: "solar:running-round-outline",
-                onSelect: () => navigate("/dashboard/missions"),
+                onSelect: () => {
+                    setMissionsFilters({ status: "all", competencyId: "all" });
+                    navigate("/dashboard/missions");
+                },
             },
             {
                 value: "journal",
@@ -60,7 +64,7 @@ const Dashboard = () => {
             },
             { value: "notifications", label: "Уведомления", icon: "hugeicons:message-01" },
         ],
-        [navigate],
+        [navigate, setMissionsFilters],
     );
 
     if (isDashboardLoading && !user) {
