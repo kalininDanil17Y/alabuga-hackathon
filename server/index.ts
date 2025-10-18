@@ -76,12 +76,12 @@ app.get("/api/missions/page", (req, res) => {
     const { status = "all", competencyId = "all" } = req.query;
 
     const filteredEntries = missionsPageData.entries
-        .filter((entry: MissionPageEntry) => {
+        .filter((entry: { status: string; competencyId?: number | string }) => {
             const matchesStatus = status === "all" || entry.status === status;
             const matchesCompetency = competencyId === "all" || String(entry.competencyId ?? "") === String(competencyId);
             return matchesStatus && matchesCompetency;
         })
-        .map((entry: MissionPageEntry) => ({
+        .map((entry: { tasks: Array<{ status: string; title: string }>; [key: string]: unknown }) => ({
             ...entry,
             tasks: sortTasks(entry.tasks),
         }));

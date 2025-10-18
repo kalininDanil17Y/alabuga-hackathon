@@ -1,5 +1,6 @@
 services:
   api:
+    image: ${REGISTRY:-ghcr.io}/${REGISTRY_NAMESPACE:-alabuga}/alabuga-api:${TAG:-latest}
     build:
       context: .
       dockerfile: docker/api.Dockerfile
@@ -8,6 +9,7 @@ services:
       - PORT=3001
     restart: unless-stopped
   web:
+    image: ${REGISTRY:-ghcr.io}/${REGISTRY_NAMESPACE:-alabuga}/alabuga-web:${TAG:-latest}
     build:
       context: .
       dockerfile: Dockerfile
