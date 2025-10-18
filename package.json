@@ -13,7 +13,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "server": "tsx watch server/index.ts"
+    "server:dev": "tsx watch server/index.ts",
+    "server:start": "tsx server/index.ts"
   },
   "dependencies": {
     "@rive-app/react-canvas": "^4.23.4",
