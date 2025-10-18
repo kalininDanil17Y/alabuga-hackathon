@@ -1,38 +1,41 @@
-version: "3.9"
-
 services:
   api:
     image: ${REGISTRY:-ghcr.io}/${REGISTRY_NAMESPACE:-alabuga}/alabuga-api:${TAG:-latest}
-    build:
-      context: .
-      dockerfile: docker/api.Dockerfile
     environment:
       - NODE_ENV=production
       - PORT=3001
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:3001/api/health || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.${STACK:-app}.api.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
-      - "traefik.http.services.${STACK:-app}.api.loadbalancer.server.port=3001"
-      - "traefik.http.routers.${STACK:-app}.api.entrypoints=web"
-
-    restart: unless-stopped
-
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.api.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.api.entrypoints=web"
+      - "traefik.http.routers.api.service=api"
+      - "traefik.http.services.api.loadbalancer.server.port=3001"
 
   web:
     image: ${REGISTRY:-ghcr.io}/${REGISTRY_NAMESPACE:-alabuga}/alabuga-web:${TAG:-latest}
-    build:
-      context: .
-      dockerfile: Dockerfile
     depends_on:
       - api
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:80/ || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.${STACK:-app}.web.rule=Host(`${DOMAIN}`)"
-      - "traefik.http.services.${STACK:-app}.web.loadbalancer.server.port=80"
-      - "traefik.http.routers.${STACK:-app}.web.entrypoints=web"
-    restart: unless-stopped
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.web.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.web.entrypoints=web"
+      - "traefik.http.services.web.loadbalancer.server.port=80"
 
 networks:
   default:
-    external: true
     name: proxy
+    external: true
