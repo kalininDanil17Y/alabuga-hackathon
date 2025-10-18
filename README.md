@@ -1,3 +1,5 @@
+[![Deploy](https://github.com/kalininDanil17Y/alabuga-hackathon/actions/workflows/deploy.yml/badge.svg)](https://github.com/kalininDanil17Y/alabuga-hackathon/actions/workflows/deploy.yml)
+
 # Проект «Алабуга» (Хакатон)
 
 ## Запуск проекта
