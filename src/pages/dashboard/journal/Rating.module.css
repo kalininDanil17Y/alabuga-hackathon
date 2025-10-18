@@ -1,0 +1,109 @@
+.root {
+    @apply space-y-6;
+}
+
+.list {
+    @apply flex flex-col gap-3;
+}
+
+.entry {
+    @apply flex items-center gap-5 px-5 py-4 transition-transform duration-150 ease-out;
+    /*@apply rounded-2xl border border-white/15;*/
+    /*background: linear-gradient(135deg, rgba(9, 27, 88, 0.92) 0%, rgba(6, 19, 70, 0.95) 60%, rgba(4, 14, 60, 0.98) 100%);*/
+    /*box-shadow: 0 0 18px rgba(22, 58, 140, 0.45);*/
+}
+
+.entry:hover {
+    transform: translateY(-1px);
+    /*box-shadow: 0 0 22px rgba(66, 132, 255, 0.35);*/
+}
+
+.entry[data-highlighted="true"] {
+    @apply mb-3 border border-solid border-[#6ACFF6] rounded-sm bg-[#005DAC];
+    /*box-shadow: 0 0 26px rgba(76, 178, 255, 0.55);*/
+}
+
+.entryLeft {
+    @apply flex items-center gap-3 min-w-[68px];
+}
+
+.trendIcon {
+    @apply flex h-6 w-6 items-center justify-center rounded-full border text-xs font-semibold;
+}
+
+.trendUp {
+    color: #4bff8a;
+    border-color: rgba(48, 199, 132, 0.6);
+    background: rgba(36, 186, 123, 0.2);
+}
+
+.trendDown {
+    color: #ff6767;
+    border-color: rgba(255, 103, 103, 0.42);
+    background: rgba(255, 87, 87, 0.18);
+}
+
+.trendSame {
+    color: #9fb6ff;
+    border-color: rgba(159, 182, 255, 0.35);
+    background: rgba(126, 158, 255, 0.18);
+}
+
+.trendNew {
+    color: #ffd166;
+    border-color: rgba(255, 209, 102, 0.45);
+    background: rgba(255, 209, 102, 0.22);
+}
+
+.trendPlaceholder {
+    @apply text-transparent;
+    border-color: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.rankNumber {
+    @apply text-[15px] font-bold text-[#fff] text-center min-w-[20px];
+}
+
+.player {
+    @apply flex flex-1 flex-col gap-1;
+}
+
+.playerName {
+    @apply text-[14px] font-semibold text-[#fff];
+}
+
+.playerSubtitle {
+    @apply text-[11px] text-[rgba(173,_199,_255,_0.9)];
+    letter-spacing: 0.03em;
+}
+
+.score {
+    @apply flex flex-col items-end gap-1 text-right;
+}
+
+.scoreValue {
+    @apply text-[13px] font-bold text-[#fff];
+}
+
+.scoreUnit {
+    @apply text-[10px] uppercase;
+    letter-spacing: 0.18em;
+    color: rgba(172, 199, 255, 0.75);
+}
+
+.placeholderCard {
+    @apply flex flex-col items-center gap-3 rounded-2xl border border-white/10 px-6 py-10 text-center text-[10px] text-white/70;
+    background: linear-gradient(135deg, rgba(10, 31, 94, 0.8) 0%, rgba(4, 18, 66, 0.95) 100%);
+}
+
+.emptyTitle {
+    font-size: 15px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.emptySubtitle {
+    font-size: 12px;
+    color: rgba(177, 205, 255, 0.75);
+}

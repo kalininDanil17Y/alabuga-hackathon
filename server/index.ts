@@ -17,7 +17,6 @@ const loadJson = (fileName: string) => {
     return JSON.parse(raw);
 };
 
-const missionsList = loadJson("missions.json");
 const missionsPageData = loadJson("missions-page.json");
 const competenciesData = loadJson("competencies.json");
 const userData = loadJson("user.json");
@@ -37,8 +36,21 @@ type SortableItem = {
 };
 
 type MissionPageEntry = (typeof missionsPageData)["entries"][number];
-
 type MissionTask = MissionPageEntry["tasks"][number];
+
+type MissionSummary = {
+    id: string;
+    title: string;
+    description: string;
+    status: string;
+    progress: number;
+    priority: string;
+    deadline?: string;
+    category: string;
+    xpReward: number;
+    completedDate?: string;
+    competencyId?: string | number;
+};
 
 const statusRank = (status: string): number => {
     const index = missionStatusOrder.indexOf(status as MissionStatusKey);
@@ -56,6 +68,34 @@ const sortEntries = <T extends SortableItem>(items: T[]): T[] => {
 };
 
 const sortTasks = (tasks: MissionTask[]): MissionTask[] => sortEntries(tasks);
+
+const buildMissionSummary = (entries: MissionPageEntry[]): MissionSummary[] => {
+    const featuredTasks: MissionSummary[] = [];
+
+    entries.forEach((entry) => {
+        entry.tasks.forEach((task) => {
+            if (!("isFeatured" in task) || task.isFeatured !== true) {
+                return;
+            }
+
+            featuredTasks.push({
+                id: task.id,
+                title: task.title,
+                description: task.description ?? entry.description ?? task.title,
+                status: task.status,
+                progress: typeof task.progress === "number" ? task.progress : 0,
+                priority: typeof task.priority === "string" ? task.priority : "medium",
+                deadline: task.deadline,
+                category: typeof task.category === "string" ? task.category : entry.id,
+                xpReward: task.reward?.xp ?? 0,
+                completedDate: task.completedDate,
+                competencyId: task.competencyId ?? entry.competencyId,
+            });
+        });
+    });
+
+    return sortEntries(featuredTasks);
+};
 
 app.get("/healthz", (_req, res) => {
     res.json({ status: "ok" });
@@ -90,7 +130,8 @@ app.get("/api/statistics", (_req, res) => {
 });
 
 app.get("/api/missions", (_req, res) => {
-    res.json(missionsList);
+    const missions = buildMissionSummary(missionsPageData.entries);
+    res.json({ missions });
 });
 
 app.get("/api/missions/page", (req, res) => {

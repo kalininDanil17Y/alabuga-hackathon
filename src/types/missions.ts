@@ -11,10 +11,16 @@ export interface MissionTask {
   status: MissionStatus;
   progress: number;
   competencyId?: string;
+  description?: string;
+  priority?: string;
+  deadline?: string;
+  category?: string;
   reward?: {
     xp?: number;
     currency?: number;
   };
+  completedDate?: string;
+  isFeatured?: boolean;
 }
 
 export interface MissionEntry {

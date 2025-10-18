@@ -65,7 +65,7 @@ export const MissionCard = ({
     const expValue = exp ?? 0;
 
     return (
-        <article className={styles.root}>
+        <article className={styles.root} data-mission-id={id}>
             <Button1 onClick={() => onDetailsClick?.(id)} className={styles.button} style={{ position: "absolute" }}>
                 Подробнее
             </Button1>
