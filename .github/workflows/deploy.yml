@@ -9,9 +9,23 @@ on:
     branches: ['**']
   delete:
     branches: ['**']
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: 'Choose deploy or cleanup'
+        required: true
+        default: deploy
+        type: choice
+        options:
+          - deploy
+          - cleanup
+      target_branch:
+        description: 'Branch to deploy or clean up'
+        required: true
+        default: master
 
 concurrency:
-  group: deploy-${{ github.ref }}
+  group: deploy-${{ github.event_name == 'workflow_dispatch' && github.event.inputs.target_branch || github.ref }}
   cancel-in-progress: false
 
 env:
@@ -22,6 +36,7 @@ jobs:
   build-and-push:
     name: Build & Push ${{ matrix.service }}
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.operation == 'deploy' }}
     strategy:
       matrix:
         include:
@@ -33,16 +48,19 @@ jobs:
             context: .
             file: Dockerfile
             image_name: alabuga-web
-
+    env:
+      TARGET_REF: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.target_branch || github.ref_name }}
     outputs:
       TAG: ${{ steps.cfg.outputs.TAG }}
       STACK: ${{ steps.cfg.outputs.STACK }}
       DOMAIN: ${{ steps.cfg.outputs.DOMAIN }}
       BRANCH_SAFE: ${{ steps.cfg.outputs.BRANCH_SAFE }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TARGET_REF }}
+          fetch-depth: 0
 
       - name: Login to GHCR (via GITHUB_TOKEN)
         uses: docker/login-action@v3
@@ -56,16 +74,27 @@ jobs:
         run: |
           echo "NS_LC=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
           echo "REG_LC=$(echo '${{ env.REGISTRY }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+        shell: bash
 
       - name: Compute config (prod vs preview)
         id: cfg
+        env:
+          TARGET_REF: ${{ env.TARGET_REF }}
         run: |
-          BRANCH="${GITHUB_REF_NAME}"
+          set -euo pipefail
+          BRANCH="${TARGET_REF}"
+          if [ -z "$BRANCH" ]; then
+            BRANCH="${GITHUB_REF_NAME}"
+          fi
           BRANCH_SAFE="$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]' | tr '/ _.' '----' | sed 's/[^a-z0-9-]//g' | cut -c1-50)"
           if [ "$BRANCH" = "master" ]; then
             echo "TAG=latest" >> $GITHUB_OUTPUT
             echo "STACK=prod" >> $GITHUB_OUTPUT
             echo "DOMAIN=${{ vars.PROD_DOMAIN }}" >> $GITHUB_OUTPUT
+          elif [ "$BRANCH" = "develop" ]; then
+            echo "TAG=dev-develop" >> $GITHUB_OUTPUT
+            echo "STACK=dev" >> $GITHUB_OUTPUT
+            echo "DOMAIN=${{ vars.DEV_BASE_DOMAIN }}" >> $GITHUB_OUTPUT
           else
             echo "TAG=dev-${BRANCH_SAFE}" >> $GITHUB_OUTPUT
             echo "STACK=preview-${BRANCH_SAFE}" >> $GITHUB_OUTPUT
@@ -73,6 +102,7 @@ jobs:
           fi
           echo "BRANCH_SAFE=${BRANCH_SAFE}" >> $GITHUB_OUTPUT
           echo "SHA=${GITHUB_SHA}" >> $GITHUB_OUTPUT
+        shell: bash
 
       - name: Set up Buildx
         uses: docker/setup-buildx-action@v3
@@ -89,13 +119,18 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # ---------- Cloudflare: upsert DNS for previews ----------
   cf-upsert:
     needs: build-and-push
-    if: needs.build-and-push.outputs.STACK != 'prod'
+    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.operation == 'deploy' }}
     runs-on: ubuntu-latest
     steps:
+      - name: Skip Cloudflare for prod stack
+        if: ${{ needs.build-and-push.outputs.STACK == 'prod' }}
+        run: echo "Skipping Cloudflare upsert for prod stack"
+        shell: bash
+
       - name: Upsert A record in Cloudflare (proxied)
+        if: ${{ needs.build-and-push.outputs.STACK != 'prod' }}
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
@@ -104,31 +139,36 @@ jobs:
         run: |
           set -euo pipefail
           API="https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records"
-          # Try get existing
           REC_ID=$(curl -sS -X GET "${API}?type=A&name=${NAME}" -H "Authorization: Bearer ${CF_TOKEN}" -H "Content-Type: application/json" | jq -r '.result[0].id // empty')
-          DATA=$(jq -nc --arg name "$NAME" --arg content "$CONTENT" \
-                  '{type:"A", name:$name, content:$content, ttl:120, proxied:true}')
+          DATA=$(jq -nc --arg name "$NAME" --arg content "$CONTENT" '{type:"A", name:$name, content:$content, ttl:120, proxied:true}')
           if [ -n "${REC_ID:-}" ]; then
             curl -sS -X PUT "${API}/${REC_ID}" -H "Authorization: Bearer ${CF_TOKEN}" -H "Content-Type: application/json" --data "$DATA" >/dev/null
-            echo "Updated DNS $NAME → $CONTENT"
+            echo "Updated DNS $NAME -> $CONTENT"
           else
             curl -sS -X POST "${API}" -H "Authorization: Bearer ${CF_TOKEN}" -H "Content-Type: application/json" --data "$DATA" >/dev/null
-            echo "Created DNS $NAME → $CONTENT"
+            echo "Created DNS $NAME -> $CONTENT"
           fi
+        shell: bash
 
-  # ---------- Deploy (prod or preview) ----------
   deploy:
     needs: [build-and-push, cf-upsert]
+    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.operation == 'deploy' }}
     runs-on: ubuntu-latest
+    env:
+      TARGET_REF: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.target_branch || github.ref_name }}
     steps:
       - name: Checkout (compose)
         uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TARGET_REF }}
+          fetch-depth: 0
 
       - name: Normalize owner/namespace
         id: norm
         run: |
           echo "NS_LC=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
           echo "REG_LC=$(echo '${{ env.REGISTRY }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+        shell: bash
 
       - name: Copy docker-compose.yml
         uses: appleboy/scp-action@v0.1.7
@@ -163,7 +203,7 @@ jobs:
             mkdir -p "$DEPLOY_DIR"
             cd "$DEPLOY_DIR"
 
-            # .env для compose (Traefik лейблы используют STACK и DOMAIN)
+            # .env ��� compose (Traefik ������ �ᯮ����� STACK � DOMAIN)
             cat > .env <<EOF
             REGISTRY=${REGISTRY}
             REGISTRY_NAMESPACE=${REGISTRY_NAMESPACE}
@@ -176,7 +216,7 @@ jobs:
             docker compose -p "${STACK}" pull
             docker compose -p "${STACK}" up -d --remove-orphans
 
-            # Простейший house-keeping: оставляем не более PREVIEW_KEEP превью-стендов
+            # ���⥩訩 house-keeping: ��⠢�塞 �� ����� PREVIEW_KEEP �ॢ��-�⥭���
             if [[ "${STACK}" == preview-* ]]; then
               cd "${{ secrets.DEPLOY_PATH }}"
               ls -1dt preview-* 2>/dev/null | tail -n +$((PREVIEW_KEEP+1)) | while read -r OLD; do
@@ -188,7 +228,71 @@ jobs:
 
             docker image prune -f || true
 
-  # ---------- Cleanup on branch delete ----------
+  manual-cleanup:
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.operation == 'cleanup' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Compute target config
+        id: cfg
+        run: |
+          set -euo pipefail
+          BRANCH="${{ github.event.inputs.target_branch }}"
+          BRANCH_SAFE="$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]' | tr '/ _.' '----' | sed 's/[^a-z0-9-]//g' | cut -c1-50)"
+          if [ "$BRANCH" = "master" ]; then
+            STACK=prod
+            DOMAIN=${{ vars.PROD_DOMAIN }}
+          elif [ "$BRANCH" = "develop" ]; then
+            STACK=dev
+            DOMAIN=${{ vars.DEV_BASE_DOMAIN }}
+          else
+            STACK=preview-${BRANCH_SAFE}
+            DOMAIN=${BRANCH_SAFE}-${{ vars.DEV_BASE_DOMAIN }}
+          fi
+          echo "STACK=${STACK}" >> $GITHUB_OUTPUT
+          echo "DOMAIN=${DOMAIN}" >> $GITHUB_OUTPUT
+          echo "BRANCH_SAFE=${BRANCH_SAFE}" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Remove DNS in Cloudflare
+        if: ${{ steps.cfg.outputs.DOMAIN != '' }}
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          NAME: ${{ steps.cfg.outputs.DOMAIN }}
+        run: |
+          set -euo pipefail
+          API="https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records"
+          REC_ID=$(curl -sS -X GET "${API}?type=A&name=${NAME}" -H "Authorization: Bearer ${CF_TOKEN}" -H "Content-Type: application/json" | jq -r '.result[0].id // empty')
+          if [ -n "${REC_ID:-}" ]; then
+            curl -sS -X DELETE "${API}/${REC_ID}" -H "Authorization: Bearer ${CF_TOKEN}" >/dev/null
+            echo "Deleted DNS ${NAME}"
+          else
+            echo "DNS ${NAME} not found"
+          fi
+        shell: bash
+
+      - name: Stop & remove stack
+        if: ${{ steps.cfg.outputs.STACK != '' }}
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          STACK: ${{ steps.cfg.outputs.STACK }}
+          DEPLOY_DIR: ${{ secrets.DEPLOY_PATH }}/${{ steps.cfg.outputs.STACK }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: STACK,DEPLOY_DIR
+          script: |
+            set -euo pipefail
+            if [ -d "$DEPLOY_DIR" ]; then
+              docker compose -p "$STACK" -f "$DEPLOY_DIR/docker-compose.yml" down --remove-orphans || true
+              rm -rf "$DEPLOY_DIR"
+              echo "Removed $DEPLOY_DIR"
+            else
+              echo "No dir $DEPLOY_DIR (already removed)"
+            fi
+
   cleanup-on-delete:
     if: github.event_name == 'delete'
     runs-on: ubuntu-latest
@@ -196,13 +300,21 @@ jobs:
       - name: Compute names to cleanup
         id: n
         run: |
-          BRANCH="${{ github.event.ref }}"; BRANCH="${BRANCH##refs/heads/}"
+          set -euo pipefail
+          BRANCH="${{ github.event.ref }}"
+          BRANCH="${BRANCH##refs/heads/}"
           BRANCH_SAFE="$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]' | tr '/ _.' '----' | sed 's/[^a-z0-9-]//g' | cut -c1-50)"
+          if [ "$BRANCH" = "master" ] || [ "$BRANCH" = "develop" ]; then
+            echo "STACK=" >> $GITHUB_OUTPUT
+            echo "DOMAIN=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
           echo "STACK=preview-${BRANCH_SAFE}" >> $GITHUB_OUTPUT
           echo "DOMAIN=${BRANCH_SAFE}-${{ vars.DEV_BASE_DOMAIN }}" >> $GITHUB_OUTPUT
+        shell: bash
 
       - name: Remove DNS in Cloudflare
-        if: steps.n.outputs.DOMAIN != ''
+        if: ${{ steps.n.outputs.DOMAIN != '' }}
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
@@ -217,8 +329,10 @@ jobs:
           else
             echo "DNS ${NAME} not found"
           fi
+        shell: bash
 
       - name: Stop & remove preview stack
+        if: ${{ steps.n.outputs.STACK != '' }}
         uses: appleboy/ssh-action@v1.0.3
         env:
           STACK: ${{ steps.n.outputs.STACK }}
