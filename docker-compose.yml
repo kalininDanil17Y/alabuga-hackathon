@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   api:
     image: ${REGISTRY:-ghcr.io}/${REGISTRY_NAMESPACE:-alabuga}/alabuga-api:${TAG:-latest}
@@ -5,7 +7,7 @@ services:
       - NODE_ENV=production
       - PORT=3001
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:3001/api/health || exit 1"]
+      test: ["CMD-SHELL", "curl -fsS http://localhost:3001/health || curl -fsS http://localhost:3001/api/health || exit 1"]
       interval: 10s
       timeout: 3s
       retries: 10
@@ -13,10 +15,18 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy"
-      - "traefik.http.routers.api.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.api.entrypoints=web"
-      - "traefik.http.routers.api.service=api"
-      - "traefik.http.services.api.loadbalancer.server.port=3001"
+
+      # ==== УНИКАЛЬНЫЕ ИМЕНА ====
+      - "traefik.http.routers.${STACK}-api.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.${STACK}-api.entrypoints=web"
+      - "traefik.http.routers.${STACK}-api.service=${STACK}-api"
+      - "traefik.http.services.${STACK}-api.loadbalancer.server.port=3001"
+
+      # Если в приложении /health без /api — раскомментируй две строки ниже:
+      # - "traefik.http.middlewares.${STACK}-api-strip.stripprefix.prefixes=/api"
+      # - "traefik.http.routers.${STACK}-api.middlewares=${STACK}-api-strip@docker"
+
+    restart: unless-stopped
 
   web:
     image: ${REGISTRY:-ghcr.io}/${REGISTRY_NAMESPACE:-alabuga}/alabuga-web:${TAG:-latest}
@@ -31,9 +41,14 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy"
-      - "traefik.http.routers.web.rule=Host(`${DOMAIN}`)"
-      - "traefik.http.routers.web.entrypoints=web"
-      - "traefik.http.services.web.loadbalancer.server.port=80"
+
+      # ==== УНИКАЛЬНЫЕ ИМЕНА ====
+      - "traefik.http.routers.${STACK}-web.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.${STACK}-web.entrypoints=web"
+      - "traefik.http.routers.${STACK}-web.service=${STACK}-web"
+      - "traefik.http.services.${STACK}-web.loadbalancer.server.port=80"
+
+    restart: unless-stopped
 
 networks:
   default:
