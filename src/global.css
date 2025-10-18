@@ -15,6 +15,8 @@
         --background: 216 47% 5%;
         --foreground: 0 0% 100%;
 
+        --app-max-width: 430px;
+
         --card: 216 47% 8%;
         --card-foreground: 0 0% 100%;
 
@@ -98,5 +100,16 @@
 
     body {
         @apply bg-background text-foreground;
+        min-height: 100vh;
     }
+}
+
+#root {
+    width: 100%;
+    max-width: var(--app-max-width);
+    min-height: 100vh;
+    margin: 0 auto;
+    background-color: hsl(var(--background));
+    display: flex;
+    flex-direction: column;
 }

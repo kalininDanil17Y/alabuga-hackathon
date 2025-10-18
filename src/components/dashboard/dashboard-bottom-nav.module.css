@@ -1,8 +1,9 @@
 .root {
     position: fixed;
-    left: 0;
-    right: 0;
+    left: 50%;
     bottom: 0;
+    transform: translateX(-50%);
+    width: min(100%, var(--app-max-width));
     display: flex;
     justify-content: center;
     padding: 0;
