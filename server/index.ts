@@ -21,6 +21,11 @@ const missionsList = loadJson("missions.json");
 const missionsPageData = loadJson("missions-page.json");
 const competenciesData = loadJson("competencies.json");
 const userData = loadJson("user.json");
+const achievementsData = loadJson("achievements.json");
+const activityData = loadJson("activity.json");
+const artifactsData = loadJson("artifacts.json");
+const statisticsData = loadJson("statistics.json");
+
 
 const missionStatusOrder = ["available", "in_progress", "moderation", "completed", "locked"] as const;
 
@@ -66,6 +71,22 @@ app.get("/api/user", (_req, res) => {
 
 app.get("/api/competencies", (_req, res) => {
     res.json(competenciesData);
+});
+
+app.get("/api/achievements", (_req, res) => {
+    res.json(achievementsData);
+});
+
+app.get("/api/activity", (_req, res) => {
+    res.json(activityData);
+});
+
+app.get("/api/artifacts", (_req, res) => {
+    res.json(artifactsData);
+});
+
+app.get("/api/statistics", (_req, res) => {
+    res.json(statisticsData);
 });
 
 app.get("/api/missions", (_req, res) => {

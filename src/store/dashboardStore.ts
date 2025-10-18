@@ -94,11 +94,11 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
             ] = await Promise.all([
                 fetchJson<User>("/api/user"),
                 fetchJson<{ missions: Mission[] }>("/api/missions"),
-                fetchJson<{ achievements: Achievement[] }>("/data/achievements.json"),
-                fetchJson<{ activity: UserActivity[] }>("/data/activity.json"),
-                fetchJson<{ artifacts: Artifact[] }>("/data/artifacts.json"),
+                fetchJson<{ achievements: Achievement[] }>("/api/achievements"),
+                fetchJson<{ activity: UserActivity[] }>("/api/activity"),
+                fetchJson<{ artifacts: Artifact[] }>("/api/artifacts"),
                 fetchJson<{ competencies: CompetencyItem[] }>("/api/competencies"),
-                fetchJson<{ statistics: Statistics }>("/data/statistics.json"),
+                fetchJson<{ statistics: Statistics }>("/api/statistics"),
             ]);
 
             // ---- a random exp
@@ -184,3 +184,4 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
         void get().fetchMissionsPage(true);
     },
 }));
+
