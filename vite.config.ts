@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import svgr from "vite-plugin-svgr";
 import path from "path";
 
-export default defineConfig(({ }) => ({
+export default defineConfig(() => ({
     server: {
         host: true,
         port: 5173,
@@ -11,6 +11,12 @@ export default defineConfig(({ }) => ({
         watch: { usePolling: true },
         hmr: {
             clientPort: 5173,
+        },
+        proxy: {
+            "/api": {
+                target: "http://localhost:3001",
+                changeOrigin: true,
+            },
         },
     },
     preview: { port: 4173 },
