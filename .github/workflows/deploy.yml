@@ -1,4 +1,8 @@
-name: Build & Deploy (Traefik routed)
+name: Build & Deploy
+
+permissions:
+  contents: read
+  packages: write
 
 on:
   push:
@@ -18,17 +22,12 @@ on:
         required: true
         default: dev
 
-permissions:
-  contents: read
-  packages: write
-
 concurrency:
   group: deploy-${{ github.event_name }}-${{ github.ref || inputs.ref }}
   cancel-in-progress: false
 
 env:
-  REGISTRY: ${{ secrets.REGISTRY }}
-  REGISTRY_NAMESPACE: ${{ secrets.REGISTRY_NAMESPACE }}
+  REGISTRY: ghcr.io
 
 jobs:
   # ---------- BUILD (общий для auto и manual) ----------
@@ -56,12 +55,20 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to registry
+      # Логинимся в GHCR от лица Actions (никаких персональных токенов не нужно)
+      - name: Login to GHCR (via GITHUB_TOKEN)
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ secrets.REGISTRY_USER }}
-          password: ${{ secrets.REGISTRY_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Нормализуем регистр namespace (владелец репо) → lower-case
+      - name: Normalize owner/namespace
+        id: norm
+        run: |
+          echo "NS_LC=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+          echo "REG_LC=$(echo '${{ env.REGISTRY }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
 
       - name: Compute tags
         id: t
@@ -71,11 +78,9 @@ jobs:
           else
             BRANCH="${GITHUB_REF_NAME}"
           fi
-          # prod тег для master, иначе веточный
           if [ "$BRANCH" = "master" ]; then
             echo "TAG=latest" >> $GITHUB_OUTPUT
           else
-            # допустимый тег: dev-<branch-with-dashes>
             SAFE=$(echo "$BRANCH" | tr '/_' '--')
             echo "TAG=dev-${SAFE}" >> $GITHUB_OUTPUT
           fi
@@ -88,8 +93,8 @@ jobs:
           file: ${{ matrix.file }}
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.REGISTRY_NAMESPACE }}/${{ matrix.image_name }}:${{ steps.t.outputs.TAG }}
-            ${{ env.REGISTRY }}/${{ env.REGISTRY_NAMESPACE }}/${{ matrix.image_name }}:${{ steps.t.outputs.SHA }}
+            ${{ steps.norm.outputs.REG_LC }}/${{ steps.norm.outputs.NS_LC }}/${{ matrix.image_name }}:${{ steps.t.outputs.TAG }}
+            ${{ steps.norm.outputs.REG_LC }}/${{ steps.norm.outputs.NS_LC }}/${{ matrix.image_name }}:${{ steps.t.outputs.SHA }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -101,6 +106,13 @@ jobs:
     steps:
       - name: Checkout (compose)
         uses: actions/checkout@v4
+
+      # Нормализуем namespace и прокинем в env деплоя
+      - name: Normalize owner/namespace
+        id: norm
+        run: |
+          echo "NS_LC=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+          echo "REG_LC=$(echo '${{ env.REGISTRY }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
 
       - name: Copy docker-compose.yml
         uses: appleboy/scp-action@v0.1.7
@@ -115,8 +127,8 @@ jobs:
       - name: Deploy prod
         uses: appleboy/ssh-action@v1.0.3
         env:
-          REGISTRY: ${{ env.REGISTRY }}
-          REGISTRY_NAMESPACE: ${{ env.REGISTRY_NAMESPACE }}
+          REGISTRY: ${{ steps.norm.outputs.REG_LC }}
+          REGISTRY_NAMESPACE: ${{ steps.norm.outputs.NS_LC }}
           TAG: latest
           STACK: prod
           DOMAIN: ${{ vars.PROD_DOMAIN }}
@@ -133,7 +145,6 @@ jobs:
             set -euo pipefail
             mkdir -p "$DEPLOY_DIR"
             cd "$DEPLOY_DIR"
-            # .env для compose
             cat > .env <<EOF
             REGISTRY=${REGISTRY}
             REGISTRY_NAMESPACE=${REGISTRY_NAMESPACE}
@@ -157,6 +168,12 @@ jobs:
         with:
           ref: ${{ inputs.ref }}
 
+      - name: Normalize owner/namespace
+        id: norm
+        run: |
+          echo "NS_LC=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+          echo "REG_LC=$(echo '${{ env.REGISTRY }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
       - name: Copy docker-compose.yml
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -170,9 +187,8 @@ jobs:
       - name: Deploy manual stack
         uses: appleboy/ssh-action@v1.0.3
         env:
-          REGISTRY: ${{ env.REGISTRY }}
-          REGISTRY_NAMESPACE: ${{ env.REGISTRY_NAMESPACE }}
-          # Тег совпадает с шагом build: dev-<branch> или latest для master
+          REGISTRY: ${{ steps.norm.outputs.REG_LC }}
+          REGISTRY_NAMESPACE: ${{ steps.norm.outputs.NS_LC }}
           BRANCH: ${{ inputs.ref }}
           STACK: ${{ inputs.stack }}
           DOMAIN: ${{ inputs.domain }}
@@ -187,9 +203,7 @@ jobs:
           envs: REGISTRY,REGISTRY_NAMESPACE,BRANCH,STACK,DOMAIN,DEPLOY_DIR,REGISTRY_USER,REGISTRY_TOKEN
           script: |
             set -euo pipefail
-            # вычислим TAG
             if [ "$BRANCH" = "master" ]; then TAG=latest; else TAG="dev-$(echo "$BRANCH" | tr '/_' '--')"; fi
-
             mkdir -p "$DEPLOY_DIR"
             cd "$DEPLOY_DIR"
             cat > .env <<EOF
@@ -199,7 +213,6 @@ jobs:
             DOMAIN=${DOMAIN}
             STACK=${STACK}
             EOF
-
             echo "${REGISTRY_TOKEN}" | docker login "${REGISTRY}" -u "${REGISTRY_USER}" --password-stdin
             docker compose -p "${STACK}" pull
             docker compose -p "${STACK}" up -d --remove-orphans
