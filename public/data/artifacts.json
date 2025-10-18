@@ -2,8 +2,8 @@
   "artifacts": [
     {
       "id": 1,
-      "name": "Кубок",
-      "description": "todo",
+      "name": "Кубок Огня",
+      "description": "Опиание тла ля ля и тра ляля..очень много буковок",
       "rarity": "legendary",
       "foundDate": "2024-01-19",
       "location": "Сектор Г-15",
@@ -16,8 +16,8 @@
     },
     {
       "id": 2,
-      "name": "Маска",
-      "description": "todo",
+      "name": "Маска Свободы",
+      "description": "Опиание тла ля ля и тра ляля..очень много буковок",
       "rarity": "epic",
       "foundDate": "2024-01-17",
       "location": "Станция Альфа",
@@ -30,8 +30,8 @@
     },
     {
       "id": 3,
-      "name": "Защитный модуль",
-      "description": "todo",
+      "name": "Резинка тянучая",
+      "description": "Опиание тла ля ля и тра ляля..очень много буковок",
       "rarity": "rare",
       "foundDate": "2024-01-15",
       "location": "Подземные туннели",
@@ -44,8 +44,8 @@
     },
     {
       "id": 4,
-      "name": "Блокнот",
-      "description": "todo",
+      "name": "Записки сумашедшего",
+      "description": "Опиание тла ля ля и тра ляля..очень много буковок",
       "rarity": "uncommon",
       "foundDate": "2024-01-12",
       "location": "Заброшенный корабль",
