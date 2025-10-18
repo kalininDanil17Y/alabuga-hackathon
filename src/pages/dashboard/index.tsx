@@ -2,12 +2,9 @@ import { useEffect, useMemo } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { SpaceButton } from "@/components/ui/custom/space-button";
 import { DashboardHeader, DashboardBottomNav } from "@/components/dashboard/layout";
-import missionsIcon from "@/images/ui/bottom-nav/bottom-nav-missions.svg";
-import logbookIcon from "@/images/ui/bottom-nav/bottom-nav-logbook.svg";
-import shopIcon from "@/images/ui/bottom-nav/bottom-nav-shop.svg";
-import notificationsIcon from "@/images/ui/bottom-nav/bottom-nav-notifications.svg";
 import { useDashboardStore } from "@/store/dashboardStore";
 import styles from "./Dashboard.module.css";
+import {number_format} from "@/lib/utils.ts";
 
 const Dashboard = () => {
     const location = useLocation();
@@ -24,24 +21,39 @@ const Dashboard = () => {
         void fetchDashboard();
     }, [fetchDashboard]);
 
-    const activeValue = location.pathname.startsWith("/dashboard/missions") ? "missions" : "logbook";
+    const pathname = location.pathname;
+    const activeValue = useMemo(() => {
+        if (pathname.startsWith("/dashboard/missions")) {
+            return "missions";
+        }
+        if (pathname.startsWith("/dashboard/shop")) {
+            return "shop";
+        }
+        if (pathname.startsWith("/dashboard/logbook")) {
+            return "logbook";
+        }
+        if (pathname.startsWith("/dashboard/notifications")) {
+            return "notifications";
+        }
+        return null;
+    }, [pathname]);
 
     const navItems = useMemo(
         () => [
             {
-                value: "logbook",
-                label: "Журнал",
-                icon: logbookIcon,
-                onSelect: () => navigate("/dashboard"),
-            },
-            {
                 value: "missions",
                 label: "Миссии",
-                icon: missionsIcon,
+                icon: "solar:running-round-outline",
                 onSelect: () => navigate("/dashboard/missions"),
             },
-            { value: "shop", label: "Магазин", icon: shopIcon },
-            { value: "notifications", label: "Сигналы", icon: notificationsIcon },
+            { value: "logbook", label: "Журнал", icon: "hugeicons:book-edit" },
+            {
+                value: "shop",
+                label: "Магазин",
+                icon: "mage:basket",
+                onSelect: () => navigate("/dashboard/shop"),
+            },
+            { value: "notifications", label: "Уведомления", icon: "hugeicons:message-01" },
         ],
         [navigate],
     );
@@ -67,8 +79,7 @@ const Dashboard = () => {
         return null;
     }
 
-    const numberFormatter = new Intl.NumberFormat("ru-RU");
-    const currencyLabel = `${numberFormatter.format(user.currency.amount)} ${user.currency.symbol}`;
+    const currencyLabel = `${number_format(user.currency.amount)} ${user.currency.symbol}`;
     const experienceProgress = user.experience.max > 0 ? user.experience.current / user.experience.max : 0;
 
     return (
@@ -78,6 +89,7 @@ const Dashboard = () => {
                 currencyLabel={currencyLabel}
                 experienceProgress={experienceProgress}
                 sticky
+                userAction={() => navigate('/dashboard')}
             />
             <main className={styles.main}>
                 <Outlet />

@@ -1,0 +1,79 @@
+.card {
+    @apply flex h-full flex-col text-[#0B1337];
+}
+
+.imageWrapper {
+    @apply relative mb-5 overflow-hidden;
+}
+
+.image,
+.imagePlaceholder {
+    @apply w-full;
+    aspect-ratio: 4 / 4;
+    object-fit: cover;
+}
+
+.imagePlaceholder {
+    background: linear-gradient(150deg, rgba(234, 246, 255, 0.9) 0%, rgba(145, 196, 255, 0.65) 48%, rgba(224, 239, 255, 0.2) 100%);
+}
+
+.discountBadge {
+    @apply absolute left-0 bottom-4 bg-[#FF3B3B] px-3 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-white shadow-[0_10px_24px_rgba(255,59,59,0.35)] text-[10px];
+    border-radius: 0 4px 4px 0;
+}
+
+.body {
+    @apply flex flex-1 flex-col gap-4;
+}
+
+.priceRow {
+    @apply flex items-baseline gap-3;
+}
+
+.oldPrice {
+    @apply text-base font-semibold text-[#9CA3AF] line-through text-[15px];
+}
+
+.price {
+    @apply text-2xl font-extrabold text-[#0B1337] text-[15px];
+}
+
+.priceDiscount {
+    @apply text-[#E53935];
+}
+
+.title {
+    @apply text-lg font-semibold leading-tight text-[#0B1337] text-[11px];
+}
+
+.description {
+    @apply text-sm leading-relaxed text-[#4B5563] text-[10px];
+}
+
+.controlsRow {
+    @apply flex flex-wrap items-center justify-between;
+}
+
+.quantityControl {
+    @apply flex items-center text-[#0B1337] gap-3;
+}
+
+.quantityButton {
+    @apply grid place-items-center text-[9px] font-semibold text-[#1E3A8A] transition hover:text-[#1D4ED8] disabled:cursor-not-allowed disabled:border-[#CBD5E1] disabled:text-[#94A3B8];
+}
+
+.quantityValue {
+    @apply w-5 text-center text-[11px] font-semibold border border-[#ccc];
+}
+
+.stockLabel {
+    @apply text-[10px] font-medium text-[#475569];
+}
+
+.stockOut {
+    @apply text-[#9CA3AF];
+}
+
+.buyButton {
+    @apply mt-2 w-full rounded-md border-none bg-gradient-to-b from-[#1B34B7] to-[#0C1751] px-1 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:bg-[#D1D5DB] disabled:text-[#6B7280] disabled:shadow-none;
+}

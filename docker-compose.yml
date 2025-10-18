@@ -1,8 +1,38 @@
+version: "3.9"
+
 services:
+  api:
+    image: ${REGISTRY:-ghcr.io}/${REGISTRY_NAMESPACE:-alabuga}/alabuga-api:${TAG:-latest}
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${STACK:-app}.api.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
+      - "traefik.http.services.${STACK:-app}.api.loadbalancer.server.port=3001"
+      - "traefik.http.routers.${STACK:-app}.api.entrypoints=web"
+
+    restart: unless-stopped
+
+
   web:
+    image: ${REGISTRY:-ghcr.io}/${REGISTRY_NAMESPACE:-alabuga}/alabuga-web:${TAG:-latest}
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "8080:80"
+    depends_on:
+      - api
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${STACK:-app}.web.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.services.${STACK:-app}.web.loadbalancer.server.port=80"
+      - "traefik.http.routers.${STACK:-app}.web.entrypoints=web"
     restart: unless-stopped
+
+networks:
+  default:
+    external: true
+    name: proxy

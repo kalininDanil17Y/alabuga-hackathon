@@ -1,6 +1,6 @@
 .panel {
     position: relative;
-    border: 20px solid transparent;
+    border: 8px solid transparent;
     border-image-source: url('/src/images/content-block.svg');
     border-image-slice: 10 fill;
     border-image-repeat: stretch;
