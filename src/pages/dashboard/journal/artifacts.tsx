@@ -73,6 +73,7 @@ const DashboardJournalArtifacts = () => {
 
                     return (
                         <article key={artifact.id} className={clsx(styles.card, rarityClass)}>
+                            <div className={styles.light}/>
                             <div className={styles.meta}>
                                 <span>{primary}</span>
                                 <span>{secondary}</span>

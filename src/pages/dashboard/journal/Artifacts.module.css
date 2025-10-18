@@ -26,6 +26,17 @@
     flex-direction: column;
     gap: 10px;
     font-size: 9px;
+    overflow: hidden;
+}
+
+.light {
+    background: radial-gradient(90% 50% at 10% 50%, rgba(106, 207, 246, 0.56) 0%, rgba(13, 20, 47, 0) 90%);
+    background-blend-mode: color-dodge;
+    position: absolute;
+    width: 140px;
+    height: 154px;
+    left: -70px;
+    top: -70px;
 }
 
 .card::before {
@@ -53,6 +64,8 @@
 }
 
 .image {
+    @apply bg-[#061759] p-[2px] border-[2px] border-solid border-[#0C1751] drop-shadow-[0px_0px_2.4px_#1B34B7,_inset_0px_4px_4px_#0C1751];
+
     display: flex;
     align-items: center;
     justify-content: center;
