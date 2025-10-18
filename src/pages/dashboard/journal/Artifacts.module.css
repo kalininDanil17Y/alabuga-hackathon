@@ -1,0 +1,126 @@
+.root {
+    @apply space-y-4;
+}
+
+.rule {
+    margin-bottom: 8px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+}
+
+.card {
+    position: relative;
+    padding: 14px 12px 16px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(11, 30, 90, 0.94) 0%, rgba(4, 12, 44, 0.97) 100%);
+    border: 1px solid var(--rarity-border, rgba(118, 182, 255, 0.35));
+    box-shadow: 0 0 18px var(--rarity-glow, rgba(76, 146, 255, 0.28));
+    color: #deeeff;
+    isolation: isolate;
+    min-height: 188px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 9px;
+}
+
+.card::before {
+    content: "";
+    position: absolute;
+    inset: 10% 12% auto 12%;
+    height: 50%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0) 68%);
+    z-index: -1;
+}
+
+.meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #9fd6ff;
+    gap: 8px;
+}
+
+.title {
+    font-size: 9px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+}
+
+.image img,
+.image svg {
+    width: 62px;
+    height: 62px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.45));
+}
+
+.description {
+    color: #d0e6ff;
+    line-height: 1.4;
+    font-size: 9px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.rarityLegendary {
+    --rarity-border: rgba(255, 196, 92, 0.6);
+    --rarity-glow: rgba(255, 182, 44, 0.45);
+}
+
+.rarityEpic {
+    --rarity-border: rgba(205, 137, 255, 0.6);
+    --rarity-glow: rgba(171, 92, 255, 0.45);
+}
+
+.rarityRare {
+    --rarity-border: rgba(108, 178, 255, 0.6);
+    --rarity-glow: rgba(74, 148, 255, 0.4);
+}
+
+.rarityUncommon {
+    --rarity-border: rgba(84, 226, 220, 0.6);
+    --rarity-glow: rgba(84, 226, 220, 0.32);
+}
+
+.rarityCommon {
+    --rarity-border: rgba(148, 170, 215, 0.45);
+    --rarity-glow: rgba(148, 170, 215, 0.28);
+}
+
+.stateCard {
+    @apply text-center space-y-3 text-xs py-8;
+}
+
+.stateMessage {
+    @apply text-white/80;
+}
+
+.placeholderIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    border: 1px dashed rgba(155, 198, 255, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(155, 198, 255, 0.75);
+    font-size: 9px;
+}
+
