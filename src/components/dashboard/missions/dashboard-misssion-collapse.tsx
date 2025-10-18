@@ -29,7 +29,7 @@ export function MissionCollapse({ title, items, onCollapsed = () => {}, handleDe
 
                 <div className={styles.content}>
                     <h3 className={styles.title}>
-                        Цепочка миссий "{title}" ({items.length})
+                        {title} ({items.length})
                     </h3>
 
                     <Button1 className="mb-1" onClick={toggleExpanded} aria-label={isExpanded ? "Свернуть цепочку миссий" : "Развернуть цепочку миссий"}>
