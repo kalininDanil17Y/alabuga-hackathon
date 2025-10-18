@@ -77,8 +77,32 @@ export interface StatisticsOverview {
     nextLevelXP: number;
 }
 
+
+export interface StatisticsWeekly {
+    missionsCompleted: number;
+    experienceGained: number;
+    artifactsFound: number;
+    achievementsUnlocked: number;
+}
+
+export interface StatisticsCategory {
+    completed: number;
+    total: number;
+    successRate: number;
+}
+
+export interface StatisticsPerformance {
+    efficiency: number;
+    accuracy: number;
+    teamwork: number;
+    innovation: number;
+}
+
 export interface Statistics {
     overview: StatisticsOverview;
+    weekly?: StatisticsWeekly;
+    categories?: Record<string, StatisticsCategory>;
+    performance?: StatisticsPerformance;
 }
 
 export interface CompetencyItem {
