@@ -47,6 +47,7 @@ const DashboardHome = () => {
         fetchDashboard,
         isDashboardLoading,
         dashboardError,
+        setMissionsFilters,
     } = useDashboardStore((state) => ({
         user: state.user,
         missions: state.missions,
@@ -58,6 +59,7 @@ const DashboardHome = () => {
         fetchDashboard: state.fetchDashboard,
         isDashboardLoading: state.isDashboardLoading,
         dashboardError: state.dashboardError,
+        setMissionsFilters: state.setMissionsFilters,
     }));
     const [activeTab, setActiveTab] = useState<"missions" | "competencies">("missions");
 
@@ -108,21 +110,22 @@ const DashboardHome = () => {
     }) => {
         const params = new URLSearchParams();
 
-        let missionParam = options?.missionId;
-        let competencyParam = options?.competencyId ?? undefined;
+        if (options?.missionId) {
+            let missionParam = options.missionId;
 
-        if (missionParam && missionFocusMap[missionParam]) {
-            const mapping = missionFocusMap[missionParam];
-            missionParam = mapping.missionId;
-            competencyParam = competencyParam ?? mapping.competencyId;
-        }
+            if (missionFocusMap[missionParam]) {
+                const mapping = missionFocusMap[missionParam];
+                missionParam = mapping.missionId;
+            }
 
-        if (missionParam) {
             params.set("missionId", missionParam);
-        }
-
-        if (competencyParam) {
-            params.set("competencyId", competencyParam.toString());
+            setMissionsFilters({ status: "all", competencyId: "all" });
+        } else if (options?.competencyId) {
+            const competencyId = options.competencyId.toString();
+            params.set("competencyId", competencyId);
+            setMissionsFilters({ status: "all", competencyId });
+        } else {
+            setMissionsFilters({ status: "all", competencyId: "all" });
         }
 
         navigate({
