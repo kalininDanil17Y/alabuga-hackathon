@@ -1,4 +1,4 @@
-name: Build & Deploy
+name: Build & Deploy (prod + previews per branch)
 
 permissions:
   contents: read
@@ -6,20 +6,17 @@ permissions:
 
 on:
   push:
-    branches: [master]
-  workflow_dispatch:
-    inputs:
-      domain:
-        description: "Dev domain"
-        required: true
-        default: dev.nvote.ru
+    branches: ['**']
+  delete:
+    branches: ['**']
 
 concurrency:
-  group: deploy-${{ github.event_name }}-${{ github.ref }}
+  group: deploy-${{ github.ref }}
   cancel-in-progress: false
 
 env:
   REGISTRY: ghcr.io
+  PREVIEW_KEEP: ${{ vars.PREVIEW_KEEP || 5 }}
 
 jobs:
   build-and-push:
@@ -37,13 +34,15 @@ jobs:
             file: Dockerfile
             image_name: alabuga-web
 
+    outputs:
+      TAG: ${{ steps.cfg.outputs.TAG }}
+      STACK: ${{ steps.cfg.outputs.STACK }}
+      DOMAIN: ${{ steps.cfg.outputs.DOMAIN }}
+      BRANCH_SAFE: ${{ steps.cfg.outputs.BRANCH_SAFE }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        # без ref: на push берётся коммит пуша, на manual — ветка, выбранная в UI
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
 
       - name: Login to GHCR (via GITHUB_TOKEN)
         uses: docker/login-action@v3
@@ -58,20 +57,25 @@ jobs:
           echo "NS_LC=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
           echo "REG_LC=$(echo '${{ env.REGISTRY }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
 
-      - name: Compute TAG/STACK/DOMAIN
+      - name: Compute config (prod vs preview)
         id: cfg
         run: |
           BRANCH="${GITHUB_REF_NAME}"
+          BRANCH_SAFE="$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]' | tr '/ _.' '----' | sed 's/[^a-z0-9-]//g' | cut -c1-50)"
           if [ "$BRANCH" = "master" ]; then
             echo "TAG=latest" >> $GITHUB_OUTPUT
             echo "STACK=prod" >> $GITHUB_OUTPUT
             echo "DOMAIN=${{ vars.PROD_DOMAIN }}" >> $GITHUB_OUTPUT
           else
-            echo "TAG=dev" >> $GITHUB_OUTPUT         # единый тег для dev
-            echo "STACK=dev" >> $GITHUB_OUTPUT       # единый стек dev (перезаписывает прошлый)
-            echo "DOMAIN=${{ inputs.domain }}" >> $GITHUB_OUTPUT
+            echo "TAG=dev-${BRANCH_SAFE}" >> $GITHUB_OUTPUT
+            echo "STACK=preview-${BRANCH_SAFE}" >> $GITHUB_OUTPUT
+            echo "DOMAIN=${BRANCH_SAFE}-${{ vars.DEV_BASE_DOMAIN }}" >> $GITHUB_OUTPUT
           fi
+          echo "BRANCH_SAFE=${BRANCH_SAFE}" >> $GITHUB_OUTPUT
           echo "SHA=${GITHUB_SHA}" >> $GITHUB_OUTPUT
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Build & Push ${{ matrix.service }}
         uses: docker/build-push-action@v6
@@ -81,38 +85,50 @@ jobs:
           push: true
           tags: |
             ${{ steps.norm.outputs.REG_LC }}/${{ steps.norm.outputs.NS_LC }}/${{ matrix.image_name }}:${{ steps.cfg.outputs.TAG }}
-            ${{ steps.norm.outputs.REG_LC }}/${{ steps.norm.outputs.NS_LC }}/${{ matrix.image_name }}:${{ steps.cfg.outputs.SHA }}
+            ${{ steps.norm.outputs.REG_LC }}/${{ steps.norm.outputs.NS_LC }}/${{ matrix.image_name }}:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  # ---------- Cloudflare: upsert DNS for previews ----------
+  cf-upsert:
+    needs: build-and-push
+    if: needs.build-and-push.outputs.STACK != 'prod'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Upsert A record in Cloudflare (proxied)
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          NAME: ${{ needs.build-and-push.outputs.DOMAIN }}
+          CONTENT: ${{ secrets.SERVER_PUBLIC_IP }}
+        run: |
+          set -euo pipefail
+          API="https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records"
+          # Try get existing
+          REC_ID=$(curl -sS -X GET "${API}?type=A&name=${NAME}" -H "Authorization: Bearer ${CF_TOKEN}" -H "Content-Type: application/json" | jq -r '.result[0].id // empty')
+          DATA=$(jq -nc --arg name "$NAME" --arg content "$CONTENT" \
+                  '{type:"A", name:$name, content:$content, ttl:120, proxied:true}')
+          if [ -n "${REC_ID:-}" ]; then
+            curl -sS -X PUT "${API}/${REC_ID}" -H "Authorization: Bearer ${CF_TOKEN}" -H "Content-Type: application/json" --data "$DATA" >/dev/null
+            echo "Updated DNS $NAME → $CONTENT"
+          else
+            curl -sS -X POST "${API}" -H "Authorization: Bearer ${CF_TOKEN}" -H "Content-Type: application/json" --data "$DATA" >/dev/null
+            echo "Created DNS $NAME → $CONTENT"
+          fi
+
+  # ---------- Deploy (prod or preview) ----------
   deploy:
-    needs: [build-and-push]
+    needs: [build-and-push, cf-upsert]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout (compose)
         uses: actions/checkout@v4
 
-      - name: Normalize owner/namespace (again)
+      - name: Normalize owner/namespace
         id: norm
         run: |
           echo "NS_LC=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
           echo "REG_LC=$(echo '${{ env.REGISTRY }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
-
-      - name: Compute TAG/STACK/DOMAIN (deploy)
-        id: cfg
-        run: |
-          BRANCH="${GITHUB_REF_NAME}"
-          if [ "$BRANCH" = "master" ]; then
-            echo "TAG=latest" >> $GITHUB_OUTPUT
-            echo "STACK=prod" >> $GITHUB_OUTPUT
-            echo "DOMAIN=${{ vars.PROD_DOMAIN }}" >> $GITHUB_OUTPUT
-            echo "TARGET=${{ secrets.DEPLOY_PATH }}/prod" >> $GITHUB_OUTPUT
-          else
-            echo "TAG=dev" >> $GITHUB_OUTPUT
-            echo "STACK=dev" >> $GITHUB_OUTPUT
-            echo "DOMAIN=${{ inputs.domain }}" >> $GITHUB_OUTPUT
-            echo "TARGET=${{ secrets.DEPLOY_PATH }}/dev" >> $GITHUB_OUTPUT
-          fi
 
       - name: Copy docker-compose.yml
         uses: appleboy/scp-action@v0.1.7
@@ -122,29 +138,32 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "docker-compose.yml"
-          target: "${{ steps.cfg.outputs.TARGET }}"
+          target: "${{ secrets.DEPLOY_PATH }}/${{ needs.build-and-push.outputs.STACK }}"
 
-      - name: Deploy
+      - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.0.3
         env:
           REGISTRY: ${{ steps.norm.outputs.REG_LC }}
           REGISTRY_NAMESPACE: ${{ steps.norm.outputs.NS_LC }}
-          TAG: ${{ steps.cfg.outputs.TAG }}
-          STACK: ${{ steps.cfg.outputs.STACK }}
-          DOMAIN: ${{ steps.cfg.outputs.DOMAIN }}
-          DEPLOY_DIR: ${{ steps.cfg.outputs.TARGET }}
+          TAG: ${{ needs.build-and-push.outputs.TAG }}
+          STACK: ${{ needs.build-and-push.outputs.STACK }}
+          DOMAIN: ${{ needs.build-and-push.outputs.DOMAIN }}
+          DEPLOY_DIR: ${{ secrets.DEPLOY_PATH }}/${{ needs.build-and-push.outputs.STACK }}
           REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
           REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+          PREVIEW_KEEP: ${{ env.PREVIEW_KEEP }}
         with:
           host: ${{ secrets.SSH_HOST }}
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          envs: REGISTRY,REGISTRY_NAMESPACE,TAG,STACK,DOMAIN,DEPLOY_DIR,REGISTRY_USER,REGISTRY_TOKEN
+          envs: REGISTRY,REGISTRY_NAMESPACE,TAG,STACK,DOMAIN,DEPLOY_DIR,REGISTRY_USER,REGISTRY_TOKEN,PREVIEW_KEEP
           script: |
             set -euo pipefail
             mkdir -p "$DEPLOY_DIR"
             cd "$DEPLOY_DIR"
+
+            # .env для compose (Traefik лейблы используют STACK и DOMAIN)
             cat > .env <<EOF
             REGISTRY=${REGISTRY}
             REGISTRY_NAMESPACE=${REGISTRY_NAMESPACE}
@@ -152,7 +171,70 @@ jobs:
             DOMAIN=${DOMAIN}
             STACK=${STACK}
             EOF
+
             echo "${REGISTRY_TOKEN}" | docker login "${REGISTRY}" -u "${REGISTRY_USER}" --password-stdin
             docker compose -p "${STACK}" pull
             docker compose -p "${STACK}" up -d --remove-orphans
+
+            # Простейший house-keeping: оставляем не более PREVIEW_KEEP превью-стендов
+            if [[ "${STACK}" == preview-* ]]; then
+              cd "${{ secrets.DEPLOY_PATH }}"
+              ls -1dt preview-* 2>/dev/null | tail -n +$((PREVIEW_KEEP+1)) | while read -r OLD; do
+                echo "Cleaning old preview: $OLD"
+                docker compose -p "$OLD" -f "$OLD/docker-compose.yml" down --remove-orphans || true
+                rm -rf "$OLD"
+              done
+            fi
+
             docker image prune -f || true
+
+  # ---------- Cleanup on branch delete ----------
+  cleanup-on-delete:
+    if: github.event_name == 'delete'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Compute names to cleanup
+        id: n
+        run: |
+          BRANCH="${{ github.event.ref }}"; BRANCH="${BRANCH##refs/heads/}"
+          BRANCH_SAFE="$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]' | tr '/ _.' '----' | sed 's/[^a-z0-9-]//g' | cut -c1-50)"
+          echo "STACK=preview-${BRANCH_SAFE}" >> $GITHUB_OUTPUT
+          echo "DOMAIN=${BRANCH_SAFE}-${{ vars.DEV_BASE_DOMAIN }}" >> $GITHUB_OUTPUT
+
+      - name: Remove DNS in Cloudflare
+        if: steps.n.outputs.DOMAIN != ''
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          NAME: ${{ steps.n.outputs.DOMAIN }}
+        run: |
+          set -euo pipefail
+          API="https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records"
+          REC_ID=$(curl -sS -X GET "${API}?type=A&name=${NAME}" -H "Authorization: Bearer ${CF_TOKEN}" -H "Content-Type: application/json" | jq -r '.result[0].id // empty')
+          if [ -n "${REC_ID:-}" ]; then
+            curl -sS -X DELETE "${API}/${REC_ID}" -H "Authorization: Bearer ${CF_TOKEN}" >/dev/null
+            echo "Deleted DNS ${NAME}"
+          else
+            echo "DNS ${NAME} not found"
+          fi
+
+      - name: Stop & remove preview stack
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          STACK: ${{ steps.n.outputs.STACK }}
+          DEPLOY_DIR: ${{ secrets.DEPLOY_PATH }}/${{ steps.n.outputs.STACK }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: STACK,DEPLOY_DIR
+          script: |
+            set -euo pipefail
+            if [ -d "$DEPLOY_DIR" ]; then
+              docker compose -p "$STACK" -f "$DEPLOY_DIR/docker-compose.yml" down --remove-orphans || true
+              rm -rf "$DEPLOY_DIR"
+              echo "Removed $DEPLOY_DIR"
+            else
+              echo "No dir $DEPLOY_DIR (already removed)"
+            fi
