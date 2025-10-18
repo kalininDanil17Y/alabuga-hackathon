@@ -16,6 +16,7 @@ import DashboardJournalArtifacts from "./pages/dashboard/journal/artifacts";
 import DashboardJournalRatings from "./pages/dashboard/journal/ratings";
 import DashboardJournalStatistics from "./pages/dashboard/journal/statistics";
 import DashboardShop from "./pages/dashboard/shop";
+import DashboardNotifications from "./pages/dashboard/notifications";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,7 @@ const App = () => (
                             <Route path="statistics" element={<DashboardJournalStatistics />} />
                         </Route>
                         <Route path="shop" element={<DashboardShop />} />
+                        <Route path="notifications" element={<DashboardNotifications />} />
                     </Route>
 
                     <Route path="*" element={<NotFound />} />

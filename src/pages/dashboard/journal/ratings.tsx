@@ -1,13 +1,14 @@
-import { SpaceCard } from "@/components/ui/custom/space-card";
-import styles from "./Placeholder.module.css";
+import styles from "../notifications/DashboardNotifications.module.css";
 
 const DashboardJournalRatings = () => (
-    <SpaceCard variant="glass">
-        <div className={styles.wrapper}>
-            <h2 className={styles.title}>Рейтинги</h2>
-            <p className={styles.description}>TODO</p>
-        </div>
-    </SpaceCard>
+    <div className={styles.root}>
+        <section className={styles.panel}>
+            <h1 className={styles.title}>Рейтинг</h1>
+            <p className={styles.text}>
+                К сожалению рейтинг ещё не готов, но заходите позже.
+            </p>
+        </section>
+    </div>
 );
 
 export default DashboardJournalRatings;

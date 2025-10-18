@@ -62,7 +62,12 @@ const Dashboard = () => {
                 icon: "mage:basket",
                 onSelect: () => navigate("/dashboard/shop"),
             },
-            { value: "notifications", label: "Уведомления", icon: "hugeicons:message-01" },
+            {
+                value: "notifications",
+                label: "Уведомления",
+                icon: "hugeicons:message-01",
+                onSelect: () => navigate("/dashboard/notifications"),
+            },
         ],
         [navigate, setMissionsFilters],
     );
