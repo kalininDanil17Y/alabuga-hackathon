@@ -36,6 +36,7 @@ export interface Mission {
     category: string;
     xpReward: number;
     completedDate?: string;
+    competencyId?: string | number;
 }
 
 export interface Achievement {

@@ -4,36 +4,12 @@ import clsx from "clsx";
 import { SpaceButton } from "@/components/ui/custom/space-button";
 import { SpaceCard } from "@/components/ui/custom/space-card";
 import { TexturePanel } from "@/components/ui/custom/texture-panel";
-import {cn, number_format} from "@/lib/utils";
+import { cn, number_format } from "@/lib/utils";
 import { useDashboardStore } from "@/store/dashboardStore";
 import styles from "./DashboardHome.module.css";
-import {HorizontalRule} from "@/components/ui/custom/horizontal-rule.tsx";
-import {Button1} from "@/components/ui/custom/button1.tsx";
+import { HorizontalRule } from "@/components/ui/custom/horizontal-rule.tsx";
+import { Button1 } from "@/components/ui/custom/button1.tsx";
 import Mana from "@/images/ui/mana.svg?react";
-
-const missionFocusMap: Record<string, { missionId: string; competencyId?: number }> = {
-    mission_001: {
-        missionId: "mission_alpha_2",
-        competencyId: 2,
-    },
-    mission_002: {
-        missionId: "mission_gamma_1",
-        competencyId: 3,
-    },
-    mission_003: {
-        missionId: "mission_alpha_3",
-        competencyId: 2,
-    },
-    mission_004: {
-        missionId: "mission_beta_2",
-        competencyId: 1,
-    },
-    mission_005: { missionId: "mission_delta", competencyId: 4 },
-    mission_006: {
-        missionId: "mission_gamma_2",
-        competencyId: 3,
-    },
-};
 
 const DashboardHome = () => {
     const navigate = useNavigate();
@@ -111,14 +87,7 @@ const DashboardHome = () => {
         const params = new URLSearchParams();
 
         if (options?.missionId) {
-            let missionParam = options.missionId;
-
-            if (missionFocusMap[missionParam]) {
-                const mapping = missionFocusMap[missionParam];
-                missionParam = mapping.missionId;
-            }
-
-            params.set("missionId", missionParam);
+            params.set("missionId", options.missionId);
             setMissionsFilters({ status: "all", competencyId: "all" });
         } else if (options?.competencyId) {
             const competencyId = options.competencyId.toString();
@@ -201,7 +170,7 @@ const DashboardHome = () => {
                             {missionItems.map((mission) => (
                                 <div key={mission.id} className={styles["mission-item"]}>
                                     <div className="flex-1">
-                                        <p className="text-white text-[9px] font-normal">{mission.description || mission.id}</p>
+                                        <p className="text-white text-[9px] font-normal">{mission.title || mission.id}</p>
                                     </div>
                                     <Button1 onClick={() =>
                                         handleNavigateToMissions({ missionId: mission.id })
