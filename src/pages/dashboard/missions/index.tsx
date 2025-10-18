@@ -62,7 +62,7 @@ const MissionsPage = () => {
         setMissionsFilters: state.setMissionsFilters,
     }));
 
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const missionIdParam = searchParams.get("missionId");
     const competencyIdParam = searchParams.get("competencyId");
 
@@ -113,14 +113,31 @@ const MissionsPage = () => {
     );
 
     const handleFilterChange = (key: FilterKey, value: string) => {
+        const nextParams = new URLSearchParams(searchParams);
+
+        nextParams.delete("missionId");
+
         if (key === "status") {
+            if (value === "all") {
+                nextParams.delete("status");
+            } else {
+                nextParams.set("status", value);
+            }
+
             setMissionsFilters({ status: value as EntryMissionStatus | "all" });
+            setSearchParams(nextParams, { replace: true });
             return;
         }
 
-        setMissionsFilters({ competencyId: value });
-    };
+        if (value === "all") {
+            nextParams.delete("competencyId");
+        } else {
+            nextParams.set("competencyId", value);
+        }
 
+        setMissionsFilters({ competencyId: value });
+        setSearchParams(nextParams, { replace: true });
+    };
     if (isMissionsLoading && missionsEntries.length === 0) {
         return (
             <SpaceCard variant="glass" className={styles.stateCard}>
@@ -171,3 +188,4 @@ const MissionsPage = () => {
 };
 
 export default MissionsPage;
+
