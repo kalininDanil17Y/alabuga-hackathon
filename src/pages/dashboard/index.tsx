@@ -4,7 +4,7 @@ import { SpaceButton } from "@/components/ui/custom/space-button";
 import { DashboardHeader, DashboardBottomNav } from "@/components/dashboard/layout";
 import { useDashboardStore } from "@/store/dashboardStore";
 import styles from "./Dashboard.module.css";
-import {number_format} from "@/lib/utils.ts";
+import { number_format } from "@/lib/utils.ts";
 
 const Dashboard = () => {
     const location = useLocation();
@@ -26,11 +26,11 @@ const Dashboard = () => {
         if (pathname.startsWith("/dashboard/missions")) {
             return "missions";
         }
+        if (pathname.startsWith("/dashboard/journal")) {
+            return "journal";
+        }
         if (pathname.startsWith("/dashboard/shop")) {
             return "shop";
-        }
-        if (pathname.startsWith("/dashboard/logbook")) {
-            return "logbook";
         }
         if (pathname.startsWith("/dashboard/notifications")) {
             return "notifications";
@@ -46,7 +46,12 @@ const Dashboard = () => {
                 icon: "solar:running-round-outline",
                 onSelect: () => navigate("/dashboard/missions"),
             },
-            { value: "logbook", label: "Журнал", icon: "hugeicons:book-edit" },
+            {
+                value: "journal",
+                label: "Журнал",
+                icon: "hugeicons:book-edit",
+                onSelect: () => navigate("/dashboard/journal"),
+            },
             {
                 value: "shop",
                 label: "Магазин",
@@ -59,7 +64,7 @@ const Dashboard = () => {
     );
 
     if (isDashboardLoading && !user) {
-        return <div className={`${styles.state} ${styles.stateLoading}`}>Загрузка профиля...</div>;
+        return <div className={`${styles.state} ${styles.stateLoading}`}>Загружаем данные...</div>;
     }
 
     if (dashboardError) {
@@ -89,7 +94,7 @@ const Dashboard = () => {
                 currencyLabel={currencyLabel}
                 experienceProgress={experienceProgress}
                 sticky
-                userAction={() => navigate('/dashboard')}
+                userAction={() => navigate("/dashboard")}
             />
             <main className={styles.main}>
                 <Outlet />
@@ -100,3 +105,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+

@@ -3,43 +3,15 @@ import { useSearchParams } from "react-router-dom";
 import { SpaceButton } from "@/components/ui/custom/space-button";
 import { SpaceCard } from "@/components/ui/custom/space-card";
 import { useDashboardStore } from "@/store/dashboardStore";
-import type { MissionEntry, MissionStatus as EntryMissionStatus } from "@/types/missions";
+import type { MissionStatus as EntryMissionStatus } from "@/types/missions";
 import styles from "./DashboardMissions.module.css";
 import { Select } from "@/components/ui/custom/select.tsx";
 import { MissionCollapse } from "@/components/dashboard/missions/dashboard-misssion-collapse.tsx";
-import type { MissionProps, MissionStatus as CardMissionStatus } from "@/components/dashboard/missions/dashboard-mission-card";
+import { mapEntryToMissionCards } from "@/lib/mission-cards";
 
 type FilterKey = "status" | "competencyId";
 
 const statusOrder: EntryMissionStatus[] = ["available", "in_progress", "moderation", "completed", "locked"];
-
-const missionStatusMap: Record<EntryMissionStatus, CardMissionStatus> = {
-    available: "available",
-    in_progress: "progress",
-    moderation: "moderation",
-    completed: "complete",
-    locked: "locked",
-};
-
-const toMissionCards = (entry: MissionEntry): MissionProps[] => {
-    return entry.tasks.map((task) => {
-        const competencies = [task.competencyId ?? entry.competencyId]
-            .filter((value): value is string | number => value !== undefined && value !== null)
-            .map((value) => String(value));
-
-        const rewardXp = task.reward?.xp ?? 0;
-        const rewardCurrency = task.reward?.currency ?? rewardXp;
-
-        return {
-            id: task.id,
-            title: task.title,
-            status: missionStatusMap[task.status] ?? "available",
-            mana: rewardCurrency,
-            exp: rewardXp,
-            competencies,
-        };
-    });
-};
 
 const MissionsPage = () => {
     const {
@@ -106,7 +78,7 @@ const MissionsPage = () => {
                 .map((entry) => ({
                     id: entry.id,
                     title: entry.title,
-                    items: toMissionCards(entry),
+                    items: mapEntryToMissionCards(entry),
                 }))
                 .filter((section) => section.items.length > 0),
         [missionsEntries],

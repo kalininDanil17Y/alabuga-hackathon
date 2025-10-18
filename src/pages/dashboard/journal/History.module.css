@@ -1,0 +1,16 @@
+.root {
+    @apply space-y-4;
+}
+
+.stateCard {
+    @apply text-center space-y-3 text-xs py-8;
+}
+
+.stateMessage {
+    @apply text-white/80;
+}
+
+.actions {
+    @apply flex justify-center;
+}
+
