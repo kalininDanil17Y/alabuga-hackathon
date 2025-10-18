@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
     ResponsiveContainer,
     ComposedChart,
@@ -15,6 +15,7 @@ import { SpaceCard } from "@/components/ui/custom/space-card";
 import { useDashboardStore } from "@/store/dashboardStore";
 import { useStatsChart } from "@/hooks/useStatsChart";
 import styles from "./Statistics.module.css";
+import {HorizontalRule} from "@/components/ui/custom/horizontal-rule.tsx";
 
 interface TooltipPayload {
     missions: number;
@@ -141,6 +142,8 @@ const DashboardJournalStatistics = () => {
 
     return (
         <div className={styles.root}>
+            <HorizontalRule paddingX="6px" />
+
             <div className={styles.chartCard}>
                 <div className={styles.header}>
                     <h2 className={styles.title}>График прогресса по времени</h2>
@@ -188,7 +191,9 @@ const DashboardJournalStatistics = () => {
                 ) : null}
             </div>
 
-            <div className={styles.metricsCard}>
+            <HorizontalRule paddingX="6px" mirrored={true} />
+
+            {/*<div className={styles.metricsCard}>
                 {metrics.map((metric) => (
                     <div key={metric.id} className={styles.metricRow}>
                         <div className={styles.metricLabel}>
@@ -196,6 +201,21 @@ const DashboardJournalStatistics = () => {
                             <span>{metric.subtitle}</span>
                         </div>
                         <div className={styles.metricValue}>{metric.value}</div>
+                    </div>
+                ))}
+            </div>*/}
+
+            <div className="space-y-2">
+                <HorizontalRule paddingX="4px" variant="v2"/>
+                {metrics.map((metric) => (
+                    <div key={metric.id}>
+
+                        <div className="grid grid-cols-5 gap-4 pt-1 pb-2 items-center">
+                            <p className="col-span-3 text-white text-[9px]">{metric.title}</p>
+                            <p className="col-span-2 text-white text-[16px] font-bold flex flex-row items-center gap-2">{metric.value}</p>
+                        </div>
+
+                        <HorizontalRule paddingX="4px" variant="v2"/>
                     </div>
                 ))}
             </div>

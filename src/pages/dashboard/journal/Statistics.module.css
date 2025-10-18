@@ -21,11 +21,11 @@
 
 .chartCard {
     position: relative;
-    padding: 16px 12px 18px;
+    /*padding: 16px 12px 18px;*/
     border-radius: 18px;
-    background: linear-gradient(180deg, rgba(13, 42, 110, 0.92) 0%, rgba(3, 18, 60, 0.95) 100%);
+    /*background: linear-gradient(180deg, rgba(13, 42, 110, 0.92) 0%, rgba(3, 18, 60, 0.95) 100%);
     border: 1px solid rgba(88, 170, 255, 0.38);
-    box-shadow: 0 0 18px rgba(54, 142, 255, 0.32);
+    box-shadow: 0 0 18px rgba(54, 142, 255, 0.32);*/
 }
 
 .chartWrapper {

@@ -1,0 +1,41 @@
+.root {
+    @apply relative flex flex-col items-center gap-3 rounded-2xl border border-white/20 bg-gradient-to-br from-[#0b1c5a]/90 via-[#122d7c]/80 to-[#08143d]/90 px-6 py-5 text-center shadow-[0_0_26px_rgba(61,124,255,0.35)];
+}
+
+.label {
+    @apply text-[11px] uppercase tracking-[0.28em] text-white/80;
+}
+
+.group {
+    @apply flex w-full justify-center gap-2 rounded-full border border-white/10 bg-white/10 p-1;
+}
+
+.option {
+    @apply relative flex-1 min-w-[96px] rounded-full border border-white/0 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.25em] text-white/70 transition-all duration-150 ease-out;
+}
+
+.option::after {
+    content: "";
+    @apply absolute inset-0 rounded-full border border-white/10 opacity-100 transition-opacity duration-150 ease-out;
+}
+
+.option[data-active="true"] {
+    @apply text-white shadow-[0_0_18px_rgba(74,160,255,0.5)];
+    background: linear-gradient(135deg, rgba(70,168,255,0.9) 0%, rgba(26,82,214,0.95) 100%);
+}
+
+.option[data-active="true"]::after {
+    @apply opacity-0;
+}
+
+.option[data-disabled="true"] {
+    @apply cursor-not-allowed opacity-50;
+}
+
+.option:focus-visible {
+    @apply outline-none ring-2 ring-space-cyan-400/60 ring-offset-2 ring-offset-[#0b1c5a];
+}
+
+.option:not([data-disabled="true"]):hover {
+    @apply text-white/90;
+}

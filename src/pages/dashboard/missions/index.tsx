@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { SpaceButton } from "@/components/ui/custom/space-button";
 import { SpaceCard } from "@/components/ui/custom/space-card";
@@ -37,29 +37,58 @@ const MissionsPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const missionIdParam = searchParams.get("missionId");
     const competencyIdParam = searchParams.get("competencyId");
+    const statusParam = searchParams.get("status");
+
+    const scrolledMissionIdRef = useRef<string | null>(null);
 
     useEffect(() => {
-        void fetchMissionsPage(true);
+        void fetchMissionsPage();
     }, [fetchMissionsPage]);
 
     useEffect(() => {
         if (competencyIdParam) {
-            setMissionsFilters({ competencyId: competencyIdParam });
+            setMissionsFilters({ competencyId: competencyIdParam, status: "all" });
             return;
         }
 
-        if (!missionIdParam || missionsEntries.length === 0) {
+        if (missionIdParam) {
+            setMissionsFilters({ competencyId: "all", status: "all" });
             return;
         }
 
-        const targetEntry = missionsEntries.find(
-            (entry) => entry.id === missionIdParam || entry.tasks.some((task) => task.id === missionIdParam),
-        );
-
-        if (targetEntry?.competencyId !== undefined && targetEntry.competencyId !== null) {
-            setMissionsFilters({ competencyId: String(targetEntry.competencyId) });
+        if (!statusParam) {
+            setMissionsFilters({ competencyId: "all", status: "all" });
         }
-    }, [competencyIdParam, missionIdParam, missionsEntries, setMissionsFilters]);
+    }, [competencyIdParam, missionIdParam, statusParam, setMissionsFilters]);
+
+    useEffect(() => {
+        if (!missionIdParam) {
+            scrolledMissionIdRef.current = null;
+            return;
+        }
+
+        if (missionsEntries.length === 0) {
+            return;
+        }
+
+        if (scrolledMissionIdRef.current === missionIdParam) {
+            return;
+        }
+
+        const target = document.querySelector<HTMLElement>(`[data-mission-id="${missionIdParam}"]`);
+        if (!target) {
+            return;
+        }
+
+        scrolledMissionIdRef.current = missionIdParam;
+        const scrollToTarget = () => target.scrollIntoView({ behavior: "smooth", block: "center" });
+
+        if (typeof window !== "undefined" && typeof window.requestAnimationFrame === "function") {
+            window.requestAnimationFrame(scrollToTarget);
+        } else {
+            scrollToTarget();
+        }
+    }, [missionIdParam, missionsEntries]);
 
     const missionStatusOptions = useMemo(
         () =>

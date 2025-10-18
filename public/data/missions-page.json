@@ -17,8 +17,7 @@
     {
       "id": "chain_alpha",
       "title": "Цепочка миссий: Разведка фронтира",
-      "description":
-      "Последовательность заданий по разведке и установлению коммуникаций на новых территориях.",
+      "description": "Последовательность заданий по разведке и установлению коммуникаций на новых территориях.",
       "status": "in_progress",
       "type": "chain",
       "competencyId": 2,
@@ -26,38 +25,59 @@
         {
           "id": "mission_alpha_1",
           "title": "Разведать сектор А-7",
+          "description": "Обойти ключевые точки и отметить возможные угрозы на подходах к лагерю.",
           "status": "completed",
           "progress": 100,
-          "reward": { "xp": 80 }
+          "reward": { "xp": 80 },
+          "priority": "medium",
+          "deadline": "2024-01-18",
+          "category": "reconnaissance",
+          "competencyId": 2,
+          "completedDate": "2024-01-18"
         },
         {
           "id": "mission_alpha_2",
           "title": "Отследить сигналы коммуникаций",
+          "description": "Перехватить и классифицировать нестабильные сигналы с пограничных ретрансляторов.",
           "status": "in_progress",
           "progress": 45,
-          "reward": { "xp": 120 }
+          "reward": { "xp": 120 },
+          "priority": "high",
+          "deadline": "2024-01-25",
+          "category": "reconnaissance",
+          "competencyId": 2,
+          "isFeatured": true
         },
         {
           "id": "mission_alpha_3",
           "title": "Построить мостовой ретранслятор",
+          "description": "Собрать временный ретранслятор, чтобы стабилизировать канал связи с форпостом.",
           "status": "available",
           "progress": 0,
-          "reward": { "xp": 150 }
+          "reward": { "xp": 150 },
+          "priority": "medium",
+          "deadline": "2024-02-01",
+          "category": "reconnaissance",
+          "competencyId": 2,
+          "isFeatured": true
         },
         {
           "id": "mission_alpha_4",
           "title": "Закрепить периметр",
+          "description": "Подготовить оборонительные узлы и синхронизировать охранные протоколы.",
           "status": "locked",
           "progress": 0,
-          "reward": { "xp": 150 }
+          "reward": { "xp": 150 },
+          "priority": "medium",
+          "category": "reconnaissance",
+          "competencyId": 2
         }
       ]
     },
     {
       "id": "chain_beta",
       "title": "Цепочка миссий: Информационный анализ",
-      "description":
-      "Подборка задач по анализу и верификации разведданных для координации действий.",
+      "description": "Подборка задач по анализу и верификации разведданных для координации действий.",
       "status": "moderation",
       "type": "chain",
       "competencyId": 1,
@@ -65,23 +85,40 @@
         {
           "id": "mission_beta_1",
           "title": "Протоколирование данных наблюдений",
+          "description": "Оцифровать записи патрулей и распределить их по приоритетам.",
           "status": "completed",
           "progress": 100,
-          "reward": { "xp": 60 }
+          "reward": { "xp": 60 },
+          "priority": "low",
+          "deadline": "2024-01-17",
+          "category": "analysis",
+          "competencyId": 1,
+          "completedDate": "2024-01-17"
         },
         {
           "id": "mission_beta_2",
           "title": "Кросс-проверка полученных отчетов",
+          "description": "Сопоставить отчеты наблюдателей и выявить расхождения в ключевых метриках.",
           "status": "moderation",
           "progress": 75,
-          "reward": { "xp": 100 }
+          "reward": { "xp": 100 },
+          "priority": "medium",
+          "deadline": "2024-01-22",
+          "category": "analysis",
+          "competencyId": 1,
+          "isFeatured": true
         },
         {
           "id": "mission_beta_3",
           "title": "Составление аналитической сводки",
+          "description": "Сформировать итоговый отчет с рекомендациями для штаба.",
           "status": "available",
           "progress": 0,
-          "reward": { "xp": 140 }
+          "reward": { "xp": 140 },
+          "priority": "medium",
+          "deadline": "2024-02-05",
+          "category": "analysis",
+          "competencyId": 1
         }
       ]
     },
@@ -96,31 +133,46 @@
         {
           "id": "mission_gamma_1",
           "title": "Собрать тренировочный лагерь",
+          "description": "Развернуть учебный сектор и обеспечить новичков базовым снаряжением.",
           "status": "available",
           "progress": 10,
-          "reward": { "xp": 70 }
+          "reward": { "xp": 70 },
+          "priority": "medium",
+          "deadline": "2024-01-28",
+          "category": "training",
+          "competencyId": 3,
+          "isFeatured": true
         },
         {
           "id": "mission_gamma_2",
           "title": "Организовать полевой брифинг",
+          "description": "Провести вводный инструктаж и распределить наставников по группам.",
           "status": "available",
           "progress": 0,
-          "reward": { "xp": 90 }
+          "reward": { "xp": 90 },
+          "priority": "medium",
+          "deadline": "2024-01-30",
+          "category": "training",
+          "competencyId": 3,
+          "isFeatured": true
         },
         {
           "id": "mission_gamma_3",
           "title": "Оценить результаты обучения",
+          "description": "Провести итоговую проверку и подготовить заключение для штаба.",
           "status": "locked",
           "progress": 0,
-          "reward": { "xp": 120 }
+          "reward": { "xp": 120 },
+          "priority": "medium",
+          "category": "training",
+          "competencyId": 3
         }
       ]
     },
     {
       "id": "single_delta",
       "title": "Миссия: Тестирование защитного поля",
-      "description":
-      "Изолированное задание по проверке нового генератора защитного купола.",
+      "description": "Изолированное задание по проверке нового генератора защитного купола.",
       "status": "available",
       "type": "single",
       "competencyId": 4,
@@ -128,9 +180,15 @@
         {
           "id": "mission_delta",
           "title": "Активировать и протестировать поле",
+          "description": "Провести полевой запуск генератора и зафиксировать показатели мощности.",
           "status": "available",
           "progress": 20,
-          "reward": { "xp": 110 }
+          "reward": { "xp": 110 },
+          "priority": "high",
+          "deadline": "2024-01-26",
+          "category": "defense",
+          "competencyId": 4,
+          "isFeatured": true
         }
       ]
     },
@@ -145,9 +203,15 @@
         {
           "id": "mission_epsilon",
           "title": "Организовать охранное сопровождение",
+          "description": "Согласовать маршрут и обеспечить защиту колонны во время перемещения.",
           "status": "completed",
           "progress": 100,
-          "reward": { "xp": 95 }
+          "reward": { "xp": 95 },
+          "priority": "high",
+          "deadline": "2024-01-12",
+          "category": "logistics",
+          "competencyId": 2,
+          "completedDate": "2024-01-12"
         }
       ]
     },
@@ -162,11 +226,12 @@
         {
           "id": "mission_hidden_1",
           "title": "Проверка систем безопасности",
+          "description": "Проверить системы защиты сектора и подтвердить уровни допуска.",
           "status": "locked",
-          "progress": 0
+          "progress": 0,
+          "category": "security"
         }
       ]
     }
   ]
 }
-
