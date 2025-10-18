@@ -9,28 +9,19 @@ on:
     branches: [master]
   workflow_dispatch:
     inputs:
-      ref:
-        description: "Branch/Tag/Commit to deploy"
-        required: true
-        default: master
       domain:
-        description: "Dev Domain"
+        description: "Dev domain"
         required: true
         default: dev.nvote.ru
-      stack:
-        description: "Stack name (project) e.g. prod, dev-feature"
-        required: true
-        default: dev
 
 concurrency:
-  group: deploy-${{ github.event_name }}-${{ github.ref || inputs.ref }}
+  group: deploy-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: false
 
 env:
   REGISTRY: ghcr.io
 
 jobs:
-  # ---------- BUILD (общий для auto и manual) ----------
   build-and-push:
     name: Build & Push ${{ matrix.service }}
     runs-on: ubuntu-latest
@@ -49,13 +40,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.ref }}
+        # без ref: на push берётся коммит пуша, на manual — ветка, выбранная в UI
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Логинимся в GHCR от лица Actions (никаких персональных токенов не нужно)
       - name: Login to GHCR (via GITHUB_TOKEN)
         uses: docker/login-action@v3
         with:
@@ -63,26 +52,24 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Нормализуем регистр namespace (владелец репо) → lower-case
       - name: Normalize owner/namespace
         id: norm
         run: |
           echo "NS_LC=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
           echo "REG_LC=$(echo '${{ env.REGISTRY }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
 
-      - name: Compute tags
-        id: t
+      - name: Compute TAG/STACK/DOMAIN
+        id: cfg
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            BRANCH="${{ inputs.ref }}"
-          else
-            BRANCH="${GITHUB_REF_NAME}"
-          fi
+          BRANCH="${GITHUB_REF_NAME}"
           if [ "$BRANCH" = "master" ]; then
             echo "TAG=latest" >> $GITHUB_OUTPUT
+            echo "STACK=prod" >> $GITHUB_OUTPUT
+            echo "DOMAIN=${{ vars.PROD_DOMAIN }}" >> $GITHUB_OUTPUT
           else
-            SAFE=$(echo "$BRANCH" | tr '/_' '--')
-            echo "TAG=dev-${SAFE}" >> $GITHUB_OUTPUT
+            echo "TAG=dev" >> $GITHUB_OUTPUT         # единый тег для dev
+            echo "STACK=dev" >> $GITHUB_OUTPUT       # единый стек dev (перезаписывает прошлый)
+            echo "DOMAIN=${{ inputs.domain }}" >> $GITHUB_OUTPUT
           fi
           echo "SHA=${GITHUB_SHA}" >> $GITHUB_OUTPUT
 
@@ -93,26 +80,39 @@ jobs:
           file: ${{ matrix.file }}
           push: true
           tags: |
-            ${{ steps.norm.outputs.REG_LC }}/${{ steps.norm.outputs.NS_LC }}/${{ matrix.image_name }}:${{ steps.t.outputs.TAG }}
-            ${{ steps.norm.outputs.REG_LC }}/${{ steps.norm.outputs.NS_LC }}/${{ matrix.image_name }}:${{ steps.t.outputs.SHA }}
+            ${{ steps.norm.outputs.REG_LC }}/${{ steps.norm.outputs.NS_LC }}/${{ matrix.image_name }}:${{ steps.cfg.outputs.TAG }}
+            ${{ steps.norm.outputs.REG_LC }}/${{ steps.norm.outputs.NS_LC }}/${{ matrix.image_name }}:${{ steps.cfg.outputs.SHA }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # ---------- AUTO PROD DEPLOY (master push) ----------
-  deploy-prod-auto:
-    if: github.event_name == 'push' && github.ref_name == 'master'
+  deploy:
     needs: [build-and-push]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout (compose)
         uses: actions/checkout@v4
 
-      # Нормализуем namespace и прокинем в env деплоя
-      - name: Normalize owner/namespace
+      - name: Normalize owner/namespace (again)
         id: norm
         run: |
           echo "NS_LC=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
           echo "REG_LC=$(echo '${{ env.REGISTRY }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
+      - name: Compute TAG/STACK/DOMAIN (deploy)
+        id: cfg
+        run: |
+          BRANCH="${GITHUB_REF_NAME}"
+          if [ "$BRANCH" = "master" ]; then
+            echo "TAG=latest" >> $GITHUB_OUTPUT
+            echo "STACK=prod" >> $GITHUB_OUTPUT
+            echo "DOMAIN=${{ vars.PROD_DOMAIN }}" >> $GITHUB_OUTPUT
+            echo "TARGET=${{ secrets.DEPLOY_PATH }}/prod" >> $GITHUB_OUTPUT
+          else
+            echo "TAG=dev" >> $GITHUB_OUTPUT
+            echo "STACK=dev" >> $GITHUB_OUTPUT
+            echo "DOMAIN=${{ inputs.domain }}" >> $GITHUB_OUTPUT
+            echo "TARGET=${{ secrets.DEPLOY_PATH }}/dev" >> $GITHUB_OUTPUT
+          fi
 
       - name: Copy docker-compose.yml
         uses: appleboy/scp-action@v0.1.7
@@ -122,17 +122,17 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "docker-compose.yml"
-          target: "${{ secrets.DEPLOY_PATH }}/prod"
+          target: "${{ steps.cfg.outputs.TARGET }}"
 
-      - name: Deploy prod
+      - name: Deploy
         uses: appleboy/ssh-action@v1.0.3
         env:
           REGISTRY: ${{ steps.norm.outputs.REG_LC }}
           REGISTRY_NAMESPACE: ${{ steps.norm.outputs.NS_LC }}
-          TAG: latest
-          STACK: prod
-          DOMAIN: ${{ vars.PROD_DOMAIN }}
-          DEPLOY_DIR: ${{ secrets.DEPLOY_PATH }}/prod
+          TAG: ${{ steps.cfg.outputs.TAG }}
+          STACK: ${{ steps.cfg.outputs.STACK }}
+          DOMAIN: ${{ steps.cfg.outputs.DOMAIN }}
+          DEPLOY_DIR: ${{ steps.cfg.outputs.TARGET }}
           REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
           REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
         with:
@@ -143,67 +143,6 @@ jobs:
           envs: REGISTRY,REGISTRY_NAMESPACE,TAG,STACK,DOMAIN,DEPLOY_DIR,REGISTRY_USER,REGISTRY_TOKEN
           script: |
             set -euo pipefail
-            mkdir -p "$DEPLOY_DIR"
-            cd "$DEPLOY_DIR"
-            cat > .env <<EOF
-            REGISTRY=${REGISTRY}
-            REGISTRY_NAMESPACE=${REGISTRY_NAMESPACE}
-            TAG=${TAG}
-            DOMAIN=${DOMAIN}
-            STACK=${STACK}
-            EOF
-            echo "${REGISTRY_TOKEN}" | docker login "${REGISTRY}" -u "${REGISTRY_USER}" --password-stdin
-            docker compose -p "${STACK}" pull
-            docker compose -p "${STACK}" up -d --remove-orphans
-            docker image prune -f || true
-
-  # ---------- MANUAL DEPLOY (любой домен/ветка/стек) ----------
-  deploy-manual:
-    if: github.event_name == 'workflow_dispatch'
-    needs: [build-and-push]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout (compose)
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.ref }}
-
-      - name: Normalize owner/namespace
-        id: norm
-        run: |
-          echo "NS_LC=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
-          echo "REG_LC=$(echo '${{ env.REGISTRY }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
-
-      - name: Copy docker-compose.yml
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          port: ${{ secrets.SSH_PORT }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "docker-compose.yml"
-          target: "${{ secrets.DEPLOY_PATH }}/${{ inputs.stack }}"
-
-      - name: Deploy manual stack
-        uses: appleboy/ssh-action@v1.0.3
-        env:
-          REGISTRY: ${{ steps.norm.outputs.REG_LC }}
-          REGISTRY_NAMESPACE: ${{ steps.norm.outputs.NS_LC }}
-          BRANCH: ${{ inputs.ref }}
-          STACK: ${{ inputs.stack }}
-          DOMAIN: ${{ inputs.domain }}
-          DEPLOY_DIR: ${{ secrets.DEPLOY_PATH }}/${{ inputs.stack }}
-          REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
-          REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          port: ${{ secrets.SSH_PORT }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          envs: REGISTRY,REGISTRY_NAMESPACE,BRANCH,STACK,DOMAIN,DEPLOY_DIR,REGISTRY_USER,REGISTRY_TOKEN
-          script: |
-            set -euo pipefail
-            if [ "$BRANCH" = "master" ]; then TAG=latest; else TAG="dev-$(echo "$BRANCH" | tr '/_' '--')"; fi
             mkdir -p "$DEPLOY_DIR"
             cd "$DEPLOY_DIR"
             cat > .env <<EOF
