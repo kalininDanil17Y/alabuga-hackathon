@@ -229,6 +229,7 @@
           "description": "Проверить системы защиты сектора и подтвердить уровни допуска.",
           "status": "locked",
           "progress": 0,
+          "reward": { "xp": 68 },
           "category": "security"
         }
       ]
