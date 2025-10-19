@@ -71,10 +71,12 @@ export interface MissionProps {
     mana?: number;
     exp?: number;
     competencies: Array<string | number>;
+    completedDate?: string;
 }
 
 interface MissionCardProps extends MissionProps {
     onDetailsClick?: (id: string) => void;
+    showDetailsButton?: boolean;
 }
 
 export const MissionCard = ({
@@ -85,6 +87,7 @@ export const MissionCard = ({
     exp,
     competencies,
     onDetailsClick,
+    showDetailsButton = true,
 }: MissionCardProps) => {
     const manaValue = mana ?? 0;
     const expValue = exp ?? 0;
@@ -93,12 +96,15 @@ export const MissionCard = ({
         : [];
     const displayedCompetencies = competencyList.slice(0, 3);
     const hiddenCompetencies = competencyList.length - displayedCompetencies.length;
+    const elementId = `mission-${id}`;
 
     return (
-        <article className={styles.root} data-mission-id={id}>
-            <Button1 onClick={() => onDetailsClick?.(id)} className={styles.button} style={{ position: "absolute" }}>
-                Подробнее
-            </Button1>
+        <article className={styles.root} data-mission-id={id} id={elementId}>
+            {showDetailsButton ? (
+                <Button1 onClick={() => onDetailsClick?.(id)} className={styles.button} style={{ position: "absolute" }}>
+                    Подробнее
+                </Button1>
+            ) : null}
 
             <h2 className={styles.title}>{title}</h2>
 

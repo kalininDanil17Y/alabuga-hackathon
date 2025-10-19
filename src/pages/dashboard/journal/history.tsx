@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from "react";
+import { useLocation } from "react-router-dom";
 import { SpaceCard } from "@/components/ui/custom/space-card";
 import { SpaceButton } from "@/components/ui/custom/space-button";
 import { MissionCollapse } from "@/components/dashboard/missions/dashboard-misssion-collapse.tsx";
@@ -18,6 +19,7 @@ const DashboardJournalHistory = () => {
         missionsHistoryError: state.missionsHistoryError,
         fetchMissionsHistory: state.fetchMissionsHistory,
     }));
+    const location = useLocation();
 
     useEffect(() => {
         void fetchMissionsHistory();
@@ -38,6 +40,24 @@ const DashboardJournalHistory = () => {
                 .filter((section) => section.items.length > 0),
         [missionsHistoryEntries],
     );
+
+    useEffect(() => {
+        if (!location.hash) {
+            return;
+        }
+
+        const targetId = location.hash.replace(/^#/, "");
+        if (!targetId) {
+            return;
+        }
+
+        const element = document.getElementById(targetId);
+        if (!element) {
+            return;
+        }
+
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, [location.hash, historySections.length]);
 
     if (isMissionsHistoryLoading && historySections.length === 0) {
         return (
@@ -71,7 +91,12 @@ const DashboardJournalHistory = () => {
     return (
         <div className={styles.root}>
             {historySections.map((section) => (
-                <MissionCollapse key={section.id} title={section.title} items={section.items} />
+                <MissionCollapse
+                    key={section.id}
+                    title={section.title}
+                    items={section.items}
+                    showItemDetailsButton={false}
+                />
             ))}
         </div>
     );

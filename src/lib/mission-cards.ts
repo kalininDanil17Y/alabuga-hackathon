@@ -49,6 +49,7 @@ export const mapMissionTaskToCard = (entry: MissionEntry, task: MissionTask): Mi
         mana: rewardCurrency,
         exp: rewardXp,
         competencies: task.competencyIds,
+        completedDate: task.completedDate,
     };
 };
 

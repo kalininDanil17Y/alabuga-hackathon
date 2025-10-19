@@ -10,13 +10,19 @@ import styles from "./DashboardHome.module.css";
 import { HorizontalRule } from "@/components/ui/custom/horizontal-rule.tsx";
 import { Button1 } from "@/components/ui/custom/button1.tsx";
 import Mana from "@/images/ui/mana.svg?react";
+import { mapEntryToMissionCards } from "@/lib/mission-cards";
+
+type HistoryMissionRecord = {
+    mission: ReturnType<typeof mapEntryToMissionCards>[number];
+    entryOrder: number;
+    missionOrder: number;
+};
 
 const DashboardHome = () => {
     const navigate = useNavigate();
     const {
         user,
         missions,
-        activity,
         artifacts,
         competencies,
         statistics,
@@ -24,10 +30,13 @@ const DashboardHome = () => {
         isDashboardLoading,
         dashboardError,
         setMissionsFilters,
+        missionsHistoryEntries,
+        fetchMissionsHistory,
+        isMissionsHistoryLoading,
+        missionsHistoryError,
     } = useDashboardStore((state) => ({
         user: state.user,
         missions: state.missions,
-        activity: state.activity,
         achievements: state.achievements,
         artifacts: state.artifacts,
         competencies: state.competencies,
@@ -36,12 +45,20 @@ const DashboardHome = () => {
         isDashboardLoading: state.isDashboardLoading,
         dashboardError: state.dashboardError,
         setMissionsFilters: state.setMissionsFilters,
+        missionsHistoryEntries: state.missionsHistoryEntries,
+        fetchMissionsHistory: state.fetchMissionsHistory,
+        isMissionsHistoryLoading: state.isMissionsHistoryLoading,
+        missionsHistoryError: state.missionsHistoryError,
     }));
     const [activeTab, setActiveTab] = useState<"missions" | "competencies">("missions");
 
     useEffect(() => {
         void fetchDashboard();
     }, [fetchDashboard]);
+
+    useEffect(() => {
+        void fetchMissionsHistory();
+    }, [fetchMissionsHistory]);
 
     const missionProgressLabel = useMemo(() => {
         return `Задания`;
@@ -54,6 +71,50 @@ const DashboardHome = () => {
     const missionItems = useMemo(() => missions, [missions]);
     const topArtifacts = useMemo(() => artifacts.slice(0, 4), [artifacts]);
     const competencyItems = competencies;
+
+    const historyMissions = useMemo<HistoryMissionRecord[]>(() => {
+        return missionsHistoryEntries.flatMap((entry, entryIndex) => {
+            const missions = mapEntryToMissionCards(entry, { filterStatuses: ["completed"] });
+            return missions.map((mission, missionIndex) => ({
+                mission,
+                entryOrder: entryIndex,
+                missionOrder: missionIndex,
+            }));
+        });
+    }, [missionsHistoryEntries]);
+
+    const recentHistoryMissions = useMemo(() => {
+        if (historyMissions.length === 0) {
+            return [] as HistoryMissionRecord["mission"][];
+        }
+
+        const sorted = historyMissions.slice().sort((a, b) => {
+            const timeA = a.mission.completedDate ? Date.parse(a.mission.completedDate) : NaN;
+            const timeB = b.mission.completedDate ? Date.parse(b.mission.completedDate) : NaN;
+            const hasValidTimeA = Number.isFinite(timeA);
+            const hasValidTimeB = Number.isFinite(timeB);
+
+            if (hasValidTimeA || hasValidTimeB) {
+                const safeTimeA = hasValidTimeA ? timeA : Number.NEGATIVE_INFINITY;
+                const safeTimeB = hasValidTimeB ? timeB : Number.NEGATIVE_INFINITY;
+                if (safeTimeA !== safeTimeB) {
+                    return safeTimeB - safeTimeA;
+                }
+            }
+
+            if (a.entryOrder !== b.entryOrder) {
+                return b.entryOrder - a.entryOrder;
+            }
+
+            if (a.missionOrder !== b.missionOrder) {
+                return b.missionOrder - a.missionOrder;
+            }
+
+            return 0;
+        });
+
+        return sorted.slice(0, 3).map((item) => item.mission);
+    }, [historyMissions]);
 
     const overviewStats = useMemo(() => {
         if (!statistics?.overview) {
@@ -101,6 +162,17 @@ const DashboardHome = () => {
             pathname: "/dashboard/missions",
             search: params.toString(),
         });
+    };
+
+    const handleNavigateToHistoryMission = (missionId: string) => {
+        navigate({
+            pathname: "/dashboard/journal/history",
+            hash: `mission-${missionId}`,
+        });
+    };
+
+    const handleRetryFetchHistory = () => {
+        void fetchMissionsHistory(true);
     };
 
     if (isDashboardLoading && !user) {
@@ -243,20 +315,41 @@ const DashboardHome = () => {
             <div>
                 <div className="flex justify-between items-center mb-3">
                     <h3 className="text-white text-[12px] uppercase font-medium">Последние активности</h3>
-                    <Button1 onClick={() => navigate('/dashboard/journal')}>
+                    <Button1 onClick={() => navigate('/dashboard/journal/history')}>
                         Посмотреть все
                     </Button1>
                 </div>
                 <div className="space-y-2">
-                    {activity.map((activity) => (
-                        <SpaceCard
-                            key={activity.id}
-                            className="p-2 flex items-center justify-between"
-                        >
-                            <div className="flex items-center justify-between">
-                                <p className="text-white text-[9px]">{activity.title}</p>
-                                <Button1>Подробнее</Button1>
+                    {missionsHistoryError ? (
+                        <SpaceCard className="p-3 space-y-2">
+                            <p className="text-white text-[9px]">{missionsHistoryError}</p>
+                            <div className="flex justify-end">
+                                <Button1 onClick={handleRetryFetchHistory}>
+                                    Повторить попытку
+                                </Button1>
                             </div>
+                        </SpaceCard>
+                    ) : null}
+
+                    {isMissionsHistoryLoading && historyMissions.length === 0 ? (
+                        <SpaceCard className="p-3">
+                            <p className="text-white text-[9px]">Загружаем историю активности...</p>
+                        </SpaceCard>
+                    ) : null}
+
+                    {!isMissionsHistoryLoading && historyMissions.length === 0 && !missionsHistoryError ? (
+                        <SpaceCard className="p-3">
+                            <p className="text-white text-[9px]">История активности пока пуста.</p>
+                        </SpaceCard>
+                    ) : null}
+
+                    {recentHistoryMissions.map((mission) => (
+                        <SpaceCard key={mission.id} className="p-3 flex items-center justify-between gap-3">
+                            <p className="flex-1 text-white text-[9px] leading-4">{mission.title}</p>
+
+                            <Button1 onClick={() => handleNavigateToHistoryMission(mission.id)}>
+                                Подробнее
+                            </Button1>
                         </SpaceCard>
                     ))}
                 </div>
