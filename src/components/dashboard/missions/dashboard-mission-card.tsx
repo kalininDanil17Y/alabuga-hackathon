@@ -3,6 +3,7 @@ import clsx from "clsx";
 
 import styles from "./dashboard-mission-card.module.css";
 import { Button1 } from "@/components/ui/custom/button1.tsx";
+import { CompetencyIcon } from "@/components/dashboard/missions/competency-icon";
 
 import completeBg from "@/images/ui/mission-card/complete.svg";
 import progressBg from "@/images/ui/mission-card/progress.svg";
@@ -133,13 +134,12 @@ export const MissionCard = ({
                         ) : (
                             <>
                                 {displayedCompetencies.map((competencyId) => (
-                                    <div key={competencyId} className="relative w-2.5 h-2.5">
-                                        <img
-                                            className="relative w-2.5 h-2.5"
-                                            alt={`Компетенция ${competencyId}`}
-                                            src={`/images/competencies/c${competencyId}.svg`}
-                                        />
-                                    </div>
+                                    <CompetencyIcon
+                                        key={competencyId}
+                                        competencyId={competencyId}
+                                        size={16}
+                                        className="relative"
+                                    />
                                 ))}
                                 {hiddenCompetencies > 0 ? (
                                     <span className="text-[7px] text-white/80">+{hiddenCompetencies}</span>

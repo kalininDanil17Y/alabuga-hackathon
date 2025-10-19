@@ -7,6 +7,7 @@ import {
     type MissionStatus,
 } from "@/components/dashboard/missions/dashboard-mission-card";
 import {Button2} from "@/components/ui/custom/button2.tsx";
+import { CompetencyIcon } from "@/components/dashboard/missions/competency-icon";
 
 export type MissionDetailViewModel = {
     id: string;
@@ -130,21 +131,14 @@ const MissionDetailsModal = ({ open, onClose, mission, onAction, actionLabel, ac
                         <span className={styles.rewardLabel}>Компетенции</span>
                         <span className={styles.rewardValue}>
                             <div className={styles.competenciesList}>
-                                {competencyIcons.map((competency) => {
-                                    const isNumeric = /^\d+$/.test(competency.toString());
-                                    const iconSrc = isNumeric ? `/images/competencies/c${competency}.svg` : null;
-
-                                    return iconSrc ? (
-                                        <img
-                                            key={competency}
-                                            className={styles.competencyIcon}
-                                            src={iconSrc}
-                                            alt={`Компетенция ${competency}`}
-                                        />
-                                    ) : (
-                                        <span key={competency}>{competency}</span>
-                                    );
-                                })}
+                                {competencyIcons.map((competency) => (
+                                    <CompetencyIcon
+                                        key={competency}
+                                        competencyId={competency}
+                                        size={20}
+                                        className={styles.competencyIcon}
+                                    />
+                                ))}
                                 {extraCompetencies > 0 ? <span>+{extraCompetencies}</span> : null}
                             </div>
                         </span>
