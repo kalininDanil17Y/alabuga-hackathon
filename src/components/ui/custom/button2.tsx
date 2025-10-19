@@ -2,7 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import styles from "./button2.module.css";
 
-interface Button2Props extends React.HTMLAttributes<HTMLButtonElement> {}
+type Button2Props = React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 export function Button2 ({ onClick, children, className, ...props }: Button2Props) {
 

@@ -63,7 +63,6 @@ const MissionDetailsModal = ({ open, onClose, mission, onAction, actionLabel, ac
 
     const {
         title,
-        entryTitle,
         description,
         statusLabel,
         status,
@@ -72,6 +71,8 @@ const MissionDetailsModal = ({ open, onClose, mission, onAction, actionLabel, ac
         artifactItems,
         competencies
     } = mission;
+
+    const shouldRenderAction = status !== "complete" && typeof onAction === "function";
 
 
     const manaValue = mana > 0 ? `+${mana}` : "—";
@@ -150,11 +151,13 @@ const MissionDetailsModal = ({ open, onClose, mission, onAction, actionLabel, ac
                     </div>
                 </div>
 
-                <div className={styles.footer}>
-                    <Button2 className={"w-[200px] h-[35px]"} onClick={onAction}>
-                        {actionLabel ?? "принять"}
-                    </Button2>
-                </div>
+                {shouldRenderAction ? (
+                    <div className={styles.footer}>
+                        <Button2 className={"w-[200px] h-[35px]"} onClick={onAction} disabled={actionDisabled}>
+                            {actionLabel ?? "принять"}
+                        </Button2>
+                    </div>
+                ) : null}
             </div>
         </div>
     );

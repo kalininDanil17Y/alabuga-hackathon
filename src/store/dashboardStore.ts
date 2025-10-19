@@ -35,6 +35,7 @@ type DashboardState = {
     fetchDashboard: (force?: boolean) => Promise<void>;
 
     missionsEntries: MissionEntry[];
+    missionsHistoryEntries: MissionEntry[];
     missionStatusLabels: Record<MissionStatus, string>;
     missionFilterOptions: Array<{ value: string; label: string }>;
     missionsFilters: MissionFilterState;
@@ -43,6 +44,9 @@ type DashboardState = {
     fetchMissionsPage: (force?: boolean) => Promise<void>;
     setMissionsFilters: (filters: Partial<MissionFilterState>) => void;
     advanceMission: (missionId: string) => void;
+    isMissionsHistoryLoading: boolean;
+    missionsHistoryError: string | null;
+    fetchMissionsHistory: (force?: boolean) => Promise<void>;
 };
 
 const DEFAULT_STATUS_LABELS: Record<MissionStatus, string> = {
@@ -123,11 +127,14 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     },
 
     missionsEntries: [],
+    missionsHistoryEntries: [],
     missionStatusLabels: DEFAULT_STATUS_LABELS,
     missionFilterOptions: [{ value: "all", label: "Все компетенции" }],
     missionsFilters: DEFAULT_FILTERS,
     isMissionsLoading: false,
     missionsError: null,
+    isMissionsHistoryLoading: false,
+    missionsHistoryError: null,
     fetchMissionsPage: async (force = false) => {
         const { isMissionsLoading, missionsFilters } = get();
         if (!force && isMissionsLoading) {
@@ -163,6 +170,27 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
         } catch (error) {
             const message = error instanceof Error ? error.message : "Не удалось загрузить миссии";
             set({ missionsError: message, isMissionsLoading: false });
+        }
+    },
+    fetchMissionsHistory: async (force = false) => {
+        const { isMissionsHistoryLoading, missionsHistoryEntries } = get();
+        if (!force && (isMissionsHistoryLoading || missionsHistoryEntries.length > 0)) {
+            return;
+        }
+
+        set({ isMissionsHistoryLoading: true, missionsHistoryError: null });
+
+        try {
+            const payload = await fetchJson<MissionsPagePayload>("/api/missions/page?status=completed");
+
+            set({
+                missionsHistoryEntries: payload.entries,
+                isMissionsHistoryLoading: false,
+                missionsHistoryError: null,
+            });
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Не удалось загрузить историю миссий";
+            set({ missionsHistoryError: message, isMissionsHistoryLoading: false });
         }
     },
     setMissionsFilters: (filters) => {
@@ -221,8 +249,9 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
         };
 
         let nextStatus: MissionStatus | null = null;
+        const completedEntries: MissionEntry[] = [];
 
-        const updatedEntries = state.missionsEntries.map((entry) => {
+        const updatedEntries = state.missionsEntries.reduce<MissionEntry[]>((acc, entry) => {
             let entryChanged = false;
 
             const tasks = entry.tasks.map((task) => {
@@ -264,15 +293,25 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
             });
 
             if (!entryChanged) {
-                return entry;
+                acc.push(entry);
+                return acc;
             }
 
-            return {
+            const entryStatus = computeEntryStatus(tasks);
+            const updatedEntry = {
                 ...entry,
                 tasks,
-                status: computeEntryStatus(tasks),
+                status: entryStatus,
             };
-        });
+
+            if (entryStatus === "completed") {
+                completedEntries.push(updatedEntry);
+                return acc;
+            }
+
+            acc.push(updatedEntry);
+            return acc;
+        }, []);
 
         if (!nextStatus) {
             return;
@@ -363,8 +402,14 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
 
         const updatedInventory = rewardItems.length > 0 ? state.inventory.concat(rewardItems.map((item) => String(item))) : state.inventory;
 
+        const historyById = new Map(state.missionsHistoryEntries.map((entry) => [entry.id, entry] as const));
+        for (const entry of completedEntries) {
+            historyById.set(entry.id, entry);
+        }
+
         set({
             missionsEntries: updatedEntries,
+            missionsHistoryEntries: Array.from(historyById.values()),
             missions: updatedMissions,
             user: updatedUser,
             competencies: updatedCompetencies,
