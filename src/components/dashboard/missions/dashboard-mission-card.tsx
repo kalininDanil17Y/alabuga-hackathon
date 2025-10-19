@@ -7,7 +7,7 @@ import completeBg from "@/images/ui/mission-card/complete.svg";
 import progressBg from "@/images/ui/mission-card/progress.svg";
 import moderationBg from "@/images/ui/mission-card/moderation.svg";
 import availableBg from "@/images/ui/mission-card/complete.svg";
-import lockedBg from "@/images/ui/mission-card/moderation.svg";
+import lockedBg from "@/images/ui/mission-card/locked.svg";
 
 const STATUS_CONFIG = {
     complete: {
