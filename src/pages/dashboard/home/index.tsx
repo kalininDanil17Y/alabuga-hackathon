@@ -201,7 +201,7 @@ const DashboardHome = () => {
                                             alt={`${competency.id} - ${competency.title}`}
                                             className="w-4 h-4"
                                         />
-                                        <p className={styles.competencyItemText}>{competency.title}</p><p>(Ур.1)</p>
+                                        <p className={styles.competencyItemText}>{competency.title}</p> <p>(Ур.1)</p>
                                     </div>
 
                                     <div className="flex flex-row items-center w-full gap-[3px]">
