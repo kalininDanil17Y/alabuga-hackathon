@@ -194,14 +194,18 @@ const DashboardHome = () => {
 
                         {competencyItems.map((competency) => (
                             <div key={competency.id}>
-                                <div className="grid grid-cols-[5fr_2fr_1fr] items-center gap-x-1 mb-2 mt-[6px]">
+                                <div className="grid grid-cols-[5fr_1fr_2fr_1fr] items-center gap-x-1 mb-2 mt-[6px]">
                                     <div className={styles.competencyItemTitle}>
                                         <img
                                             src={`/images/competencies/c${competency.id}.svg`}
                                             alt={`${competency.id} - ${competency.title}`}
                                             className="w-4 h-4"
                                         />
-                                        <p className={styles.competencyItemText}>{competency.title}</p> <p>(Ур.1)</p>
+                                        <p className={styles.competencyItemText}>{competency.title}</p>
+                                    </div>
+
+                                    <div className={"text-[9px]"}>
+                                        Ур.1
                                     </div>
 
                                     <div className="flex flex-row items-center w-full gap-[3px]">
