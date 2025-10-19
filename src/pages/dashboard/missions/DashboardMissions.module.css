@@ -7,7 +7,8 @@
 }
 
 .filters {
-    @apply flex items-center gap-1 justify-center w-full;
+    @apply flex items-center gap-1 justify-center w-full sticky z-30;
+    top: 6.5rem;
 }
 
 .filterField {

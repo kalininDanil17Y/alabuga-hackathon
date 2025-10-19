@@ -5,6 +5,7 @@ import { SpaceCard } from "@/components/ui/custom/space-card";
 import { useDashboardStore } from "@/store/dashboardStore";
 import type { MissionStatus as EntryMissionStatus } from "@/types/missions";
 import styles from "./DashboardMissions.module.css";
+import headerStyles from "@/components/dashboard/dashboard-header.module.css";
 import { Select } from "@/components/ui/custom/select.tsx";
 import { MissionCollapse } from "@/components/dashboard/missions/dashboard-misssion-collapse.tsx";
 import MissionDetailsModal, {
@@ -47,6 +48,54 @@ const MissionsPage = () => {
     const scrolledMissionIdRef = useRef<string | null>(null);
     const [selectedMissionId, setSelectedMissionId] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [filtersStickyTop, setFiltersStickyTop] = useState<number | null>(null);
+
+    useEffect(() => {
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        const header = document.querySelector<HTMLElement>(`.${headerStyles.stickyHeader}`);
+
+        if (!header) {
+            return;
+        }
+
+        const computeStickyOffset = () => {
+            const mainElement = header.parentElement?.querySelector<HTMLElement>("main");
+            const mainPaddingTop = mainElement ? parseFloat(window.getComputedStyle(mainElement).paddingTop) : 0;
+            const nextOffset = header.offsetHeight + mainPaddingTop;
+
+            setFiltersStickyTop((previousOffset) => {
+                if (previousOffset === null || Math.abs(previousOffset - nextOffset) > 0.5) {
+                    return nextOffset;
+                }
+
+                return previousOffset;
+            });
+        };
+
+        computeStickyOffset();
+
+        let resizeObserver: ResizeObserver | null = null;
+
+        if (typeof ResizeObserver !== "undefined") {
+            resizeObserver = new ResizeObserver(() => {
+                computeStickyOffset();
+            });
+            resizeObserver.observe(header);
+        }
+
+        window.addEventListener("resize", computeStickyOffset);
+
+        return () => {
+            if (resizeObserver) {
+                resizeObserver.disconnect();
+            }
+
+            window.removeEventListener("resize", computeStickyOffset);
+        };
+    }, []);
 
     useEffect(() => {
         void fetchMissionsPage();
@@ -313,7 +362,10 @@ const MissionsPage = () => {
 
     return (
         <div className={styles.root}>
-            <div className={styles.filters}>
+            <div
+                className={styles.filters}
+                style={filtersStickyTop !== null ? { top: `${filtersStickyTop}px` } : undefined}
+            >
                 <Select
                     items={missionStatusOptions}
                     value={missionsFilters.status}
