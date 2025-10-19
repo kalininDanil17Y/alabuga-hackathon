@@ -7,7 +7,6 @@ const SHOP_PRODUCTS: ShopProduct[] = [
         title: "Кепка брендированная",
         description: "Описание товара на два-три слова, очень много буквок.",
         price: 245,
-        oldPrice: 567,
         stock: 3,
     },
     {
@@ -15,7 +14,6 @@ const SHOP_PRODUCTS: ShopProduct[] = [
         title: "Кепка брендированная",
         description: "Описание на два или три слова, очень много буквок.",
         price: 245,
-        oldPrice: 567,
         stock: 5,
     },
     {
@@ -30,7 +28,6 @@ const SHOP_PRODUCTS: ShopProduct[] = [
         title: "Кепка брендированная",
         description: "Описание на два или три слова, очень много буквок.",
         price: 245,
-        oldPrice: 567,
         stock: 20,
     },
 ];
