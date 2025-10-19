@@ -14,7 +14,7 @@ import { mapEntryToMissionCards, missionStatusToCardStatus } from "@/lib/mission
 
 type FilterKey = "status" | "competencyId";
 
-const statusOrder: EntryMissionStatus[] = ["available", "in_progress", "moderation", "completed", "locked"];
+const statusOrder: EntryMissionStatus[] = ["available", "in_progress", "moderation", "completed"];
 
 const MissionsPage = () => {
     const {
