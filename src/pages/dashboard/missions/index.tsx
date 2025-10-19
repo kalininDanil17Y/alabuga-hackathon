@@ -127,17 +127,45 @@ const MissionsPage = () => {
         [missionStatusLabels],
     );
 
-    const missionSections = useMemo(
-        () =>
-            missionsEntries
-                .map((entry) => ({
+    const statusPriority = useMemo(() => {
+        const order = statusOrder.map((status) => missionStatusToCardStatus[status] ?? "available");
+        return order.reduce<Record<string, number>>((acc, status, index) => {
+            acc[status] = index;
+            return acc;
+        }, {});
+    }, []);
+
+    const missionSections = useMemo(() => {
+        const filterStatuses =
+            missionsFilters.status === "all"
+                ? undefined
+                : [missionsFilters.status as EntryMissionStatus];
+
+        return missionsEntries
+            .map((entry) => {
+                const items = mapEntryToMissionCards(entry, filterStatuses ? { filterStatuses } : undefined);
+                const sortedItems = items
+                    .map((item, orderIndex) => ({ item, orderIndex }))
+                    .sort((a, b) => {
+                        const aPriority = statusPriority[a.item.status] ?? Number.MAX_SAFE_INTEGER;
+                        const bPriority = statusPriority[b.item.status] ?? Number.MAX_SAFE_INTEGER;
+
+                        if (aPriority !== bPriority) {
+                            return aPriority - bPriority;
+                        }
+
+                        return a.orderIndex - b.orderIndex;
+                    })
+                    .map(({ item }) => item);
+
+                return {
                     id: entry.id,
                     title: entry.title,
-                    items: mapEntryToMissionCards(entry),
-                }))
-                .filter((section) => section.items.length > 0),
-        [missionsEntries],
-    );
+                    items: sortedItems,
+                };
+            })
+            .filter((section) => section.items.length > 0);
+    }, [missionsEntries, missionsFilters.status, statusPriority]);
 
     const selectedMissionData = useMemo(() => {
         if (!selectedMissionId) {
