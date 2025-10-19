@@ -1,0 +1,21 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    environment:
+      - PORT=3001
+      - HOST=0.0.0.0
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./public/data:/app/public/data:ro
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - api
+    ports:
+      - "8080:80"
