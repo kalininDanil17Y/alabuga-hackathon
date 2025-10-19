@@ -29,6 +29,7 @@ type DashboardState = {
     artifacts: Artifact[];
     competencies: CompetencyItem[];
     statistics: Statistics | null;
+    inventory: string[];
     isDashboardLoading: boolean;
     dashboardError: string | null;
     fetchDashboard: (force?: boolean) => Promise<void>;
@@ -41,6 +42,7 @@ type DashboardState = {
     missionsError: string | null;
     fetchMissionsPage: (force?: boolean) => Promise<void>;
     setMissionsFilters: (filters: Partial<MissionFilterState>) => void;
+    advanceMission: (missionId: string) => void;
 };
 
 const DEFAULT_STATUS_LABELS: Record<MissionStatus, string> = {
@@ -72,6 +74,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     artifacts: [],
     competencies: [],
     statistics: null,
+    inventory: [],
     isDashboardLoading: false,
     dashboardError: null,
     fetchDashboard: async (force = false) => {
@@ -101,11 +104,6 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
                 fetchJson<{ statistics: Statistics }>("/api/statistics"),
             ]);
 
-            // ---- a random exp
-            let min = Math.ceil(0);
-            userData.experience.current = Math.floor(Math.random() * (Math.floor(userData.experience.max) - min)) + min;
-            // ----
-
             set({
                 user: userData,
                 missions: missionsData?.missions ?? [],
@@ -114,6 +112,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
                 artifacts: artifactsData?.artifacts ?? [],
                 competencies: competenciesData?.competencies ?? [],
                 statistics: statisticsData?.statistics ?? null,
+                inventory: [],
                 isDashboardLoading: false,
                 dashboardError: null,
             });
@@ -183,5 +182,194 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
         set({ missionsFilters: nextFilters });
         void get().fetchMissionsPage(true);
     },
-}));
+    advanceMission: (missionId) => {
+        const state = get();
 
+        let rewardCurrency = 0;
+        let rewardExperience = 0;
+        let rewardItems: string[] = [];
+        let affectedCompetencies: string[] = [];
+        let didComplete = false;
+
+        const updateTaskStatus = (status: MissionStatus): MissionStatus => {
+            if (status === "locked" || status === "completed") {
+                return status;
+            }
+
+            if (status === "moderation") {
+                didComplete = true;
+                return "completed";
+            }
+
+            return "moderation";
+        };
+
+        const computeEntryStatus = (tasks: MissionEntry["tasks"]): MissionStatus => {
+            if (tasks.every((task) => task.status === "completed")) {
+                return "completed";
+            }
+            if (tasks.some((task) => task.status === "moderation")) {
+                return "moderation";
+            }
+            if (tasks.some((task) => task.status === "in_progress")) {
+                return "in_progress";
+            }
+            if (tasks.some((task) => task.status === "available")) {
+                return "available";
+            }
+            return "locked";
+        };
+
+        let nextStatus: MissionStatus | null = null;
+
+        const updatedEntries = state.missionsEntries.map((entry) => {
+            let entryChanged = false;
+
+            const tasks = entry.tasks.map((task) => {
+                if (task.id !== missionId) {
+                    return task;
+                }
+
+                const status = updateTaskStatus(task.status);
+                if (status === task.status) {
+                    return task;
+                }
+
+                entryChanged = true;
+                nextStatus = status;
+
+                if (status === "completed") {
+                    rewardCurrency = task.reward?.currency ?? task.reward?.xp ?? 0;
+                    rewardExperience = task.reward?.xp ?? 0;
+                    rewardItems = Array.isArray(task.reward?.items) ? task.reward?.items ?? [] : [];
+                    const taskCompetencies = Array.isArray(task.competencyIds) && task.competencyIds.length > 0
+                        ? task.competencyIds
+                        : task.competencyId !== undefined
+                          ? [task.competencyId]
+                          : [];
+                    const entryCompetencies = Array.isArray(entry.competencyIds) && entry.competencyIds.length > 0
+                        ? entry.competencyIds
+                        : entry.competencyId !== undefined
+                          ? [entry.competencyId]
+                          : [];
+                    affectedCompetencies = [...taskCompetencies, ...entryCompetencies].map((value) => String(value));
+                }
+
+                return {
+                    ...task,
+                    status,
+                    progress: status === "completed" ? 100 : task.progress,
+                    completedDate: status === "completed" ? new Date().toISOString() : task.completedDate,
+                };
+            });
+
+            if (!entryChanged) {
+                return entry;
+            }
+
+            return {
+                ...entry,
+                tasks,
+                status: computeEntryStatus(tasks),
+            };
+        });
+
+        if (!nextStatus) {
+            return;
+        }
+
+        const updatedMissions = state.missions.map((mission) => {
+            if (mission.id !== missionId) {
+                return mission;
+            }
+            return {
+                ...mission,
+                status: nextStatus ?? mission.status,
+                progress: nextStatus === "completed" ? 100 : mission.progress,
+                completedDate: nextStatus === "completed" ? new Date().toISOString() : mission.completedDate,
+            };
+        });
+
+        let updatedUser = state.user;
+        let updatedStatistics = state.statistics;
+
+        if (didComplete && state.user) {
+            const currencyAmount = state.user.currency.amount + rewardCurrency;
+            let currentExperience = state.user.experience.current + rewardExperience;
+            let { max } = state.user.experience;
+            let level = state.user.level;
+
+            while (currentExperience >= max) {
+                currentExperience -= max;
+                level += 1;
+            }
+
+            updatedUser = {
+                ...state.user,
+                currency: {
+                    ...state.user.currency,
+                    amount: currencyAmount,
+                },
+                experience: {
+                    current: currentExperience,
+                    max,
+                },
+                level,
+                tasks: {
+                    ...state.user.tasks,
+                    completed: state.user.tasks.completed + 1,
+                },
+            };
+
+            if (updatedStatistics?.overview) {
+                updatedStatistics = {
+                    ...updatedStatistics,
+                    overview: {
+                        ...updatedStatistics.overview,
+                        completedMissions: updatedStatistics.overview.completedMissions + 1,
+                        totalExperience: updatedStatistics.overview.totalExperience + rewardExperience,
+                    },
+                    weekly: updatedStatistics.weekly
+                        ? {
+                              ...updatedStatistics.weekly,
+                              missionsCompleted: updatedStatistics.weekly.missionsCompleted + 1,
+                              experienceGained: updatedStatistics.weekly.experienceGained + rewardExperience,
+                          }
+                        : undefined,
+                };
+            }
+        }
+
+        const competencySet = new Set(affectedCompetencies);
+        const updatedCompetencies = state.competencies.map((competency) => {
+            if (!competencySet.has(String(competency.id))) {
+                return competency;
+            }
+
+            let value = competency.value + 1;
+            let level = competency.level ?? 1;
+
+            while (value > competency.max) {
+                value -= competency.max;
+                level += 1;
+            }
+
+            return {
+                ...competency,
+                value,
+                level,
+            };
+        });
+
+        const updatedInventory = rewardItems.length > 0 ? state.inventory.concat(rewardItems.map((item) => String(item))) : state.inventory;
+
+        set({
+            missionsEntries: updatedEntries,
+            missions: updatedMissions,
+            user: updatedUser,
+            competencies: updatedCompetencies,
+            statistics: updatedStatistics,
+            inventory: updatedInventory,
+        });
+    },
+}));

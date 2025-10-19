@@ -45,11 +45,11 @@ type MissionSummary = {
     status: string;
     progress: number;
     priority: string;
-    deadline?: string;
     category: string;
     xpReward: number;
     completedDate?: string;
     competencyId?: string | number;
+    competencyIds?: Array<string | number>;
 };
 
 const statusRank = (status: string): number => {
@@ -78,6 +78,20 @@ const buildMissionSummary = (entries: MissionPageEntry[]): MissionSummary[] => {
                 return;
             }
 
+            const competencyIds = (
+                Array.isArray(task.competencyIds) && task.competencyIds.length > 0
+                    ? task.competencyIds
+                    : Array.isArray(entry.competencyIds)
+                      ? entry.competencyIds
+                      : task.competencyId
+                        ? [task.competencyId]
+                        : entry.competencyId
+                          ? [entry.competencyId]
+                          : []
+            ).map((value) => (typeof value === "string" ? value : String(value)));
+
+            const [primaryCompetency] = competencyIds;
+
             featuredTasks.push({
                 id: task.id,
                 title: task.title,
@@ -85,11 +99,11 @@ const buildMissionSummary = (entries: MissionPageEntry[]): MissionSummary[] => {
                 status: task.status,
                 progress: typeof task.progress === "number" ? task.progress : 0,
                 priority: typeof task.priority === "string" ? task.priority : "medium",
-                deadline: task.deadline,
                 category: typeof task.category === "string" ? task.category : entry.id,
                 xpReward: task.reward?.xp ?? 0,
                 completedDate: task.completedDate,
-                competencyId: task.competencyId ?? entry.competencyId,
+                competencyId: primaryCompetency,
+                competencyIds,
             });
         });
     });
@@ -136,17 +150,54 @@ app.get("/api/missions", (_req, res) => {
 
 app.get("/api/missions/page", (req, res) => {
     const { status = "all", competencyId = "all" } = req.query;
+    const competencyFilter = String(competencyId);
 
     const filteredEntries = missionsPageData.entries
-        .filter((entry: { status: string; competencyId?: number | string }) => {
-            const matchesStatus = status === "all" || entry.status === status;
-            const matchesCompetency = competencyId === "all" || String(entry.competencyId ?? "") === String(competencyId);
-            return matchesStatus && matchesCompetency;
+        .filter((entry: MissionPageEntry) => status === "all" || entry.status === status)
+        .map((entry: MissionPageEntry) => {
+            const matchesCompetency = (task: MissionTask): boolean => {
+                if (competencyFilter === "all") {
+                    return true;
+                }
+
+                const taskCompetencies = Array.isArray(task.competencyIds)
+                    ? task.competencyIds
+                    : task.competencyId
+                      ? [task.competencyId]
+                      : [];
+                const entryCompetencies = Array.isArray(entry.competencyIds)
+                    ? entry.competencyIds
+                    : entry.competencyId
+                      ? [entry.competencyId]
+                      : [];
+
+                const combined = taskCompetencies.length > 0 ? taskCompetencies : entryCompetencies;
+
+                return combined.some((value) => String(value) === competencyFilter);
+            };
+
+            const visibleTasks = entry.tasks.filter((task) => {
+                if (task.status === "locked") {
+                    return false;
+                }
+
+                return matchesCompetency(task);
+            });
+
+            const sortedVisibleTasks = sortTasks(visibleTasks);
+
+            return {
+                ...entry,
+                tasks: sortedVisibleTasks,
+            };
         })
-        .map((entry: { tasks: Array<{ status: string; title: string }>; [key: string]: unknown }) => ({
-            ...entry,
-            tasks: sortTasks(entry.tasks),
-        }));
+        .filter((entry) => {
+            if (entry.tasks.length === 0) {
+                return false;
+            }
+
+            return entry.tasks.some((task) => task.status !== "completed");
+        });
 
     const sortedEntries = sortEntries(filteredEntries);
 

@@ -93,7 +93,7 @@ const Dashboard = () => {
         return null;
     }
 
-    const currencyLabel = `${number_format(user.currency.amount)} ${user.currency.symbol}`;
+    const currencyLabel = number_format(user.currency.amount);
     const experienceProgress = user.experience.max > 0 ? user.experience.current / user.experience.max : 0;
 
     return (

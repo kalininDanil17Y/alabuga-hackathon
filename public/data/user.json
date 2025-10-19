@@ -1,23 +1,18 @@
 {
   "id": "user_001",
   "name": "СОФИЯ",
-  "rank": "РАЗВЕДЧИК УР.2",
+  "rank": "РАЗВЕДЧИК",
   "avatar": "/images/user-avatar.webp",
   "currency": {
-    "amount": 1234,
-    "symbol": "Θ"
+    "amount": 0
   },
   "experience": {
-    "current": 70,
+    "current": 0,
     "max": 100
   },
   "tasks": {
     "completed": 3,
     "total": 10
-  },
-  "competencies": {
-    "completed": 3,
-    "total": 9
   },
   "level": 2,
   "status": "active",

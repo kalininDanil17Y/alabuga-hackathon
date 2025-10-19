@@ -11,6 +11,7 @@ export interface MissionTask {
   status: MissionStatus;
   progress: number;
   competencyId?: string;
+  competencyIds?: Array<string | number>;
   description?: string;
   priority?: string;
   deadline?: string;
@@ -18,6 +19,7 @@ export interface MissionTask {
   reward?: {
     xp?: number;
     currency?: number;
+    items?: string[];
   };
   completedDate?: string;
   isFeatured?: boolean;
@@ -30,6 +32,7 @@ export interface MissionEntry {
   status: MissionStatus;
   type: "chain" | "single";
   competencyId?: number;
+  competencyIds?: Array<string | number>;
   difficulty?: "low" | "medium" | "high";
   tasks: MissionTask[];
   rewards?: {

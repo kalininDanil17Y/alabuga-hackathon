@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { SpaceButton } from "@/components/ui/custom/space-button";
 import { SpaceCard } from "@/components/ui/custom/space-card";
@@ -7,7 +7,10 @@ import type { MissionStatus as EntryMissionStatus } from "@/types/missions";
 import styles from "./DashboardMissions.module.css";
 import { Select } from "@/components/ui/custom/select.tsx";
 import { MissionCollapse } from "@/components/dashboard/missions/dashboard-misssion-collapse.tsx";
-import { mapEntryToMissionCards } from "@/lib/mission-cards";
+import MissionDetailsModal, {
+    type MissionDetailViewModel,
+} from "@/components/dashboard/missions/mission-details-modal";
+import { mapEntryToMissionCards, missionStatusToCardStatus } from "@/lib/mission-cards";
 
 type FilterKey = "status" | "competencyId";
 
@@ -23,6 +26,7 @@ const MissionsPage = () => {
         isMissionsLoading,
         missionsError,
         setMissionsFilters,
+        advanceMission,
     } = useDashboardStore((state) => ({
         missionsEntries: state.missionsEntries,
         missionStatusLabels: state.missionStatusLabels,
@@ -32,6 +36,7 @@ const MissionsPage = () => {
         isMissionsLoading: state.isMissionsLoading,
         missionsError: state.missionsError,
         setMissionsFilters: state.setMissionsFilters,
+        advanceMission: state.advanceMission,
     }));
 
     const [searchParams, setSearchParams] = useSearchParams();
@@ -40,6 +45,8 @@ const MissionsPage = () => {
     const statusParam = searchParams.get("status");
 
     const scrolledMissionIdRef = useRef<string | null>(null);
+    const [selectedMissionId, setSelectedMissionId] = useState<string | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         void fetchMissionsPage();
@@ -90,6 +97,25 @@ const MissionsPage = () => {
         }
     }, [missionIdParam, missionsEntries]);
 
+    useEffect(() => {
+        if (!missionIdParam || missionsEntries.length === 0) {
+            return;
+        }
+
+        if (selectedMissionId === missionIdParam && isModalOpen) {
+            return;
+        }
+
+        const missionExists = missionsEntries.some((entry) => entry.tasks.some((task) => task.id === missionIdParam));
+
+        if (!missionExists) {
+            return;
+        }
+
+        setSelectedMissionId(missionIdParam);
+        setIsModalOpen(true);
+    }, [missionIdParam, missionsEntries, selectedMissionId, isModalOpen]);
+
     const missionStatusOptions = useMemo(
         () =>
             [{ value: "all", label: "Все статусы" }].concat(
@@ -112,6 +138,101 @@ const MissionsPage = () => {
                 .filter((section) => section.items.length > 0),
         [missionsEntries],
     );
+
+    const selectedMissionData = useMemo(() => {
+        if (!selectedMissionId) {
+            return null;
+        }
+
+        for (const entry of missionsEntries) {
+            const task = entry.tasks.find((mission) => mission.id === selectedMissionId);
+            if (task) {
+                return { entry, task };
+            }
+        }
+
+        return null;
+    }, [missionsEntries, selectedMissionId]);
+
+    const missionModalData = useMemo<MissionDetailViewModel | null>(() => {
+        if (!selectedMissionData) {
+            return null;
+        }
+
+        const { entry, task } = selectedMissionData;
+        const statusLabel = missionStatusLabels[task.status] ?? task.status;
+        const cardStatus = missionStatusToCardStatus[task.status] ?? "available";
+        const manaReward = typeof task.reward?.currency === "number" ? task.reward.currency : task.reward?.xp ?? 0;
+        const expReward = task.reward?.xp ?? 0;
+        const artifactItems = Array.isArray(task.reward?.items) ? task.reward?.items ?? [] : [];
+        const artifactCount = artifactItems.length;
+        const competencies = task.competencyIds;
+        const progress = typeof task.progress === "number" ? task.progress : null;
+        const deadline = task.deadline ?? null;
+
+        return {
+            id: task.id,
+            title: task.title || entry.title,
+            entryTitle: entry.title,
+            description: task.description ?? entry.description ?? "",
+            statusLabel,
+            status: cardStatus,
+            mana: manaReward,
+            exp: expReward,
+            artifactItems,
+            artifactCount,
+            competencies,
+            progress,
+            deadline,
+        };
+    }, [selectedMissionData, missionStatusLabels]);
+
+    const handleMissionDetails = useCallback((missionId: string) => {
+        setSelectedMissionId(missionId);
+        setIsModalOpen(true);
+    }, []);
+
+    const handleModalClose = useCallback(() => {
+        setIsModalOpen(false);
+        setSelectedMissionId(null);
+
+        if (missionIdParam) {
+            const nextParams = new URLSearchParams(searchParams.toString());
+            nextParams.delete("missionId");
+            setSearchParams(nextParams, { replace: true });
+        }
+    }, [missionIdParam, searchParams, setSearchParams]);
+
+    useEffect(() => {
+        if (!missionModalData && isModalOpen) {
+            handleModalClose();
+        }
+    }, [missionModalData, isModalOpen, handleModalClose]);
+
+    const handleMissionAction = useCallback(() => {
+        if (!selectedMissionId) {
+            return;
+        }
+
+        advanceMission(selectedMissionId);
+    }, [advanceMission, selectedMissionId]);
+
+    const missionModalAction = useMemo(() => {
+        if (!missionModalData) {
+            return { label: "принять", disabled: true };
+        }
+
+        switch (missionModalData.status) {
+            case "moderation":
+                return { label: "завершить", disabled: false };
+            case "complete":
+                return { label: "выполнено", disabled: true };
+            case "locked":
+                return { label: "недоступно", disabled: true };
+            default:
+                return { label: "принять", disabled: false };
+        }
+    }, [missionModalData]);
 
     const handleFilterChange = (key: FilterKey, value: string) => {
         const nextParams = new URLSearchParams(searchParams);
@@ -181,12 +302,25 @@ const MissionsPage = () => {
                 </SpaceCard>
             ) : (
                 missionSections.map((section) => (
-                    <MissionCollapse key={section.id} title={section.title} items={section.items} />
+                    <MissionCollapse
+                        key={section.id}
+                        title={section.title}
+                        items={section.items}
+                        handleDetailsClick={handleMissionDetails}
+                    />
                 ))
             )}
+
+            <MissionDetailsModal
+                open={isModalOpen && Boolean(missionModalData)}
+                onClose={handleModalClose}
+                mission={missionModalData}
+                onAction={handleMissionAction}
+                actionLabel={missionModalAction.label}
+                actionDisabled={missionModalAction.disabled}
+            />
         </div>
     );
 };
 
 export default MissionsPage;
-

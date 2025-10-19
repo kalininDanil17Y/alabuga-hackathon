@@ -5,17 +5,12 @@ export interface User {
     avatar?: string;
     currency: {
         amount: number;
-        symbol: string;
     };
     experience: {
         current: number;
         max: number;
     };
     tasks: {
-        completed: number;
-        total: number;
-    };
-    competencies: {
         completed: number;
         total: number;
     };
@@ -32,11 +27,11 @@ export interface Mission {
     status: string;
     progress: number;
     priority: string;
-    deadline?: string;
     category: string;
     xpReward: number;
     completedDate?: string;
     competencyId?: string | number;
+    competencyIds?: Array<string | number>;
 }
 
 export interface Achievement {
@@ -112,4 +107,5 @@ export interface CompetencyItem {
     description: string;
     value: number;
     max: number;
+    level: number;
 }

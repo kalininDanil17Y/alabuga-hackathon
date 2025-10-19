@@ -1,9 +1,22 @@
+@property --progress {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+}
+
 .root {
     @apply relative flex items-center justify-center;
 }
 
 .gradientOverlay {
+    background: conic-gradient(
+            from 90deg,
+            rgba(11, 171, 249, 0.95) var(--progress),
+            rgba(10, 18, 60, 0.6) var(--progress) 360deg
+    );
     @apply absolute inset-0 rounded-full;
+
+    transition: --progress 400ms ease;
 }
 
 .radianceOverlay {

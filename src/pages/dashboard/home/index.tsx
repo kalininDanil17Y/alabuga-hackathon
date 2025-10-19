@@ -205,7 +205,7 @@ const DashboardHome = () => {
                                     </div>
 
                                     <div className={"text-[9px]"}>
-                                        Ур.1
+                                        Ур.{competency.level}
                                     </div>
 
                                     <div className="flex flex-row items-center w-full gap-[3px]">

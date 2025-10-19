@@ -20,10 +20,22 @@ type MissionCardOptions = {
     filterStatuses?: EntryMissionStatus[];
 };
 
-const toCompetencyIds = (entry: MissionEntry, task: MissionTask): string[] => {
-    return [task.competencyId ?? entry.competencyId]
-        .filter((value): value is string | number => value !== undefined && value !== null)
-        .map((value) => String(value));
+export const collectCompetencyIds = (entry: MissionEntry, task: MissionTask): string[] => {
+    const entryCompetencies = Array.isArray(entry.competencyIds)
+        ? entry.competencyIds
+        : entry.competencyId !== undefined
+          ? [entry.competencyId]
+          : [];
+    const taskCompetencies = Array.isArray(task.competencyIds)
+        ? task.competencyIds
+        : task.competencyId !== undefined
+          ? [task.competencyId]
+          : [];
+
+    const combined = [...entryCompetencies, ...taskCompetencies].filter(
+        (value): value is string | number => value !== undefined && value !== null,
+    );
+    return Array.from(new Set(combined.map((value) => String(value))));
 };
 
 export const mapMissionTaskToCard = (entry: MissionEntry, task: MissionTask): MissionProps => {
@@ -36,7 +48,7 @@ export const mapMissionTaskToCard = (entry: MissionEntry, task: MissionTask): Mi
         status: missionStatusMap[task.status] ?? "available",
         mana: rewardCurrency,
         exp: rewardXp,
-        competencies: toCompetencyIds(entry, task),
+        competencies: collectCompetencyIds(entry, task),
     };
 };
 

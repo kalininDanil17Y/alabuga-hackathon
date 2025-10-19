@@ -2,10 +2,12 @@ import clsx from "clsx";
 import avatarGlow from "@/images/ui/header/avatar-glow.webp";
 import styles from "./circular-progress-avatar.module.css";
 
+type CSSVars = React.CSSProperties & { ["--progress"]?: string };
+
 export interface CircularProgressAvatarProps extends React.HTMLAttributes<HTMLDivElement> {
     src: string;
     alt: string;
-    progress: number;
+    progress: number; // 0..1
     size?: number;
 }
 
@@ -21,13 +23,17 @@ export function CircularProgressAvatar({
     const ringWidth = Math.max(6, Math.round(size * 0.14));
     const trackInset = +(ringWidth * 0.45).toFixed(2);
     const avatarInset = +(ringWidth + trackInset).toFixed(2);
-    const progressDegrees = +(clampedProgress * 360).toFixed(2);
+    const angle = clampedProgress * 360;
 
-    const ringGradient = `conic-gradient(from 90deg, rgba(11, 171, 249, 0.95) ${progressDegrees}deg, rgba(10, 18, 60, 0.6) ${progressDegrees}deg 360deg)`;
+    const gradientStyle: CSSVars = { "--progress": `${angle}deg` };
 
     return (
-        <div className={clsx(styles.root, className)} style={{ width: size, height: size }} {...props}>
-            <div className={styles.gradientOverlay} style={{ background: ringGradient }} />
+        <div
+            className={clsx(styles.root, className)}
+            style={{ width: size, height: size }}
+            {...props}
+        >
+            <div className={styles.gradientOverlay} style={gradientStyle} />
             <div className={styles.radianceOverlay} />
             <img src={avatarGlow} alt="Avatar glow overlay" className={styles.glowImage} />
             <div className={styles.track} style={{ inset: `${trackInset}px` }} />

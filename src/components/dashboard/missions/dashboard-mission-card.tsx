@@ -1,4 +1,5 @@
 import React from "react";
+import clsx from "clsx";
 
 import styles from "./dashboard-mission-card.module.css";
 import { Button1 } from "@/components/ui/custom/button1.tsx";
@@ -39,6 +40,29 @@ const STATUS_CONFIG = {
 
 export type MissionStatus = "available" | "progress" | "moderation" | "complete" | "locked";
 
+interface MissionStatusBadgeProps {
+    status: MissionStatus;
+    label?: string;
+    className?: string;
+}
+
+export const MissionStatusBadge = ({ status, label, className }: MissionStatusBadgeProps) => {
+    const statusConfig = STATUS_CONFIG[status] ?? STATUS_CONFIG.available;
+    const displayLabel = label ?? statusConfig.label;
+
+    return (
+        <div className={clsx("w-[65px] h-[31px]", className)} aria-label={`Статус: ${displayLabel}`}>
+            <img className="absolute w-full h-full top-0 left-0 object-contain" alt="" src={statusConfig.bgImage} />
+
+            <div className="absolute w-full h-full top-0 left-0 flex items-center justify-center">
+                <span className="text-center text-[7px]" style={{ color: statusConfig.color }}>
+                    {displayLabel}
+                </span>
+            </div>
+        </div>
+    );
+};
+
 export interface MissionProps {
     id: string;
     status: MissionStatus;
@@ -58,11 +82,16 @@ export const MissionCard = ({
     status,
     mana,
     exp,
+    competencies,
     onDetailsClick,
 }: MissionCardProps) => {
-    const statusConfig = STATUS_CONFIG[status] ?? STATUS_CONFIG.available;
     const manaValue = mana ?? 0;
     const expValue = exp ?? 0;
+    const competencyList = Array.isArray(competencies)
+        ? Array.from(new Set(competencies.map((value) => String(value))))
+        : [];
+    const displayedCompetencies = competencyList.slice(0, 3);
+    const hiddenCompetencies = competencyList.length - displayedCompetencies.length;
 
     return (
         <article className={styles.root} data-mission-id={id}>
@@ -92,17 +121,36 @@ export const MissionCard = ({
                         <span className="relative w-fit mt-[-1.00px] text-white whitespace-nowrap text-[7px]">{expValue}</span>
                     </div>
                 </div>
-            </div>
 
-            <div className="absolute top-[-7px] right-[10%] w-[65px] h-[31px]" aria-label={`Статус: ${statusConfig.label}`}>
-                <img className="absolute w-full h-full top-0 left-0 object-contain" alt="" src={statusConfig.bgImage} />
-
-                <div className="absolute w-full h-full top-0 left-0 flex items-center justify-center">
-                    <span className="text-center text-[7px]" style={{ color: statusConfig.color }}>
-                        {statusConfig.label}
+                <div className="inline-flex flex-col items-start gap-0.5 relative flex-[0_0_auto]">
+                    <span className={styles.rewardItemLabel}>
+                        Компетенции
                     </span>
+
+                    <div className="flex items-center gap-0.5 relative self-stretch w-full flex-[0_0_auto]">
+                        {displayedCompetencies.length === 0 ? (
+                            <span className="text-[7px] text-white/70">—</span>
+                        ) : (
+                            <>
+                                {displayedCompetencies.map((competencyId) => (
+                                    <div key={competencyId} className="relative w-2.5 h-2.5">
+                                        <img
+                                            className="relative w-2.5 h-2.5"
+                                            alt={`Компетенция ${competencyId}`}
+                                            src={`/images/competencies/c${competencyId}.svg`}
+                                        />
+                                    </div>
+                                ))}
+                                {hiddenCompetencies > 0 ? (
+                                    <span className="text-[7px] text-white/80">+{hiddenCompetencies}</span>
+                                ) : null}
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
+
+            <MissionStatusBadge status={status} className="absolute top-[-7px] right-[10%]" />
         </article>
     );
 };

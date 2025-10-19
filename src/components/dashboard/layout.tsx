@@ -19,6 +19,8 @@ export interface DashboardHeaderProps {
     sticky?: boolean;
 }
 
+import ManaIcon from "@/images/ui/mana.svg?react";
+
 export function DashboardHeader({ user, currencyLabel, experienceProgress, userAction, settingsAction, sticky = false }: DashboardHeaderProps) {
     return (
         <header className={clsx(headerStyles.wrapper, sticky && headerStyles.stickyHeader)}>
@@ -35,8 +37,8 @@ export function DashboardHeader({ user, currencyLabel, experienceProgress, userA
                     </div>
                     <div>
                         <h2 className={headerStyles.userName}>{user.name}</h2>
-                        <p className={headerStyles.userRank}>{user.rank}</p>
-                        <p className={headerStyles.userCurrency}>{currencyLabel}</p>
+                        <p className={headerStyles.userRank}>{user.rank} УР.{user.level}</p>
+                        <p className={clsx(headerStyles.userCurrency, "flex flex-row gap-1 items-center")}>{currencyLabel} <ManaIcon width="16px" height="16px"/></p>
                     </div>
                 </div>
                 <div className={headerStyles.actionArea}>

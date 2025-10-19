@@ -1,0 +1,166 @@
+.root {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(4, 12, 40, 0.86);
+}
+
+.card {
+    position: relative;
+    width: min(460px, 92vw);
+    border: 8px solid transparent;
+    padding-top: 5px;
+    padding-bottom: 7px;
+    border-image-source: url("/src/images/content-block.svg");
+    border-image-slice: 5 fill;
+    border-image-repeat: stretch;
+    background-color: rgba(0, 27, 102, 0.92);
+    box-shadow: 0 0 32px rgba(0, 132, 255, 0.35), inset 0 0 14px rgba(84, 198, 255, 0.25);
+    color: #f1f7ff;
+    font-family: inherit;
+    overflow: hidden;
+}
+
+.closeButton {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    background: transparent;
+    border: none;
+    color: #5ee7ff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.closeButton:hover {
+    color: #ffffff;
+}
+
+.header {
+    @apply w-full;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.titleBlock {
+    @apply relative;
+    top: 13px;
+    left: 10px;
+}
+
+.title {
+    @apply text-[10px] uppercase font-semibold w-[150px];
+    letter-spacing: 0.03em;
+    flex: 1;
+}
+
+.entryTitle {
+    display: block;
+    margin-top: 6px;
+    font-size: 11px;
+    font-weight: 400;
+    color: rgba(200, 225, 255, 0.7);
+}
+
+.statusBadge {
+    position: relative;
+    transform: scale(1.5);
+    right: 20px;
+    top: 3px;
+}
+
+.descriptionBlock {
+    @apply w-full bg-[rgba(12,_18,_21,_40%)] p-[10px] min-h-[60px];
+}
+
+.description {
+    @apply text-[9px] text-[rgba(230,_244,_255,_0.92)] max-h-[180px] overflow-y-auto;
+    line-height: 1.6;
+}
+
+.meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 18px;
+    font-size: 11px;
+    color: rgba(189, 214, 255, 0.78);
+}
+
+.rewards {
+    @apply w-full p-[10px_10px_0_10px] flex flex-row items-center gap-[6px] justify-center;
+}
+
+.rewardCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 8px;
+    border-radius: 10px;
+    min-height: 72px;
+    text-align: center;
+}
+
+.rewardDivider {
+    @apply w-[1px] h-[30px] bg-[#071A69];
+}
+
+.rewardLabel {
+    @apply text-[7px] text-[#fff] mb-[6px];
+    letter-spacing: 0.04em;
+}
+
+.rewardValue {
+    @apply text-[12px] font-semibold text-[#fff] flex items-center gap-[4px];
+}
+
+.rewardValue svg {
+    width: 16px;
+    height: 16px;
+}
+
+.competenciesList {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: left;
+    gap: 8px;
+}
+
+.competencyIcon {
+    width: 20px;
+    height: 20px;
+}
+
+.footer {
+    display: flex;
+    justify-content: center;
+}
+
+.actionButton {
+    min-width: 200px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #ffffff;
+    background: linear-gradient(180deg, rgba(0, 175, 255, 0.9) 0%, rgba(0, 103, 224, 0.95) 100%);
+    border: 1px solid rgba(148, 255, 255, 0.4);
+    border-radius: 999px;
+    box-shadow: 0 0 24px rgba(0, 170, 255, 0.45);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.actionButton:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0 28px rgba(74, 241, 255, 0.55);
+}

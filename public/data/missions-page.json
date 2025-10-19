@@ -8,229 +8,452 @@
   },
   "filterCompetencyOptions": [
     { "value": "all", "label": "Все компетенции" },
-    { "value": 1, "label": "Анализ разведданных" },
-    { "value": 2, "label": "Тактическое планирование" },
-    { "value": 3, "label": "Техническое обслуживание" },
-    { "value": 4, "label": "Полевая подготовка" }
+    { "value": 1, "label": "Вера в дело" },
+    { "value": 2, "label": "Стремление к большему" },
+    { "value": 3, "label": "Общение" },
+    { "value": 4, "label": "Аналитика" },
+    { "value": 5, "label": "Командование" },
+    { "value": 6, "label": "Юриспруденция" },
+    { "value": 7, "label": "Трёхмерное мышление" },
+    { "value": 8, "label": "Базовая экономика" },
+    { "value": 9, "label": "Основы аэронавигации" },
+    { "value": 10, "label": "Системное проектирование" }
   ],
   "entries": [
     {
-      "id": "chain_alpha",
-      "title": "Цепочка миссий: Разведка фронтира",
-      "description": "Последовательность заданий по разведке и установлению коммуникаций на новых территориях.",
+      "id": "chain_founders_creed",
+      "title": "Цепочка: Кредо основателей",
+      "description": "Готовим базу к устойчивой работе и заряжаем команду общим духом.",
       "status": "in_progress",
       "type": "chain",
-      "competencyId": 2,
+      "competencyIds": [1, 2, 5, 8],
       "tasks": [
         {
-          "id": "mission_alpha_1",
-          "title": "Разведать сектор А-7",
-          "description": "Обойти ключевые точки и отметить возможные угрозы на подходах к лагерю.",
+          "id": "mission_creed_1",
+          "title": "Созвать стратегическую встречу",
+          "description": "Провести общий брифинг и сверить ценности подразделений.",
           "status": "completed",
           "progress": 100,
-          "reward": { "xp": 80 },
+          "reward": { "xp": 90, "currency": 55 },
           "priority": "medium",
-          "deadline": "2024-01-18",
-          "category": "reconnaissance",
-          "competencyId": 2,
-          "completedDate": "2024-01-18"
+          "category": "leadership",
+          "competencyIds": [1, 3, 5],
+          "completedDate": "2024-02-05",
+          "isFeatured": true
         },
         {
-          "id": "mission_alpha_2",
-          "title": "Отследить сигналы коммуникаций",
-          "description": "Перехватить и классифицировать нестабильные сигналы с пограничных ретрансляторов.",
+          "id": "mission_creed_2",
+          "title": "Разработать дорожную карту",
+          "description": "Согласовать план роста на квартал с указанием контрольных точек.",
           "status": "in_progress",
           "progress": 45,
-          "reward": { "xp": 120 },
+          "reward": { "xp": 120, "currency": 80 },
           "priority": "high",
-          "deadline": "2024-01-25",
-          "category": "reconnaissance",
-          "competencyId": 2,
+          "category": "planning",
+          "competencyIds": [2, 4, 5, 10],
           "isFeatured": true
         },
         {
-          "id": "mission_alpha_3",
-          "title": "Построить мостовой ретранслятор",
-          "description": "Собрать временный ретранслятор, чтобы стабилизировать канал связи с форпостом.",
+          "id": "mission_creed_3",
+          "title": "Закрепить набор ресурсов",
+          "description": "Утвердить бюджет поставок и подписать соглашения с поставщиками.",
           "status": "available",
           "progress": 0,
-          "reward": { "xp": 150 },
+          "reward": { "xp": 110, "currency": 95,
+            "items": ["1"]
+          },
           "priority": "medium",
-          "deadline": "2024-02-01",
-          "category": "reconnaissance",
-          "competencyId": 2,
-          "isFeatured": true
+          "category": "economy",
+          "competencyIds": [1, 3, 8, 10]
         },
         {
-          "id": "mission_alpha_4",
-          "title": "Закрепить периметр",
-          "description": "Подготовить оборонительные узлы и синхронизировать охранные протоколы.",
+          "id": "mission_creed_4",
+          "title": "Активация клятвы отдела",
+          "description": "Провести церемонию принятия обязательств и зафиксировать протокол.",
           "status": "locked",
           "progress": 0,
-          "reward": { "xp": 150 },
+          "reward": { "xp": 140, "currency": 120 },
           "priority": "medium",
-          "category": "reconnaissance",
-          "competencyId": 2
+          "category": "culture",
+          "competencyIds": [1, 2, 6]
         }
       ]
     },
     {
-      "id": "chain_beta",
-      "title": "Цепочка миссий: Информационный анализ",
-      "description": "Подборка задач по анализу и верификации разведданных для координации действий.",
+      "id": "chain_signal_matrix",
+      "title": "Цепочка: Матрица сигналов",
+      "description": "Отслеживаем воздушные коридоры и защищаем коммуникации.",
       "status": "moderation",
       "type": "chain",
-      "competencyId": 1,
+      "competencyIds": [3, 4, 7, 9],
       "tasks": [
         {
-          "id": "mission_beta_1",
-          "title": "Протоколирование данных наблюдений",
-          "description": "Оцифровать записи патрулей и распределить их по приоритетам.",
-          "status": "completed",
-          "progress": 100,
-          "reward": { "xp": 60 },
-          "priority": "low",
-          "deadline": "2024-01-17",
-          "category": "analysis",
-          "competencyId": 1,
-          "completedDate": "2024-01-17"
-        },
-        {
-          "id": "mission_beta_2",
-          "title": "Кросс-проверка полученных отчетов",
-          "description": "Сопоставить отчеты наблюдателей и выявить расхождения в ключевых метриках.",
+          "id": "mission_matrix_1",
+          "title": "Сканировать высотные трассы",
+          "description": "Зафиксировать новые воздушные потоки и построить маршрутную сетку.",
           "status": "moderation",
-          "progress": 75,
-          "reward": { "xp": 100 },
-          "priority": "medium",
-          "deadline": "2024-01-22",
-          "category": "analysis",
-          "competencyId": 1,
+          "progress": 70,
+          "reward": { "xp": 130, "currency": 60 },
+          "priority": "high",
+          "category": "navigation",
+          "competencyIds": [4, 7, 9],
           "isFeatured": true
         },
         {
-          "id": "mission_beta_3",
-          "title": "Составление аналитической сводки",
-          "description": "Сформировать итоговый отчет с рекомендациями для штаба.",
+          "id": "mission_matrix_2",
+          "title": "Урегулировать частотные конфликты",
+          "description": "Провести переговоры по расшариванию диапазонов связи.",
+          "status": "in_progress",
+          "progress": 40,
+          "reward": { "xp": 95, "currency": 75 },
+          "priority": "medium",
+          "category": "diplomacy",
+          "competencyIds": [3, 6, 9]
+        },
+        {
+          "id": "mission_matrix_3",
+          "title": "Развернуть 3D-визуализатор",
+          "description": "Настроить трёхмерную карту коридоров и зоны турбулентности.",
           "status": "available",
           "progress": 0,
-          "reward": { "xp": 140 },
+          "reward": { "xp": 150, "currency": 110 },
           "priority": "medium",
-          "deadline": "2024-02-05",
           "category": "analysis",
-          "competencyId": 1
+          "competencyIds": [4, 7, 9, 10],
+          "isFeatured": true
         }
       ]
     },
     {
-      "id": "chain_gamma",
-      "title": "Цепочка миссий: Подготовка рекрутов",
-      "description": "Обучение и сопровождение новых участников разведгруппы.",
+      "id": "chain_diplomatic_bridge",
+      "title": "Цепочка: Дипломатический мост",
+      "description": "Выстраиваем юридические и коммуникационные каналы с соседями.",
       "status": "available",
       "type": "chain",
-      "competencyId": 3,
+      "competencyIds": [3, 6, 8],
       "tasks": [
         {
-          "id": "mission_gamma_1",
-          "title": "Собрать тренировочный лагерь",
-          "description": "Развернуть учебный сектор и обеспечить новичков базовым снаряжением.",
-          "status": "available",
-          "progress": 10,
-          "reward": { "xp": 70 },
-          "priority": "medium",
-          "deadline": "2024-01-28",
-          "category": "training",
-          "competencyId": 3,
-          "isFeatured": true
-        },
-        {
-          "id": "mission_gamma_2",
-          "title": "Организовать полевой брифинг",
-          "description": "Провести вводный инструктаж и распределить наставников по группам.",
-          "status": "available",
-          "progress": 0,
-          "reward": { "xp": 90 },
-          "priority": "medium",
-          "deadline": "2024-01-30",
-          "category": "training",
-          "competencyId": 3,
-          "isFeatured": true
-        },
-        {
-          "id": "mission_gamma_3",
-          "title": "Оценить результаты обучения",
-          "description": "Провести итоговую проверку и подготовить заключение для штаба.",
-          "status": "locked",
-          "progress": 0,
-          "reward": { "xp": 120 },
-          "priority": "medium",
-          "category": "training",
-          "competencyId": 3
-        }
-      ]
-    },
-    {
-      "id": "single_delta",
-      "title": "Миссия: Тестирование защитного поля",
-      "description": "Изолированное задание по проверке нового генератора защитного купола.",
-      "status": "available",
-      "type": "single",
-      "competencyId": 4,
-      "tasks": [
-        {
-          "id": "mission_delta",
-          "title": "Активировать и протестировать поле",
-          "description": "Провести полевой запуск генератора и зафиксировать показатели мощности.",
+          "id": "mission_bridge_1",
+          "title": "Подготовить правовой досье",
+          "description": "Собрать нормативные акты и составить протокол соглашения.",
           "status": "available",
           "progress": 20,
-          "reward": { "xp": 110 },
+          "reward": { "xp": 85, "currency": 50 },
+          "priority": "medium",
+          "category": "law",
+          "competencyIds": [3, 6],
+          "isFeatured": true
+        },
+        {
+          "id": "mission_bridge_2",
+          "title": "Провести переговоры",
+          "description": "Организовать круглой стол с ключевыми союзниками.",
+          "status": "available",
+          "progress": 0,
+          "reward": { "xp": 120, "currency": 90 },
           "priority": "high",
-          "deadline": "2024-01-26",
-          "category": "defense",
-          "competencyId": 4,
+          "category": "diplomacy",
+          "competencyIds": [3, 5, 6]
+        },
+        {
+          "id": "mission_bridge_3",
+          "title": "Согласовать торговый маршрут",
+          "description": "Внедрить регламент обмена ресурсами и построить график поставок.",
+          "status": "locked",
+          "progress": 0,
+          "reward": { "xp": 140, "currency": 130 },
+          "priority": "medium",
+          "category": "economy",
+          "competencyIds": [3, 6, 8]
+        }
+      ]
+    },
+    {
+      "id": "chain_training_vector",
+      "title": "Цепочка: Вектор развития",
+      "description": "Прокачиваем командование и вдохновляем наставников.",
+      "status": "in_progress",
+      "type": "chain",
+      "competencyIds": [1, 2, 3, 5],
+      "tasks": [
+        {
+          "id": "mission_vector_1",
+          "title": "Отобрать менторов",
+          "description": "Найти волонтёров наставничества и провести тест-драйв.",
+          "status": "completed",
+          "progress": 100,
+          "reward": { "xp": 70, "currency": 40 },
+          "priority": "medium",
+          "category": "training",
+          "competencyIds": [1, 3, 5],
+          "completedDate": "2024-02-01",
+          "isFeatured": true
+        },
+        {
+          "id": "mission_vector_2",
+          "title": "Запустить челлендж",
+          "description": "Смотивировать команду достигнуть новых стандартов.",
+          "status": "in_progress",
+          "progress": 55,
+          "reward": { "xp": 105, "currency": 70 },
+          "priority": "medium",
+          "category": "engagement",
+          "competencyIds": [1, 2, 3]
+        },
+        {
+          "id": "mission_vector_3",
+          "title": "Настроить обратную связь",
+          "description": "Протестировать форму обратной связи и внедрить её.",
+          "status": "available",
+          "progress": 0,
+          "reward": { "xp": 95, "currency": 65 },
+          "priority": "medium",
+          "category": "communication",
+          "competencyIds": [1, 3],
           "isFeatured": true
         }
       ]
     },
     {
-      "id": "single_epsilon",
-      "title": "Миссия: Доставка редкого образца",
-      "description": "Транспортировка нестабильного артефакта в научный центр.",
-      "status": "completed",
+      "id": "single_relay_calibration",
+      "title": "Миссия: Калибровка ретранслятора",
+      "description": "Проверяем работу защитного поля и корректируем параметры.",
+      "status": "available",
       "type": "single",
-      "competencyId": 2,
+      "competencyIds": [4, 7, 10],
       "tasks": [
         {
-          "id": "mission_epsilon",
-          "title": "Организовать охранное сопровождение",
-          "description": "Согласовать маршрут и обеспечить защиту колонны во время перемещения.",
-          "status": "completed",
-          "progress": 100,
-          "reward": { "xp": 95 },
+          "id": "mission_relay",
+          "title": "Точная настройка поля",
+          "description": "Откалибровать излучатели на трёхмерной схеме и проверить устойчивость.",
+          "status": "available",
+          "progress": 15,
+          "reward": { "xp": 115, "currency": 100 },
           "priority": "high",
-          "deadline": "2024-01-12",
-          "category": "logistics",
-          "competencyId": 2,
-          "completedDate": "2024-01-12"
+          "category": "engineering",
+          "competencyIds": [4, 7, 10],
+          "isFeatured": true
         }
       ]
     },
     {
-      "id": "chain_hidden",
-      "title": "Цепочка миссий: Заблокированный сектор",
-      "description": "Набор заданий, доступ к которым ограничен.",
-      "status": "locked",
+      "id": "chain_supply_lines",
+      "title": "Цепочка: Жилы снабжения",
+      "description": "Строим устойчивую экономическую систему и поддерживаем тылы.",
+      "status": "completed",
       "type": "chain",
-      "competencyId": "competency_locked",
+      "competencyIds": [2, 8, 10],
       "tasks": [
         {
-          "id": "mission_hidden_1",
-          "title": "Проверка систем безопасности",
-          "description": "Проверить системы защиты сектора и подтвердить уровни допуска.",
+          "id": "mission_supply_1",
+          "title": "Провести аудит складов",
+          "description": "Пересчитать резервы и устранить узкие места.",
+          "status": "completed",
+          "progress": 100,
+          "reward": { "xp": 80, "currency": 60 },
+          "priority": "medium",
+          "category": "economy",
+          "competencyIds": [4, 8, 10],
+          "completedDate": "2024-01-30",
+          "isFeatured": true
+        },
+        {
+          "id": "mission_supply_2",
+          "title": "Запустить бартерную платформу",
+          "description": "Настроить обмен ресурсами между подразделениями.",
+          "status": "completed",
+          "progress": 100,
+          "reward": { "xp": 110, "currency": 140 },
+          "priority": "high",
+          "category": "economy",
+          "competencyIds": [2, 3, 8]
+        },
+        {
+          "id": "mission_supply_3",
+          "title": "Застраховать поставки",
+          "description": "Оформить юридические гарантии на критичные грузы.",
+          "status": "moderation",
+          "progress": 80,
+          "reward": { "xp": 120, "currency": 90 },
+          "priority": "medium",
+          "category": "law",
+          "competencyIds": [6, 8],
+          "isFeatured": true
+        }
+      ]
+    },
+    {
+      "id": "chain_command_simulator",
+      "title": "Цепочка: Симулятор командования",
+      "description": "Проводим серию тренингов по управлению операциями.",
+      "status": "available",
+      "type": "chain",
+      "competencyIds": [2, 4, 5, 7],
+      "tasks": [
+        {
+          "id": "mission_simulator_1",
+          "title": "Собрать сценарии учений",
+          "description": "Подготовить трёхмерные модели манёвров и план эвакуации.",
+          "status": "available",
+          "progress": 25,
+          "reward": { "xp": 135, "currency": 110 },
+          "priority": "high",
+          "category": "training",
+          "competencyIds": [4, 5, 7, 9],
+          "isFeatured": true
+        },
+        {
+          "id": "mission_simulator_2",
+          "title": "Провести тактическую игру",
+          "description": "Разделить отряды и проиграть серию сценариев.",
           "status": "locked",
           "progress": 0,
-          "reward": { "xp": 68 },
-          "category": "security"
+          "reward": { "xp": 150, "currency": 130 },
+          "priority": "medium",
+          "category": "leadership",
+          "competencyIds": [2, 5, 7]
+        },
+        {
+          "id": "mission_simulator_3",
+          "title": "Подвести итоги учений",
+          "description": "Зафиксировать выводы и согласовать новые регламенты.",
+          "status": "locked",
+          "progress": 0,
+          "reward": { "xp": 100, "currency": 80 },
+          "priority": "medium",
+          "category": "analysis",
+          "competencyIds": [2, 4, 5]
+        }
+      ]
+    },
+    {
+      "id": "single_legal_shield",
+      "title": "Миссия: Правовой щит",
+      "description": "Оформляем союзнические гарантии и обновляем устав.",
+      "status": "available",
+      "type": "single",
+      "competencyIds": [1, 3, 6],
+      "tasks": [
+        {
+          "id": "mission_legal_shield",
+          "title": "Согласовать поправки",
+          "description": "Встреча с советом и фиксация новых пунктов устава.",
+          "status": "available",
+          "progress": 10,
+          "reward": { "xp": 90, "currency": 70 },
+          "priority": "medium",
+          "category": "law",
+          "competencyIds": [1, 3, 6],
+          "isFeatured": true
+        }
+      ]
+    },
+    {
+      "id": "chain_frontier_resolve",
+      "title": "Цепочка: Решимость рубежа",
+      "description": "Фокусируемся на духе команды и защите ключевых точек.",
+      "status": "in_progress",
+      "type": "chain",
+      "competencyIds": [1, 5, 7, 9],
+      "tasks": [
+        {
+          "id": "mission_resolve_1",
+          "title": "Организовать ночной патруль",
+          "description": "Проверить маяки и настроить маршруты обхода.",
+          "status": "in_progress",
+          "progress": 60,
+          "reward": { "xp": 115, "currency": 95 },
+          "priority": "medium",
+          "category": "security",
+          "competencyIds": [1, 5, 9],
+          "isFeatured": true
+        },
+        {
+          "id": "mission_resolve_2",
+          "title": "Настроить тренажёр",
+          "description": "Разметить зоны укрытий и смоделировать атаки.",
+          "status": "available",
+          "progress": 0,
+          "reward": { "xp": 125, "currency": 100 },
+          "priority": "high",
+          "category": "training",
+          "competencyIds": [1, 5, 7]
+        },
+        {
+          "id": "mission_resolve_3",
+          "title": "Провести мотивационный сбор",
+          "description": "Поддержать боевой дух и закрепить кодекс поведения.",
+          "status": "available",
+          "progress": 0,
+          "reward": { "xp": 90, "currency": 55 },
+          "priority": "medium",
+          "category": "culture",
+          "competencyIds": [1, 2, 3]
+        }
+      ]
+    },
+    {
+      "id": "single_economic_pulse",
+      "title": "Миссия: Экономический пульс",
+      "description": "Рассчитываем финансовые риски нового проекта.",
+      "status": "available",
+      "type": "single",
+      "competencyIds": [2, 4, 8],
+      "tasks": [
+        {
+          "id": "mission_economic_pulse",
+          "title": "Построить модель доходности",
+          "description": "Спрогнозировать поток ресурсов и подготовить отчёт.",
+          "status": "available",
+          "progress": 5,
+          "reward": { "xp": 100, "currency": 85 },
+          "priority": "medium",
+          "category": "economy",
+          "competencyIds": [2, 4, 8, 10],
+          "isFeatured": true
+        }
+      ]
+    },
+    {
+      "id": "chain_starway_relay",
+      "title": "Цепочка: Релейный путь",
+      "description": "Проложить безопасный коридор к опорным станциям.",
+      "status": "locked",
+      "type": "chain",
+      "competencyIds": [4, 7, 9, 10],
+      "tasks": [
+        {
+          "id": "mission_starway_1",
+          "title": "Собрать прогноз погодных окон",
+          "description": "Вычислить безопасные интервалы для перелётов.",
+          "status": "locked",
+          "progress": 0,
+          "reward": { "xp": 140, "currency": 150 },
+          "priority": "high",
+          "category": "navigation",
+          "competencyIds": [4, 7, 9]
+        },
+        {
+          "id": "mission_starway_2",
+          "title": "Построить энергомост",
+          "description": "Связать станции распределённой энергосети.",
+          "status": "locked",
+          "progress": 0,
+          "reward": { "xp": 160, "currency": 140 },
+          "priority": "medium",
+          "category": "engineering",
+          "competencyIds": [7, 9, 10]
+        },
+        {
+          "id": "mission_starway_3",
+          "title": "Сертифицировать маршрут",
+          "description": "Получить юридическое разрешение на пролёт.",
+          "status": "locked",
+          "progress": 0,
+          "reward": { "xp": 120, "currency": 90 },
+          "priority": "medium",
+          "category": "law",
+          "competencyIds": [6, 9]
         }
       ]
     }

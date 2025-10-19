@@ -113,7 +113,7 @@ const DashboardJournalStatistics = () => {
                 id: "currency",
                 title: "Заработанная мана",
                 subtitle: "Внутренняя валюта",
-                value: `${formatNumber(user?.currency.amount)} ${user?.currency.symbol ?? ""}`.trim(),
+                value: `${formatNumber(user?.currency.amount)}`.trim(),
             },
             {
                 id: "time",
@@ -122,7 +122,7 @@ const DashboardJournalStatistics = () => {
                 value: formatDuration(user?.joinDate, user?.lastActivity),
             },
         ];
-    }, [statistics, user?.currency.amount, user?.currency.symbol, user?.joinDate, user?.lastActivity]);
+    }, [statistics, user?.currency.amount, user?.joinDate, user?.lastActivity]);
 
     if (isDashboardLoading && !statistics) {
         return (
