@@ -195,18 +195,18 @@ const DashboardHome = () => {
                         {competencyItems.map((competency) => (
                             <div key={competency.id}>
                                 <div className="grid grid-cols-[5fr_2fr_1fr] items-center gap-x-1 mb-2 mt-[6px]">
-                                    <div className="flex items-center gap-1 text-[9px]">
+                                    <div className={styles.competencyItemTitle}>
                                         <img
                                             src={`/images/competencies/c${competency.id}.svg`}
                                             alt={`${competency.id} - ${competency.title}`}
                                             className="w-4 h-4"
                                         />
-                                        {competency.title} (Ур.1)
+                                        <p className={styles.competencyItemText}>{competency.title}</p><p>(Ур.1)</p>
                                     </div>
 
-                                    <div className="flex flex-row items-center w-full gap-[5px]">
+                                    <div className="flex flex-row items-center w-full gap-[3px]">
                                         <span className="text-[9px]">{competency.value}/{competency.max}</span>
-                                        <div className="w-[50px] rounded-full h-[8px] bg-gradient-to-t from-[#0C1751] to-[#1B34B7] border-[#005DAC] border-solid border-[1px]">
+                                        <div className="w-full rounded-full h-[8px] bg-gradient-to-t from-[#0C1751] to-[#1B34B7] border-[#005DAC] border-solid border-[1px]">
                                             <div
                                                 className="h-[6px] rounded-full bg-[#00AEEF] transition-all"
                                                 style={{ width: `${(competency.value / competency.max) * 100}%` }}
