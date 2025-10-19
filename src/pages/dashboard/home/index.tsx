@@ -496,9 +496,6 @@ const DashboardHome = () => {
                             <HorizontalRule paddingX="4px" variant="v2"/>
                         </div>
                     ))}
-                    {hasMoreStats && !isStatsExpanded ? (
-                        <div className="text-center text-white text-[40px] leading-none m-0">...</div>
-                    ) : null}
                     {hasMoreStats ? (
                         <div className="pt-2 flex justify-center">
                             <Button1 onClick={() => setIsStatsExpanded((prev) => !prev)}>
