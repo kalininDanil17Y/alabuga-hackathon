@@ -143,7 +143,7 @@ export const MissionCard = ({
                                     <CompetencyIcon
                                         key={competencyId}
                                         competencyId={competencyId}
-                                        size={16}
+                                        size={12}
                                         className="relative"
                                     />
                                 ))}
