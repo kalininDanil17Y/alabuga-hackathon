@@ -16,6 +16,7 @@ import { useDashboardStore } from "@/store/dashboardStore";
 import { useStatsChart } from "@/hooks/useStatsChart";
 import styles from "./Statistics.module.css";
 import {HorizontalRule} from "@/components/ui/custom/horizontal-rule.tsx";
+import ManaIcon from "@/images/ui/mana.svg?react";
 
 interface TooltipPayload {
     missions: number;
@@ -114,6 +115,7 @@ const DashboardJournalStatistics = () => {
                 title: "Заработанная мана",
                 subtitle: "Внутренняя валюта",
                 value: `${formatNumber(user?.currency.amount)}`.trim(),
+                icon: <ManaIcon width="16px" height="16px" />
             },
             {
                 id: "time",
@@ -212,7 +214,7 @@ const DashboardJournalStatistics = () => {
 
                         <div className="grid grid-cols-5 gap-4 pt-1 pb-2 items-center">
                             <p className="col-span-3 text-white text-[9px]">{metric.title}</p>
-                            <p className="col-span-2 text-white text-[16px] font-bold flex flex-row items-center gap-2">{metric.value}</p>
+                            <p className="col-span-2 text-white text-[16px] font-bold flex flex-row items-center gap-2">{metric.value} {metric.icon ?? metric.icon}</p>
                         </div>
 
                         <HorizontalRule paddingX="4px" variant="v2"/>
