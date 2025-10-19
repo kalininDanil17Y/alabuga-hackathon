@@ -158,6 +158,7 @@ const DashboardHome = () => {
         missionsHistoryError: state.missionsHistoryError,
     }));
     const [activeTab, setActiveTab] = useState<"missions" | "competencies">("missions");
+    const [isStatsExpanded, setIsStatsExpanded] = useState(false);
 
     useEffect(() => {
         void fetchDashboard();
@@ -247,6 +248,16 @@ const DashboardHome = () => {
             },
         ];
     }, [statistics]);
+
+    const statsToDisplay = useMemo(() => {
+        if (isStatsExpanded) {
+            return overviewStats;
+        }
+
+        return overviewStats.slice(0, 1);
+    }, [isStatsExpanded, overviewStats]);
+
+    const hasMoreStats = overviewStats.length > 1;
 
     const handleNavigateToMissions = (options?: {
         missionId?: string;
@@ -475,9 +486,8 @@ const DashboardHome = () => {
                 </div>
                 <div className="space-y-2">
                     <HorizontalRule paddingX="4px" variant="v2"/>
-                    {overviewStats.map((stat, index) => (
-                        <div key={index}>
-
+                    {statsToDisplay.map((stat) => (
+                        <div key={stat.label}>
                             <div className="grid grid-cols-5 gap-4 pt-1 pb-2 items-center">
                                 <p className="col-span-3 text-white text-[9px]">{stat.label}</p>
                                 <p className="col-span-2 text-white text-[19px] font-bold flex flex-row items-center gap-2">{stat.value} {stat.icon ?? stat.icon}</p>
@@ -486,6 +496,16 @@ const DashboardHome = () => {
                             <HorizontalRule paddingX="4px" variant="v2"/>
                         </div>
                     ))}
+                    {hasMoreStats && !isStatsExpanded ? (
+                        <div className="text-center text-white text-[40px] leading-none m-0">...</div>
+                    ) : null}
+                    {hasMoreStats ? (
+                        <div className="pt-2 flex justify-center">
+                            <Button1 onClick={() => setIsStatsExpanded((prev) => !prev)}>
+                                {isStatsExpanded ? "СВЕРНУТЬ" : "РАСКРЫТЬ"}
+                            </Button1>
+                        </div>
+                    ) : null}
                 </div>
             </div>
 
