@@ -223,6 +223,8 @@ const MissionsPage = () => {
         }
 
         switch (missionModalData.status) {
+            case "progress":
+                return { label: "отправить", disabled: false };
             case "moderation":
                 return { label: "завершить", disabled: false };
             case "complete":

@@ -229,7 +229,11 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
                 return "completed";
             }
 
-            return "moderation";
+            if (status === "in_progress") {
+                return "moderation";
+            }
+
+            return "in_progress";
         };
 
         const computeEntryStatus = (tasks: MissionEntry["tasks"]): MissionStatus => {
