@@ -69,7 +69,7 @@ export interface MissionProps {
     title: string;
     mana?: number;
     exp?: number;
-    competencies: string[];
+    competencies: Array<string | number>;
 }
 
 interface MissionCardProps extends MissionProps {

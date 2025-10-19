@@ -48,7 +48,7 @@ export const mapMissionTaskToCard = (entry: MissionEntry, task: MissionTask): Mi
         status: missionStatusMap[task.status] ?? "available",
         mana: rewardCurrency,
         exp: rewardXp,
-        competencies: collectCompetencyIds(entry, task),
+        competencies: task.competencyIds,
     };
 };
 
