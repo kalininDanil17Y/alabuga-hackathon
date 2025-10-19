@@ -7,7 +7,7 @@
 }
 
 .title {
-    @apply absolute top-1.5 left-[3%] w-52 text-[9px] text-white;
+    @apply absolute top-1.5 left-[2%] w-52 text-[9px] text-white;
 }
 
 .rewards {
