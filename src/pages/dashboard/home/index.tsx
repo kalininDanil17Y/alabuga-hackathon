@@ -11,11 +11,118 @@ import { HorizontalRule } from "@/components/ui/custom/horizontal-rule.tsx";
 import { Button1 } from "@/components/ui/custom/button1.tsx";
 import Mana from "@/images/ui/mana.svg?react";
 import { mapEntryToMissionCards } from "@/lib/mission-cards";
+import type { Mission } from "@/types/dashboard";
 
 type HistoryMissionRecord = {
     mission: ReturnType<typeof mapEntryToMissionCards>[number];
     entryOrder: number;
     missionOrder: number;
+};
+
+const MAX_MISSION_ITEMS = 6;
+
+type MissionWithTimestamp = {
+    mission: Mission;
+    timestamp: number;
+};
+
+const parseTimestamp = (value?: string | number | null): number | null => {
+    if (value === null || value === undefined) {
+        return null;
+    }
+
+    if (typeof value === "number") {
+        return Number.isFinite(value) ? value : null;
+    }
+
+    if (typeof value === "string" && value.trim() !== "") {
+        const numeric = Number(value);
+        if (Number.isFinite(numeric)) {
+            return numeric;
+        }
+
+        const parsed = Date.parse(value);
+        if (!Number.isNaN(parsed)) {
+            return parsed;
+        }
+    }
+
+    return null;
+};
+
+const getMissionStatusTimestamp = (mission: Mission, index: number): number => {
+    const statusKey = mission.status;
+    const statusMaps = mission.statusChangeDates ?? mission.statusDates ?? mission.statusTimestamps;
+
+    if (statusMaps) {
+        const rawStatusTimestamp = statusMaps[statusKey];
+        const parsedStatusTimestamp = parseTimestamp(rawStatusTimestamp ?? null);
+        if (parsedStatusTimestamp !== null) {
+            return parsedStatusTimestamp;
+        }
+    }
+
+    const statusSpecificCandidates =
+        statusKey === "available"
+            ? [mission.availableSince, mission.availableAt]
+            : statusKey === "in_progress"
+                ? [mission.inProgressSince, mission.inProgressAt]
+                : [];
+
+    for (const candidate of statusSpecificCandidates) {
+        const parsedCandidate = parseTimestamp(candidate ?? null);
+        if (parsedCandidate !== null) {
+            return parsedCandidate;
+        }
+    }
+
+    const fallbackTimestamp = parseTimestamp(mission.statusUpdatedAt ?? mission.updatedAt ?? mission.completedDate ?? null);
+
+    if (fallbackTimestamp !== null) {
+        return fallbackTimestamp;
+    }
+
+    return index;
+};
+
+const sortByTimestampDesc = (a: MissionWithTimestamp, b: MissionWithTimestamp) => b.timestamp - a.timestamp;
+
+const buildMissionDisplayList = (missions: Mission[]): Mission[] => {
+    if (!Array.isArray(missions) || missions.length === 0) {
+        return [];
+    }
+
+    const enriched: MissionWithTimestamp[] = missions.map((mission, index) => ({
+        mission,
+        timestamp: getMissionStatusTimestamp(mission, index),
+    }));
+
+    const selectByStatus = (status: Mission["status"]) =>
+        enriched
+            .filter((item) => item.mission.status === status)
+            .sort(sortByTimestampDesc)
+            .map((item) => item.mission);
+
+    const availableMissions = selectByStatus("available");
+    const inProgressMissions = selectByStatus("in_progress");
+
+    const combined = [...availableMissions, ...inProgressMissions];
+    if (combined.length >= MAX_MISSION_ITEMS) {
+        return combined.slice(0, MAX_MISSION_ITEMS);
+    }
+
+    if (combined.length < MAX_MISSION_ITEMS) {
+        const remainingSlots = MAX_MISSION_ITEMS - combined.length;
+        const fallbackMissions = enriched
+            .filter((item) => item.mission.status !== "available" && item.mission.status !== "in_progress")
+            .sort(sortByTimestampDesc)
+            .map((item) => item.mission)
+            .slice(0, remainingSlots);
+
+        return combined.concat(fallbackMissions);
+    }
+
+    return combined;
 };
 
 const DashboardHome = () => {
@@ -68,7 +175,7 @@ const DashboardHome = () => {
         return `Компетенции`;
     }, [user]);
 
-    const missionItems = useMemo(() => missions, [missions]);
+    const missionItems = useMemo(() => buildMissionDisplayList(missions), [missions]);
     const topArtifacts = useMemo(() => artifacts.slice(0, 4), [artifacts]);
     const competencyItems = competencies;
 

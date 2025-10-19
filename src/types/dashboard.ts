@@ -32,6 +32,24 @@ export interface Mission {
     completedDate?: string;
     competencyId?: string | number;
     competencyIds?: Array<string | number>;
+    /**
+     * ISO timestamp representing the last time the mission status has changed.
+     * Actual key may vary in backend payload, so consumer code should guard against undefined.
+     */
+    statusUpdatedAt?: string;
+    /**
+     * Optional map of mission statuses to ISO timestamps when the mission entered that status.
+     */
+    statusChangeDates?: Partial<Record<string, string>>;
+    statusDates?: Partial<Record<string, string>>;
+    statusTimestamps?: Partial<Record<string, string>>;
+    updatedAt?: string;
+    /** ISO timestamp indicating when the mission became available */
+    availableSince?: string;
+    availableAt?: string;
+    /** ISO timestamp indicating when the mission entered in-progress state */
+    inProgressSince?: string;
+    inProgressAt?: string;
 }
 
 export interface Achievement {
