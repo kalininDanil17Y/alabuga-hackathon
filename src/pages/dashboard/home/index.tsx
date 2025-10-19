@@ -451,12 +451,14 @@ const DashboardHome = () => {
                     ) : null}
 
                     {recentHistoryMissions.map((mission) => (
-                        <SpaceCard key={mission.id} className="p-3 flex items-center justify-between gap-3">
-                            <p className="flex-1 text-white text-[9px] leading-4">{mission.title}</p>
-
-                            <Button1 onClick={() => handleNavigateToHistoryMission(mission.id)}>
-                                Подробнее
-                            </Button1>
+                        <SpaceCard
+                            key={mission.id}
+                            className="p-2 flex items-center justify-between"
+                        >
+                            <div className="flex items-center justify-between">
+                                <p className="text-white text-[9px]">{mission.title}</p>
+                                <Button1 onClick={() => handleNavigateToHistoryMission(mission.id)}>Подробнее</Button1>
+                            </div>
                         </SpaceCard>
                     ))}
                 </div>
