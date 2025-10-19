@@ -1,5 +1,5 @@
 import { MouseEventHandler } from "react";
-import { Settings } from "lucide-react";
+import { Home, Settings } from "lucide-react";
 import clsx from "clsx";
 import { CircularProgressAvatar } from "@/components/ui/custom/circular-progress-avatar";
 import { SpaceButton } from "@/components/ui/custom/space-button";
@@ -27,13 +27,18 @@ export function DashboardHeader({ user, currencyLabel, experienceProgress, userA
             <div className={headerStyles.body}>
                 <div className={headerStyles.userSection}>
                     <div className={headerStyles.avatarShadow}>
-                        <CircularProgressAvatar
-                            src={user.avatar ?? ""}
-                            alt={`${user.name} avatar`}
-                            progress={experienceProgress}
-                            size={60}
-                            onClick={userAction}
-                        />
+                        <div className={headerStyles.avatarWrapper}>
+                            <CircularProgressAvatar
+                                src={user.avatar ?? ""}
+                                alt={`${user.name} avatar`}
+                                progress={experienceProgress}
+                                size={60}
+                                onClick={userAction}
+                            />
+                            <span className={headerStyles.avatarHint} aria-hidden="true">
+                                <Home size={14} strokeWidth={2.2} />
+                            </span>
+                        </div>
                     </div>
                     <div>
                         <h2 className={headerStyles.userName}>{user.name}</h2>
