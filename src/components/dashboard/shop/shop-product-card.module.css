@@ -35,7 +35,7 @@
 }
 
 .price {
-    @apply text-2xl font-extrabold text-[#0B1337] text-[15px];
+    @apply text-2xl font-extrabold text-[#0B1337] text-[15px] flex flex-row gap-1 items-center;
 }
 
 .priceDiscount {

@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import clsx from "clsx";
 import { number_format } from "@/lib/utils.ts";
 import styles from "./shop-product-card.module.css";
+import ManaIcon from "@/images/ui/mana.svg?react";
 
 export interface ShopProduct {
     id: string;
@@ -58,7 +59,7 @@ export function ShopProductCard({ product }: ShopProductCardProps) {
                 <div className={styles.priceRow}>
                     {isDiscounted ? <span className={styles.oldPrice}>{number_format(oldPrice ?? 0)} Р</span> : null}
                     <span className={clsx(styles.price, isDiscounted ? styles.priceDiscount : undefined)}>
-                        {number_format(price)} Р
+                        {number_format(price)} <ManaIcon width="16px" height="16px" />
                     </span>
                 </div>
                 <h3 className={styles.title}>{product.title}</h3>
